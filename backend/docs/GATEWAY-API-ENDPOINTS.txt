@@ -486,13 +486,3 @@ COMMON ERROR RESPONSES FOR ALL ENDPOINTS
 {
   "error": "Internal server error"
 }
-
-
-
-Gateway <--> Lambda functions:
-auth-service         - Session, login, logout, JWT, users  
-request-service      - Tickets  
-incident-service     - Create / patch incidents  
-monitoring-service   - Errors and alarms  
-audit-service        - Logs everything  
-notification-service - Email/SMS via SNS
