@@ -8,7 +8,7 @@ Node.js Gateway created (Express server with basic structure)
 
 Health check endpoint implemented (`GET /health`)
 
-##Prerequisites
+## Prerequisites
 
 - Node.js v22.20.0
 - npm
