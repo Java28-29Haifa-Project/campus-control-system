@@ -1,4 +1,30 @@
+# Frontend - Campus Control System
+
 # React + TypeScript + Vite
+
+## How to run locally
+
+1. Install dependencies:
+```
+npm install 
+```
+2. Run the dev server:
+```
+npm run dev
+```
+3. Open in browser: http://localhost:5173/
+4. Project structure:
+````
+frontend/
+ ├─ src/
+ │   ├─ main.tsx
+ │   ├─ App.tsx
+ │   └─ index.css
+ ├─ package.json
+ ├─ vite.config.ts
+ └─ README.md
+````
+
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
