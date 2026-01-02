@@ -8,14 +8,17 @@ export const launchServer = () => {
 
     app.listen(config.port, () => {
         console.log(`Server runs at http://localhost:${config.port}`);
-    })
+    });
 
     //==================Middleware=================
-    app.use(express.json())
+    app.use(express.json());
 
     //===================Router====================
+    app.get('/health', (req, res) => {
+        res.status(200).send({"status":"ok"});
+    });
     app.use((req, res) => {
-        res.status(404).send("Page not found")
+        res.status(404).send("Page not found");
     })
 
     //==================ErrorHandler===============
