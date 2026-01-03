@@ -1,7 +1,8 @@
 import express from 'express'
-import {config} from "./configurations/appConfig.js";
+import {config} from './configurations/app-config.js';
+import {requestRoutes} from './routes/request.routes.js';
 
-import {errorHandler} from "./errorHandler/errorHandler.js";
+import {errorHandler} from './errors/error-handler.js';
 
 export const launchServer = () => {
     const app = express();
@@ -15,10 +16,11 @@ export const launchServer = () => {
 
     //===================Router====================
     app.get('/health', (req, res) => {
-        res.status(200).send({"status":"ok"});
+        res.status(200).send({'status':'ok'});
     });
+    app.use('/requests', requestRoutes);
     app.use((req, res) => {
-        res.status(404).send("Page not found");
+        res.status(404).send({error: 'Page not found'});
     })
 
     //==================ErrorHandler===============
