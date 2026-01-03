@@ -1,21 +1,21 @@
 export enum TicketRequestCategory {
-    Plumbing = "plumbing",
-    Electrical = "electrical",
-    General = "general"
+    Plumbing = 'plumbing',
+    Electrical = 'electrical',
+    General = 'general'
 }
 
 export enum TicketRequestPriority {
-    Low = "low",
-    Medium = "medium",
-    High = "high",
-    Urgent = "urgent"
+    Low = 'low',
+    Medium = 'medium',
+    High = 'high',
+    Urgent = 'urgent'
 }
 
 export enum TicketRequestStatus {
-    New = "new",
-    Rejected = "rejected",
-    InService = "in_service",
-    Done = "done"
+    New = 'new',
+    Rejected = 'rejected',
+    InService = 'in_service',
+    Done = 'done'
 }
 
 export type TicketRequest = {

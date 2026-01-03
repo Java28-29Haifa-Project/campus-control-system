@@ -1,3 +1,3 @@
-import {launchServer} from "./server.js";
+import {launchServer} from './server.js';
 
 launchServer();

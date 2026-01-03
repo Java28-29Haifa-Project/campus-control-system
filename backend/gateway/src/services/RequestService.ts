@@ -1,4 +1,4 @@
-import {TicketRequest} from "../types/ticketRequest.js"
+import {TicketRequest} from '../types/ticketRequest.js'
 export interface RequestService {
     getAllRequests: () => Promise<TicketRequest[]>;
 }

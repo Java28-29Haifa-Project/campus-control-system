@@ -1,6 +1,6 @@
-import {requestServiceAWSLambdaStub} from "../services/impl/RequestServiceImplAWSLambdaStub.js";
-import {RequestService} from "../services/RequestService.js";
-import {Request, Response} from "express";
+import {requestServiceAWSLambdaStub} from '../services/impl/RequestServiceImplAWSLambdaStub.js';
+import {RequestService} from '../services/RequestService.js';
+import {Request, Response} from 'express';
 
 class RequestController {
     private service: RequestService = requestServiceAWSLambdaStub;
