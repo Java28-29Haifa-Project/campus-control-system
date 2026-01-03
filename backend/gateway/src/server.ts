@@ -20,7 +20,7 @@ export const launchServer = () => {
     });
     app.use('/requests', requestRoutes);
     app.use((req, res) => {
-        res.status(404).send('Page not found');
+        res.status(404).send({error: 'Page not found'});
     })
 
     //==================ErrorHandler===============

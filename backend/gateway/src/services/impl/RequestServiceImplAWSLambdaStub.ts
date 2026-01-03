@@ -23,8 +23,11 @@ class RequestServiceImplAWSLambdaStub implements RequestService {
         }
     ]
 
-    async getAllRequests(): Promise<TicketRequest[]> {
-        return Promise.resolve([...this.requests]);
+    async getAllRequests(status?: TicketRequestStatus): Promise<TicketRequest[]> {
+        if (!status) {
+            return Promise.resolve([...this.requests]);
+        }
+        return Promise.resolve([...this.requests.filter(r => r.status === status)]);
     }
 }
 
