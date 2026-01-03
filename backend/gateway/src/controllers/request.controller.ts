@@ -1,10 +1,11 @@
-import {requestServiceAWSLambda} from "../services/impl/requestServiceAWSLambda";
-import {RequestService} from "../services/RequestService";
+import {requestServiceAWSLambdaStub} from "../services/impl/RequestServiceImplAWSLambdaStub.js";
+import {RequestService} from "../services/RequestService.js";
+import {Request, Response} from "express";
 
 class RequestController {
-    private service: RequestService = requestServiceAWSLambda;
+    private service: RequestService = requestServiceAWSLambdaStub;
     getAllRequests = async (req: Request, res: Response) => {
-        const result = await.this.service.getAllRequests();
+        const result = await this.service.getAllRequests();
         res.json(result);
     }
 }
