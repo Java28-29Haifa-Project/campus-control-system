@@ -35,5 +35,12 @@ a{
     justify-content: center;
     width: 100%;
     height: 80vh;
-
+}
+button{
+    background: #000;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 30px;
+    border: black solid 1px;
+    margin: 20px 30px;
 }
