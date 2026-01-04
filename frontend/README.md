@@ -6,6 +6,7 @@
 
 1. Install dependencies:
 ```
+cd frontend
 npm install 
 ```
 2. Run the dev server:
@@ -13,18 +14,41 @@ npm install
 npm run dev
 ```
 3. Open in browser: http://localhost:5173/
-4. Project structure:
+## Project structure:
 ````
 frontend/
- ├─ src/
- │   ├─ main.tsx
- │   ├─ App.tsx
- │   └─ index.css
- ├─ package.json
- ├─ vite.config.ts
- └─ README.md
+├─ src/
+│  ├─ pages/        # Route-level page components (mocks)
+│  ├─ components/   # Reusable UI components (Navbar, etc.)
+│  ├─ layouts/      # Application layouts
+│  ├─ utils/        # Types and constants
+│  ├─ main.tsx
+│  ├─ App.tsx
+│  └─ index.css
+├─ package.json
+├─ vite.config.ts
+└─ README.md
 ````
+## Routing
+```
+npm react-router-dom @types/react-router-dom
+```
+Available routes:
+````
+| Path        | Page        | Description                         |
+|-------------|-------------|-------------------------------------|
+| `/`         | Home        | Main page (mock content)            |
+| `/ticket`   | Ticket      | Ticket page mock                    |
+| `/incident` | Incident    | Incident page mock                  |
+| `/profile`  | Profile     | User profile page mock              |
+| `/alarm`    | Alarm       | Alarm page mock                     |
+| `/health`   | Health      | Backend health status mock page     |
+| `*`         | ErrorPage   | 404 | Page not found                |
+````
+## Page mocks
 
+All routes render mock pages with placeholder content.
+Backend integration is not implemented at this stage
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
