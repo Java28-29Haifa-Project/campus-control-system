@@ -18,13 +18,19 @@ npm run dev
 ````
 frontend/
 ├─ src/
-│  ├─ pages/        # Route-level page components (mocks)
-│  ├─ components/   # Reusable UI components (Navbar, etc.)
-│  ├─ layouts/      # Application layouts
-│  ├─ utils/        # Types and constants
+│  ├─ api/                 # API client (HTTP requests)
+│  │  └─ client.ts         # fetch wrapper and endpoints (GET /health)
+│  │
+│  ├─ pages/               # Route-level page components (mocks)
+│  ├─ components/          # Reusable UI components (Navbar, etc.)
+│  ├─ layouts/             # Application layouts
+│  ├─ utils/               # Types and constants
+│  │
 │  ├─ main.tsx
 │  ├─ App.tsx
 │  └─ index.css
+│
+├─ .env                    # Environment variables (API base URL)
 ├─ package.json
 ├─ vite.config.ts
 └─ README.md
@@ -46,9 +52,24 @@ Available routes:
 | `*`         | ErrorPage   | 404 | Page not found                |
 ````
 ## Page mocks
-
 All routes render mock pages with placeholder content.
 Backend integration is not implemented at this stage
+
+## The API base URL is defined in the .env file:
+```
+VITE_API_BASE_URL=http://localhost:3050
+```
+## API Client Health Check
+You can see the answer of healthcheck on page Health
+```
+GET /health
+```
+
+
+
+
+
+### plugins
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
