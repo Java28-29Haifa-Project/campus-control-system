@@ -64,6 +64,19 @@ You can see the answer of healthcheck on page Health
 ```
 GET /health
 ```
+## Proxy for connection front and back
+vite.config.ts
+```
+export default defineConfig({
+    plugins: [react()],
+    server: {
+        proxy: {
+            "/health": "http://localhost:3050",
+        },
+    },
+});
+```
+
 
 
 
