@@ -1,0 +1,346 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: AuthFunction
+      CodeUri: src/Function
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiPOSTauthlogin:
+          Type: Api
+          Properties:
+            Path: /auth/login
+            Method: POST
+            RestApiId: !Ref EosmApi
+        EosmApiPOSTauthlogout:
+          Type: Api
+          Properties:
+            Path: /auth/logout
+            Method: POST
+            RestApiId: !Ref EosmApi
+  AuthFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AuthFunction}
+  EosmApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stack ${AWS::StackName}
+        - ResourceName: EosmApi
+      StageName: Prod
+      DefinitionBody:
+        openapi: '3.0'
+        info: {}
+        paths:
+          /:
+            get:
+              responses: {}
+          /auth/login:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthFunction.Arn}/invocations
+              responses: {}
+          /auth/logout:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthFunction.Arn}/invocations
+              responses: {}
+          /requests:
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestFunction.Arn}/invocations
+              responses: {}
+          /requests/{id}:
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestFunction.Arn}/invocations
+              responses: {}
+          /incidents:
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
+              responses: {}
+          /incidents/{id}:
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
+              responses: {}
+          /incidents/{id}/status:
+            patch:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
+              responses: {}
+          /incidents/{id}/urgency:
+            patch:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
+              responses: {}
+          /incidents/{id}/category:
+            patch:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
+              responses: {}
+          /monitoring/logs:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MonitoringFunction.Arn}/invocations
+              responses: {}
+          /monitoring/alarms:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MonitoringFunction.Arn}/invocations
+              responses: {}
+          /audit/logs:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuditFunction.Arn}/invocations
+              responses: {}
+          /notifications/test:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationFunction.Arn}/invocations
+              responses: {}
+      EndpointConfiguration: REGIONAL
+      TracingEnabled: true
+      Cors:
+        MaxAge: 5
+  RequestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: RequestFunction
+      CodeUri: src/Function2
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiANYrequests:
+          Type: Api
+          Properties:
+            Path: /requests
+            Method: ANY
+            RestApiId: !Ref EosmApi
+        EosmApiANYrequestsid:
+          Type: Api
+          Properties:
+            Path: /requests/{id}
+            Method: ANY
+            RestApiId: !Ref EosmApi
+  RequestFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RequestFunction}
+  IncidentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: IncidentFunction
+      CodeUri: src/Function2
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiANYincidents:
+          Type: Api
+          Properties:
+            Path: /incidents
+            Method: ANY
+            RestApiId: !Ref EosmApi
+        EosmApiANYincidentsid:
+          Type: Api
+          Properties:
+            Path: /incidents/{id}
+            Method: ANY
+            RestApiId: !Ref EosmApi
+        EosmApiPATCHincidentsidstatus:
+          Type: Api
+          Properties:
+            Path: /incidents/{id}/status
+            Method: PATCH
+            RestApiId: !Ref EosmApi
+        EosmApiPATCHincidentsidurgency:
+          Type: Api
+          Properties:
+            Path: /incidents/{id}/urgency
+            Method: PATCH
+            RestApiId: !Ref EosmApi
+        EosmApiPATCHincidentsidcategory:
+          Type: Api
+          Properties:
+            Path: /incidents/{id}/category
+            Method: PATCH
+            RestApiId: !Ref EosmApi
+  IncidentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${IncidentFunction}
+  MonitoringFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: MonitoringFunction
+      CodeUri: src/Function2
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiGETmonitoringlogs:
+          Type: Api
+          Properties:
+            Path: /monitoring/logs
+            Method: GET
+            RestApiId: !Ref EosmApi
+        EosmApiGETmonitoringalarms:
+          Type: Api
+          Properties:
+            Path: /monitoring/alarms
+            Method: GET
+            RestApiId: !Ref EosmApi
+  MonitoringFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${MonitoringFunction}
+  AuditFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: AuditFunction
+      CodeUri: src/Function2
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiGETauditlogs:
+          Type: Api
+          Properties:
+            Path: /audit/logs
+            Method: GET
+            RestApiId: !Ref EosmApi
+  AuditFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AuditFunction}
+  NotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: NotificationFunction
+      CodeUri: src/Function2
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        EosmApiPOSTnotificationstest:
+          Type: Api
+          Properties:
+            Path: /notifications/test
+            Method: POST
+            RestApiId: !Ref EosmApi
+      Environment:
+        Variables:
+          HIGHSEVERITYALARMSTOPIC_TOPIC_NAME: !GetAtt HighSeverityAlarmsTopic.TopicName
+          HIGHSEVERITYALARMSTOPIC_TOPIC_ARN: !Ref HighSeverityAlarmsTopic
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt HighSeverityAlarmsTopic.TopicName
+  NotificationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${NotificationFunction}
+  HighSeverityAlarmsTopic:
+    Type: AWS::SNS::Topic
+  ApiGateway5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: 'EosmApi: 5XX errors detected'
+      Namespace: AWS/ApiGateway
+      MetricName: 5XXError
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: ApiName
+        - Value: !Ref EosmApi
+      AlarmActions:
+        - !Ref HighSeverityAlarmsTopic
+      OKActions:
+        - !Ref HighSeverityAlarmsTopic
+  RequestLambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: 'RequestFunction: Lambda errors detected'
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: FunctionName
+        - Value: !Ref RequestFunction
+      AlarmActions:
+        - !Ref HighSeverityAlarmsTopic
+      OKActions:
+        - !Ref HighSeverityAlarmsTopic
