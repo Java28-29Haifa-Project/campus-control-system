@@ -17,3 +17,7 @@ npm-debug.log*
 # ===== Java (safe) =====
 *.class
 hs_err_pid*
+replay_pid*
+/.github/
+/.idea/
+/.github/
