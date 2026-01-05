@@ -1,0 +1,305 @@
+GATEWAY <-> LAMBDA SERVICES CONTRACT
+
+1. AUTH / IDENTITY SERVICE (SYNC)
+
+1.1 LOGIN
+
+Input (Gateway -> Lambda):
+{
+  "action": "LOGIN",
+  "email": "email0@test.org",
+  "password": "pass0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "userId": "user0",
+  "username": "name0",
+  "email": "email0@test.org",
+  "role": "USER"
+}
+
+1.2 VERIFY TOKEN
+
+Input (Gateway -> Lambda):
+{
+  "action": "VERIFY_TOKEN",
+  "userId": "user0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "valid": true,
+  "userId": "user0",
+  "username": "name0",
+  "email": "email0@test.org",
+  "role": "USER"
+}
+
+
+2. REQUEST (TICKET) SERVICE (SYNC)
+
+2.1 Create Request
+
+Input (Gateway -> Lambda):
+{
+  "action": "CREATE_REQUEST",
+  "userId": "user0",
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high"
+}
+
+Output (Lambda -> Gateway):
+{
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "userId": "user0",
+  "userName": "name0",
+  "userEmail": "email0@test.org",
+  "supportId": null,
+  "supportName": null,
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high",
+  "status": "new",
+  "createdAt": "2025-01-01T10:00:00Z",
+  "updatedAt": "2025-01-01T10:00:00Z",
+}
+
+2.2 Get Requests (single)
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_REQUEST",
+  "requestId": "req0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "userId": "user0",
+  "userName": "name0",
+  "userEmail": "email0@test.org",
+  "supportId": "sup0",
+  "supportName": "supName0",
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high",
+  "status": "in-service",
+  "comment": "Working on it",
+  "createdAt": "2025-01-01T10:00:00Z",
+  "updatedAt": "2025-01-01T12:00:00Z",
+}
+
+2.3 Get Requests (list with filter)
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_REQUESTS",
+  "userId": "user0",        // optional, for USER role filtering
+  "status": "new"           // optional filter
+}
+
+Output (Lambda -> Gateway):
+[
+  {
+    "requestId": "req0",
+    "requestNumber": "REQ-0",
+    "userId": "user0",
+    "userName": "name0",
+    "userEmail": "email0@test.org",
+    "supportId": null,
+    "supportName": null,
+    "category": "plumbing",
+    "subject": "subject0",
+    "userReportedPriority": "high",
+    "status": "new",
+    "createdAt": "2025-01-01T10:00:00Z",
+    "updatedAt": "2025-01-01T10:00:00Z"
+  }
+]
+
+2.4 Update Request Status
+
+Input (Gateway -> Lambda):
+{
+  "action": "UPDATE_REQUEST_STATUS",
+  "requestId": "req0",
+  "status": "in-service",
+  "comment": "optional comment",
+  "updatedBy": "support0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "status": "in-service",
+  "comment": "optional comment",
+  "updatedBy": "support0",
+  "updatedAt": "2025-01-01T12:10:00Z",
+}
+
+3. INCIDENT SERVICE (SYNC)
+
+3.1 Create Incident
+
+Input (Gateway -> Lambda):
+{
+  "action": "CREATE_INCIDENT",
+  "ticketIds": ["req0", "req1"],
+  "impact": "high",
+  "urgency": "critical",
+  "category": "Network",
+  "description": "incident_desc0",
+  "createdBy": "support0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "incidentId": "inc0",
+  "incidentNumber": "INC-0",
+  "sourceTickets": ["REQ-0", "REQ-1"],
+  "impact": "high",
+  "urgency": "critical",
+  "priority": "P1",
+  "category": "Network",
+  "status": "OPEN",
+  "createdBy": "support0",
+  "createdAt": "2025-01-01T13:00:00Z",
+}
+
+3.2 Get Incident (single)
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_INCIDENT",
+  "incidentId": "inc0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "incidentId": "inc0",
+  "incidentNumber": "INC-0",
+  "priority": "P1",
+  "status": "IN_PROGRESS",
+  "impact": "high",
+  "urgency": "critical",
+  "category": "Network",
+  "description": "incident_desc0",
+  "createdBy": "support0",
+  "createdAt": "2025-01-01T13:00:00Z",
+  "updatedAt": "2025-01-01T14:30:00Z"
+}
+
+3.3 Get Incidents (list with filter)
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_INCIDENTS",
+  "status": "OPEN",           // optional filter
+}
+
+Output (Lambda -> Gateway):
+[
+  {
+    "incidentId": "inc0",
+    "incidentNumber": "INC-0",
+    "priority": "P1",
+    "status": "OPEN",
+    "impact": "high",
+    "urgency": "critical",
+    "category": "Network",
+    "description": "incident_desc0",
+    "createdBy": "support0",
+    "createdAt": "2025-01-01T13:00:00Z",
+    "updatedAt": "2025-01-01T13:00:00Z"
+  }
+]
+
+3.4 Update Incident
+
+Input (Gateway -> Lambda):
+{
+  "action": "UPDATE_INCIDENT",
+  "incidentId": "inc0",
+  "status": "RESOLVED",
+  "urgency": "critical",
+  "category": "network",
+  "updatedBy": "engineer0"
+}
+
+Output (Lambda -> Gateway):
+{
+  "incidentId": "inc0",
+  "incidentNumber": "INC-0",
+  "status": "RESOLVED",
+  "urgency": "critical",
+  "category": "network",
+  "priority": "P1",
+  "updatedBy": "engineer0",
+  "updatedAt": "2025-01-15T15:30:00Z"
+}
+
+4. MONITORING SERVICE (SYNC)
+
+4.1 Query Logs / Errors
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_LOGS",
+  "level": "ERROR",
+  "startDate": "2025-01-15"
+}
+
+Output (Lambda -> Gateway):
+[
+  {
+    "logId": "log0",
+    "timestamp": "2025-01-01T14:00:00Z",
+    "level": "ERROR",
+    "service": "incident-service",
+    "message": "Lambda timeout",
+    "stackTrace": "trace0"
+  }
+]
+
+4.2 Query Alarms
+
+Input (Gateway -> Lambda):
+{
+  "action": "GET_ALARMS",
+  "status": "ACTIVE",
+  "severity": "HIGH"
+}
+
+Output (Lambda -> Gateway):
+[
+  {
+    "alarmId": "alarm0",
+    "alarmName": "HighErrorRate",
+    "severity": "HIGH",
+    "status": "ACTIVE",
+    "message": "Error rate exceeded threshold",
+    "microservice": "incident-service",
+    "triggerTime": "2025-01-01T14:00:00Z",
+    "notificationsSent": ["email", "sms"],
+  }
+]
+
+5. AUDIT SERVICE (ASYNC)
+
+Event payload (Gateway -> Lambda):
+{
+  "eventType": "AUDIT_LOG",
+  "actor": "support0",
+  "action": "UPDATE_INCIDENT",
+  "entityType": "INCIDENT",
+  "entityId": "inc0",
+  "timestamp": "2025-01-15T15:30:00Z",
+}

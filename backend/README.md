@@ -1,40 +1,69 @@
-# Backend
+# EOSM Gateway
 
-## Purpose
-Shared backend logic used by Lambda services.
+Express.js API Gateway for EOSM microservices architecture.
 
-## Responsibilities
-- Data models and schemas
-- Validation
-- Shared utilities
-- Constants and enums
-- Common error handling
+## Status
 
-## Folder Structure
-Explain internal folders.
+Node.js Gateway created (Express server with basic structure)
 
-## Domain Model Overview
-High-level description of:
-- Users
-- Requests (Tickets)
-- Incidents
-- Logs / Monitoring
+Health check endpoint implemented (`GET /health`)
 
-## Authentication & Authorization
-- JWT structure
-- Role-based access control
-- Cookie-based auth
+Requests endpoint implemented with stubbed Lambda service
 
-## Error Handling
-Common error format and HTTP status codes.
+Query parameter filtering supported for requests
+## Prerequisites
 
-## Development
-- How to run locally
-- Environment variables
-- Testing approach
+- Node.js v22.20.0
+- npm
 
-## Used By
-- auth-service
-- request-service
-- incident-service
-- monitoring-service
+## Installation
+```bash
+cd backend/gateway
+npm install
+```
+## Running
+
+Development mode (rimraf, tsc):
+```bash
+npm run dev
+```
+
+## Endpoints
+
+### Health Check
+```
+GET /health
+Response(200): { "status": "ok" }
+```
+### Get Requests
+```
+GET /requests
+Optional query params:
+?status=new | in_service | rejected | done
+Response(200):
+[
+  {
+    "requestId": "req0",
+    "requestNumber": "REQ-0",
+    "category": "electrical",
+    "subject": "subject0",
+    "userReportedPriority": "urgent",
+    "status": "new",
+    "createdAt": "2025-01-01T10:25:00Z"
+  }
+]
+
+```
+
+- //TODO production.json
+- //TODO test
+
+
+## Next Steps
+
+1. Use shared AWS credentials - ?
+2. Implement authentication middleware
+3. Add remaining API endpoints
+4. Replace stub service with real AWS Lambda invocation
+5. Add comprehensive tests
+6. Add role-based access

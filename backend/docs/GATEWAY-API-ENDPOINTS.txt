@@ -1,0 +1,488 @@
+0. DEV HEALTH CHECK
+
+GET /health
+Roles: anyone
+
+Request: NONE
+
+response: { "status": "ok" }
+
+1. AUTHENTICATION
+
+POST /auth/login  
+Roles: anyone
+
+Request:
+{
+  "email": "email0@test.org",
+  "password": "pass0"
+}
+
+
+Success (200):
+{
+  "user": {
+    "userId": "user0",
+    "username": "name0",
+    "email": "email0@test.org",
+    "role": "USER"
+  },
+  "message": "ok"
+}
+
+
+JWT is stored in a cookie.  
+JWT token payload:
+
+{
+  "sub": "user0",
+  "username": "name0",
+  "email": "email0@test.org",
+  "role": "USER", (USER | SUPPORT | ENGINEER | ADMIN)
+  "iat": 1700000000,
+  "exp": 1700003600
+}
+
+
+Errors:
+401 - Wrong email or password  
+429 - Too many login attempts (5 max per 15 minutes)?
+
+POST /auth/logout  
+Role: any logged-in role
+
+Request: none
+
+Success (200):
+{
+  "message": "ok"
+}
+
+GET /auth/verify
+Roles: any logged-in role
+
+Request: none (token in cookie)
+
+Success (200):
+{
+  "valid": true,
+  "user": {
+    "userId": "user0",
+    "username": "name0",
+    "role": "USER"
+  },
+  "expiresIn": 1800  // seconds until expiration
+}
+
+Errors:
+401 - Token expired or invalid
+{
+  "error": "Token expired",
+  "valid": false
+}
+
+2. USER ENDPOINTS
+
+POST /requests  
+Roles: USER, SUPPORT, ENGINEER, ADMIN
+
+Request:
+{
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high"
+}
+
+
+Success (201):
+{
+  "data": {
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "userId": "user0",
+  "userName": "name0",
+  "supportId": "supId0",
+  "supportName": "supName0", 
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high",
+  "status": "new",
+  "createdAt": "2025-01-01T10:00:00Z"
+   },
+  "message": "ok"
+}
+
+
+Errors:
+400 - Missing required fields or invalid values
+
+GET /requests  
+Roles: USER (sees only own tickets), SUPPORT, ADMIN
+
+Query params:
+  ?status=new
+
+Success (200):
+{
+ [
+  { 
+   "requestId": "req0",
+   "requestNumber": "REQ-0",
+   "category": "plumbing",
+   "subject": "subject0",
+   "userReportedPriority": "high",
+   "status": "new",
+   "createdAt": "2025-01-01T10:00:00Z"
+  }
+ ]
+}
+
+
+GET /requests/:id  
+Roles: USER (ticket owner), SUPPORT, ENGINEER, ADMIN
+
+Success (200):
+{
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "userId": "user0",
+  "userName": "name0",
+  "userEmail": "email0@test.org",
+  "category": "plumbing",
+  "subject": "subject0",
+  "description": "desc0",
+  "userReportedPriority": "high",
+  "status": "in-service",
+  "createdAt": "2025-01-01T10:00:00Z",
+  "updatedAt": "2025-01-01T12:00:00Z"
+}
+
+
+Errors:
+403 - Cannot view other users' tickets
+404 - Ticket not found
+
+3. SUPPORT ENDPOINTS
+
+GET /requests?status={}  
+Roles: SUPPORT, ADMIN (?)
+
+Query params:
+  ?status=new                    (new | in-service | rejected | done)
+
+Success (200):
+{
+  "requests": [
+    {
+      "requestId": "req0",
+      "requestNumber": "REQ-0",
+      "userId": "user0",
+      "userName": "name0",
+      "category": "Software",
+      "subject": "subject0",
+      "userReportedPriority": "high",
+      "status": "new",
+      "createdAt": "2025-01-01T10:00:00Z"
+    }
+  ]
+}
+
+
+GET /requests/:id
+Roles: SUPPORT, ADMIN
+
+Success (200):
+{
+      "requestId": "req0",
+      "requestNumber": "REQ-0",
+      "userId": "user0",
+      "userName": "name0",
+      "category": "Software",
+      "subject": "subject0",
+      "userReportedPriority": "high",
+      "status": "new",
+      "createdAt": "2025-01-01T10:00:00Z"
+}
+
+PATCH /requests/:id/status
+Roles: SUPPORT, ADMIN
+
+Request:
+{
+  "status": "in-service" | "rejected",
+  "comment": "optional text (required when status = REJECTED)"
+}
+
+
+Success (200):
+{
+  "requestId": "req0",
+  "requestNumber": "REQ-0",
+  "status": "in-service",
+  "comment": "comment0",
+  "updatedBy": "support0",
+  "updatedAt": "2025-01-01T12:10:00Z"
+}
+
+
+Errors:
+400 - Invalid status value
+400 - Cannot change status if request is already rejected or done
+400 - Comment is required when rejecting
+403 - Access denied (role not allowed)
+404 - Request not found
+
+
+POST /incidents  
+Roles: SUPPORT, ADMIN
+
+Request:
+{
+  "ticketIds": ["req0", "req1"],
+  "impact": "high", (low | medium | high)
+  "urgency": "critical", (low | medium | high | critical)
+  "category": "Network",
+  "description": "incident_desc0"
+}
+
+
+Priority is calculated based on the impact and urgency combination.
+
+Success (201):
+{
+  "incidentId": "inc0",
+  "incidentNumber": "INC-0",
+  "sourceTickets": ["REQ-0", "REQ-1"],
+  "impact": "high",
+  "urgency": "critical",
+  "priority": "P1",
+  "category": "Network",
+  "status": "OPEN",
+  "createdBy": "support0",
+  "createdAt": "2025-01-01T13:00:00Z",
+}
+
+
+Errors:
+400 - Missing required fields  
+404 - One or more tickets not found
+
+4. ENGINEER ENDPOINTS
+
+4.1 GET /incidents?status={}  
+Roles: ENGINEER, ADMIN (sees all), SUPPORT, 
+
+Query parameters:
+status (optional): "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"  
+
+Example: GET /incidents?status=OPEN
+
+SUCCESS RESPONSE (200 OK):
+{
+  "incidents": [
+    {
+      "incidentId": "inc0",
+      "incidentNumber": "INC-0",
+      "priority": "P1",
+      "status": "OPEN",
+      "impact": "high",
+      "urgency": "critical",
+      "category": "Network",
+      "description": "incident_desc0",
+      "createdBy": "support0",
+      "createdAt": "2025-01-01T13:00:00Z",
+      "updatedAt": "2025-01-01T13:00:00Z"
+    }
+  ]
+}
+
+
+4.2 GET /incidents/:id  
+Roles: ENGINEER, SUPPORT, ADMIN
+
+SUCCESS RESPONSE (200 OK):
+{
+   "incidentId": "inc0",
+   "incidentNumber": "INC-0",
+   "priority": "P1",
+   "status": "OPEN",
+   "impact": "high",
+   "urgency": "critical",
+   "category": "Network",
+   "description": "incident_desc0",
+   "createdBy": "support0",
+   "createdAt": "2025-01-01T13:00:00Z",
+   "updatedAt": "2025-01-01T13:00:00Z"
+}
+
+4.3 PATCH /incidents/:id
+Roles:
+- ENGINEER
+- ADMIN
+
+Description:
+Update incident fields: status, urgency, and/or category.
+Only provided fields are updated.
+
+ENGINEER limitations:
+- Can set status only to IN_PROGRESS or RESOLVED
+- Cannot set status to CLOSED
+- Can only increase urgency
+
+ADMIN:
+- Can update all fields without restrictions
+
+REQUEST BODY:
+{
+  "status": "IN_PROGRESS" | "RESOLVED" | "CLOSED",
+  "urgency": "low" | "medium" | "high" | "critical",
+  "category": "network" | "database" | "security" | "other"
+}
+
+SUCCESS RESPONSE (200 OK):
+{
+  "incidentId": "inc0",
+  "incidentNumber": "INC-0",
+  "status": "RESOLVED",
+  "urgency": "critical",
+  "category": "network",
+  "priority": "P1",
+  "updatedBy": "engineer0",
+  "updatedAt": "2025-01-15T15:30:00Z"
+}
+
+ERROR RESPONSES:
+
+400 Bad Request
+Invalid status value
+Resolution notes are required when status = RESOLVED
+Cannot decrease urgency. Current: CRITICAL, Requested: HIGH
+Invalid category
+
+403 Forbidden
+{
+  "error": "Engineers can only change status to IN_PROGRESS or RESOLVED"
+}
+
+404 Not Found
+Incident not found
+
+
+5. ADMIN ENDPOINTS
+
+GET /requests?status={}
+GET /requests/:id
+
+PATCH /requests/:id
+Request:
+{
+  "status": "done",
+}
+
+Success (200):
+{
+  "requestId": "req0",
+  "status": "done",
+  "updatedBy": "admin0",
+  "updatedAt": "2025-01-01T15:00:00Z",
+  "message": "ok"
+}
+
+GET /incidents
+GET /incidents/:id
+
+PATCH /incidents/:id
+Request:
+{
+  "status": "CLOSED",
+  "priority": "P2",
+  "impact": "medium",
+  "urgency": "high",
+  "category": "Network",
+}
+
+Success (200):
+{
+  "incidentId": "inc0",
+  "status": "CLOSED",
+  "priority": "P2",
+  "impact": "medium",
+  "urgency": "high",
+  "category": "Network",
+  "closedAt": "2025-01-01T16:00:00Z",
+  "closedBy": "admin0",
+}
+
+GET /monitoring/logs (Can take logs starting from a certain date, using query params)
+Roles: ADMIN
+Query params:
+  ?level=ERROR               ERROR | WARN | INFO
+  ?startDate=2025-01-15
+Success (200):
+{
+  "logs": [
+    {
+      "logId": "log0",
+      "timestamp": "2025-01-01T14:00:00Z",
+      "level": "ERROR",
+      "service": "service0",
+      "message": "error0",
+      "stackTrace": "trace0",
+      "resolved": false
+    }
+  ]
+}
+
+GET /monitoring/alarms (system health)
+Roles:  ADMIN
+It is important to see, if notification was delivered via SNS to phone/email, or not
+Query params:
+  ?status=ACTIVE    ACTIVE | RESOLVED
+  ?severity=HIGH    CRITICAL | HIGH | MEDIUM | LOW
+Success (200):
+{
+  "alarms": [
+    {
+      "alarmId": "alarm0",
+      "alarmName": "alarm_name0",
+      "severity": "HIGH",
+      "status": "ACTIVE",
+      "message": "alarm_msg0",
+      "microservice": "service0",
+      "triggerTime": "2025-01-01T14:00:00Z",
+      "notificationsSent": ["email", "sms"]
+    }
+  ]
+}
+
+
+COMMON ERROR RESPONSES FOR ALL ENDPOINTS
+
+400
+{
+  "error": "..."
+}
+
+401 not logged in / token expired
+{
+  "error": "No token provided"
+}
+403
+{
+  "error": "Insufficient permissions"
+}
+404
+{
+  "error": "Resource not found"
+}
+429 rate limiting
+{
+  "error": "Rate limit exceeded",
+  "retryAfter": 900
+}
+500
+{
+  "error": "Internal server error"
+}
