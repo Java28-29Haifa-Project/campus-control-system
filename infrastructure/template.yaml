@@ -319,7 +319,7 @@ Resources:
       TreatMissingData: notBreaching
       Dimensions:
         - Name: ApiName
-        - Value: !Ref EosmApi
+          Value: !Ref EosmApi
       AlarmActions:
         - !Ref HighSeverityAlarmsTopic
       OKActions:
@@ -339,7 +339,7 @@ Resources:
       TreatMissingData: notBreaching
       Dimensions:
         - Name: FunctionName
-        - Value: !Ref RequestFunction
+          Value: !Ref RequestFunction
       AlarmActions:
         - !Ref HighSeverityAlarmsTopic
       OKActions:
@@ -429,7 +429,7 @@ Resources:
             Resource: !Sub
               - ${BucketArn}/*
               - BucketArn: !GetAtt FrontendBucket.Arn
-  Outputs:
-    FrontendUrl:
-      Description: CloudFront URL for the frontend
-      Value: !Sub https://${FrontendCdn.DomainName}
+Outputs:
+  FrontendUrl:
+    Description: CloudFront URL for the frontend
+    Value: !Sub https://${FrontendCdn.DomainName}
