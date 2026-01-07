@@ -1,6 +1,7 @@
 import express from 'express'
 import {config} from './configurations/app-config.js';
 import {requestRoutes} from './routes/request.routes.js';
+import { healthRoutes } from './routes/health.routes.js';
 
 import {errorHandler} from './errors/error-handler.js';
 
@@ -18,10 +19,12 @@ export const launchServer = () => {
     app.get('/health', (req, res) => {
         res.status(200).send({'status':'ok'});
     });
+    app.use('/health/lambdas', healthRoutes);
     app.use('/requests', requestRoutes);
     app.use((req, res) => {
         res.status(404).send({error: 'Page not found'});
     })
+
 
     //==================ErrorHandler===============
     app.use(errorHandler);

@@ -1,10 +1,10 @@
-import {requestServiceAWSLambdaStub} from '../services/impl/RequestServiceImplAWSLambdaStub.js';
+import { requestServiceAWSLambda } from '../services/impl/RequestServiceImplAWSLambda.js';
 import {RequestService} from '../services/RequestService.js';
 import {Request, Response} from 'express';
 import {TicketRequestStatus} from '../types/ticketRequest.js';
 
 class RequestController {
-    private service: RequestService = requestServiceAWSLambdaStub;
+    private service: RequestService = requestServiceAWSLambda;
     getAllRequests = async (req: Request, res: Response) => {
         const statusParam = req.query.status;
 
