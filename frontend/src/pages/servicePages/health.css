@@ -1,0 +1,37 @@
+.wrapper{
+    width: 420px;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,.2);
+    backdrop-filter: blur(30px);
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+    color: #fff;
+    border-radius: 10px;
+    padding: 30px 40px;
+}
+.wrapper h1{
+    font-size: 36px;
+    text-align: center;
+    margin:10px 0;
+}
+.health-button{
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,.1);
+    cursor: pointer;
+    font-size: 16px;
+    color:#333;
+    font-weight: 700;
+    margin:30px 0;
+}
+.wrapper p{
+    font-size: 20px;
+    text-align: center;
+    margin:10px 0;
+}
+.wrapper p h3{
+    font-size: 36px;
+    text-align: center;
+    margin:10px 0;
+}

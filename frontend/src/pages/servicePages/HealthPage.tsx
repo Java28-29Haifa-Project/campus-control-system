@@ -1,5 +1,6 @@
 import {fetchHealth} from "../../api/client.ts";
 import {useState} from "react";
+import './health.css';
 
 
 const HealthPage = () => {
@@ -16,9 +17,9 @@ const HealthPage = () => {
     }
 
     return (
-        <div>
-            <h1>Health Page</h1>
-            <button onClick={healthCheck}>Check health</button>
+        <div className='wrapper'>
+            <h1 >Health Page</h1>
+            <button onClick={healthCheck} className='health-button'>Check health</button>
             <p>The status of health is: <h3>{status}</h3></p>
         </div>
     );
