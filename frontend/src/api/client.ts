@@ -1,10 +1,10 @@
 
-//const baseurl = import.meta.env.VITE_API_BASE_URL;
+const baseurl = import.meta.env.VITE_API_BASE_URL;
 
 export const fetchHealth= async () => {
     try{
-        //const response = await fetch(`${baseurl}/health`);
-        const response = await fetch(`/health`);
+        const response = await fetch(`${baseurl}/health`);
+        //const response = await fetch(`/health`);
 
         if(!response.ok){
             throw new Error(`Http response status ${response.status}`);
