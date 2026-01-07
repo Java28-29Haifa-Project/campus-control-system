@@ -4,9 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "build": "rimraf ./build && tsc",
     "test": "jest",
     "dev": "rimraf ./build && tsc && node ./build/src/app.js",
-    "start": ""
+    "start": "node build/src/app.js"
   },
   "keywords": [],
   "author": "",
