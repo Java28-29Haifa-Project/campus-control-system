@@ -27,3 +27,19 @@ export type TicketRequest = {
     status: TicketRequestStatus;
     createdAt: string;
 };
+
+export interface CreateRequestInput {
+    category: TicketRequestCategory;
+    subject: string;
+    userReportedPriority: TicketRequestPriority;
+    createdBy: string;
+}
+
+export type UpdateRequestInput = {
+    requestId: string;
+    category?: TicketRequestCategory;
+    subject?: string;
+    userReportedPriority?: TicketRequestPriority;
+    status?: TicketRequestStatus;
+    updatedBy: string;
+};
