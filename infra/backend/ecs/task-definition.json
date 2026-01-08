@@ -1,0 +1,29 @@
+{
+  "family": "express-gateway-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::757434564846:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "express-gateway",
+      "image": "757434564846.dkr.ecr.us-east-1.amazonaws.com/express-gateway:latest",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/express-gateway",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

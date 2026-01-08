@@ -1,9 +1,10 @@
+import LoginForm from "../components/loginform/LoginForm.tsx";
 
 
 const Home = () => {
     return (
         <div >
-            <h1>Home Page </h1>
+            <LoginForm />
         </div>
     );
 };
