@@ -1,441 +1,279 @@
-Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Hub stack: HTTP API Gateway routing to 6 Lambda functions (health/auth/request/incident/monitoring/audit). Это CloudFormation (SAM не обязателен).
+Lambda-ресурсы здесь не создаются (потому что код функций у вас отдельно). Мы подключаем готовые функции через параметры ...LambdaArn.
+Когда вы деплоите функции — вы подставите их ARN в параметры (или в отдельный prod.json)."
+
+
+Parameters:
+  ApiName:
+    Type: String
+    Default: campus-control-system-dev
+
+  StageName:
+    Type: String
+    Default: $default
+
+  CorsAllowedOrigins:
+    Type: String
+    Default: http://localhost:5173
+
+  HealthLambdaArn:
+    Type: String
+    Default: TBD
+
+  AuthLambdaArn:
+    Type: String
+    Default: TBD
+
+  RequestLambdaArn:
+    Type: String
+    Default: TBD
+
+  IncidentLambdaArn:
+    Type: String
+    Default: TBD
+
+  MonitoringLambdaArn:
+    Type: String
+    Default: TBD
+
+  AuditLambdaArn:
+    Type: String
+    Default: TBD
+
 Resources:
-  AuthFunction:
-    Type: AWS::Serverless::Function
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: AuthFunction
-      CodeUri: src/Function
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiPOSTauthlogin:
-          Type: Api
-          Properties:
-            Path: /auth/login
-            Method: POST
-            RestApiId: !Ref EosmApi
-        EosmApiPOSTauthlogout:
-          Type: Api
-          Properties:
-            Path: /auth/logout
-            Method: POST
-            RestApiId: !Ref EosmApi
-  AuthFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      Name: !Ref ApiName
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref CorsAllowedOrigins
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowCredentials: true
+        MaxAge: 3600
+
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
     Properties:
-      LogGroupName: !Sub /aws/lambda/${AuthFunction}
-  EosmApi:
-    Type: AWS::Serverless::Api
+      ApiId: !Ref HttpApi
+      StageName: !Ref StageName
+      AutoDeploy: true
+
+  # ----------------------------
+  # Integrations (AWS_PROXY)
+  # ----------------------------
+
+  HealthIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      Name: !Sub
-        - ${ResourceName} From Stack ${AWS::StackName}
-        - ResourceName: EosmApi
-      StageName: Prod
-      DefinitionBody:
-        openapi: '3.0'
-        info: {}
-        paths:
-          /:
-            get:
-              responses: {}
-          /auth/login:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthFunction.Arn}/invocations
-              responses: {}
-          /auth/logout:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthFunction.Arn}/invocations
-              responses: {}
-          /requests:
-            x-amazon-apigateway-any-method:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestFunction.Arn}/invocations
-              responses: {}
-          /requests/{id}:
-            x-amazon-apigateway-any-method:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestFunction.Arn}/invocations
-              responses: {}
-          /incidents:
-            x-amazon-apigateway-any-method:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
-              responses: {}
-          /incidents/{id}:
-            x-amazon-apigateway-any-method:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
-              responses: {}
-          /incidents/{id}/status:
-            patch:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
-              responses: {}
-          /incidents/{id}/urgency:
-            patch:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
-              responses: {}
-          /incidents/{id}/category:
-            patch:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IncidentFunction.Arn}/invocations
-              responses: {}
-          /monitoring/logs:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MonitoringFunction.Arn}/invocations
-              responses: {}
-          /monitoring/alarms:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MonitoringFunction.Arn}/invocations
-              responses: {}
-          /audit/logs:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuditFunction.Arn}/invocations
-              responses: {}
-          /notifications/test:
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationFunction.Arn}/invocations
-              responses: {}
-      EndpointConfiguration: REGIONAL
-      TracingEnabled: true
-      Cors:
-        MaxAge: 5
-  RequestFunction:
-    Type: AWS::Serverless::Function
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref HealthLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  AuthIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: RequestFunction
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiANYrequests:
-          Type: Api
-          Properties:
-            Path: /requests
-            Method: ANY
-            RestApiId: !Ref EosmApi
-        EosmApiANYrequestsid:
-          Type: Api
-          Properties:
-            Path: /requests/{id}
-            Method: ANY
-            RestApiId: !Ref EosmApi
-  RequestFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref AuthLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  RequestIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      LogGroupName: !Sub /aws/lambda/${RequestFunction}
-  IncidentFunction:
-    Type: AWS::Serverless::Function
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref RequestLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  IncidentIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: IncidentFunction
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiANYincidents:
-          Type: Api
-          Properties:
-            Path: /incidents
-            Method: ANY
-            RestApiId: !Ref EosmApi
-        EosmApiANYincidentsid:
-          Type: Api
-          Properties:
-            Path: /incidents/{id}
-            Method: ANY
-            RestApiId: !Ref EosmApi
-        EosmApiPATCHincidentsidstatus:
-          Type: Api
-          Properties:
-            Path: /incidents/{id}/status
-            Method: PATCH
-            RestApiId: !Ref EosmApi
-        EosmApiPATCHincidentsidurgency:
-          Type: Api
-          Properties:
-            Path: /incidents/{id}/urgency
-            Method: PATCH
-            RestApiId: !Ref EosmApi
-        EosmApiPATCHincidentsidcategory:
-          Type: Api
-          Properties:
-            Path: /incidents/{id}/category
-            Method: PATCH
-            RestApiId: !Ref EosmApi
-  IncidentFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref IncidentLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  MonitoringIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      LogGroupName: !Sub /aws/lambda/${IncidentFunction}
-  MonitoringFunction:
-    Type: AWS::Serverless::Function
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref MonitoringLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  AuditIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: MonitoringFunction
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiGETmonitoringlogs:
-          Type: Api
-          Properties:
-            Path: /monitoring/logs
-            Method: GET
-            RestApiId: !Ref EosmApi
-        EosmApiGETmonitoringalarms:
-          Type: Api
-          Properties:
-            Path: /monitoring/alarms
-            Method: GET
-            RestApiId: !Ref EosmApi
-  MonitoringFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref AuditLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  # ----------------------------
+  # Routes
+  # ----------------------------
+
+  # Health
+  RouteHealth:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      LogGroupName: !Sub /aws/lambda/${MonitoringFunction}
-  AuditFunction:
-    Type: AWS::Serverless::Function
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasRequest:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: AuditFunction
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiGETauditlogs:
-          Type: Api
-          Properties:
-            Path: /audit/logs
-            Method: GET
-            RestApiId: !Ref EosmApi
-  AuditFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/request"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasAuth:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      LogGroupName: !Sub /aws/lambda/${AuditFunction}
-  NotificationFunction:
-    Type: AWS::Serverless::Function
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/auth"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasIncident:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: NotificationFunction
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs22.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Events:
-        EosmApiPOSTnotificationstest:
-          Type: Api
-          Properties:
-            Path: /notifications/test
-            Method: POST
-            RestApiId: !Ref EosmApi
-      Environment:
-        Variables:
-          HIGHSEVERITYALARMSTOPIC_TOPIC_NAME: !GetAtt HighSeverityAlarmsTopic.TopicName
-          HIGHSEVERITYALARMSTOPIC_TOPIC_ARN: !Ref HighSeverityAlarmsTopic
-      Policies:
-        - SNSPublishMessagePolicy:
-            TopicName: !GetAtt HighSeverityAlarmsTopic.TopicName
-  NotificationFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/incident"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasMonitoring:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      LogGroupName: !Sub /aws/lambda/${NotificationFunction}
-  HighSeverityAlarmsTopic:
-    Type: AWS::SNS::Topic
-  ApiGateway5xxAlarm:
-    Type: AWS::CloudWatch::Alarm
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/monitoring"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasAudit:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      AlarmDescription: 'EosmApi: 5XX errors detected'
-      Namespace: AWS/ApiGateway
-      MetricName: 5XXError
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      DatapointsToAlarm: 1
-      Threshold: 1
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      TreatMissingData: notBreaching
-      Dimensions:
-        - Name: ApiName
-          Value: !Ref EosmApi
-      AlarmActions:
-        - !Ref HighSeverityAlarmsTopic
-      OKActions:
-        - !Ref HighSeverityAlarmsTopic
-  RequestLambdaErrorsAlarm:
-    Type: AWS::CloudWatch::Alarm
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/audit"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  # Auth
+  RouteAuthLogin:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      AlarmDescription: 'RequestFunction: Lambda errors detected'
-      Namespace: AWS/Lambda
-      MetricName: Errors
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      DatapointsToAlarm: 1
-      Threshold: 1
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      TreatMissingData: notBreaching
-      Dimensions:
-        - Name: FunctionName
-          Value: !Ref RequestFunction
-      AlarmActions:
-        - !Ref HighSeverityAlarmsTopic
-      OKActions:
-        - !Ref HighSeverityAlarmsTopic
-  FrontendCdn:
-    Type: AWS::CloudFront::Distribution
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /auth/login"
+      Target: !Sub "integrations/${AuthIntegration}"
+
+  RouteAuthVerify:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      DistributionConfig:
-        Enabled: true
-        Comment: !Sub ${AWS::StackName} frontend CDN
-        DefaultRootObject: index.html
-        Origins:
-          - Id: FrontendS3Origin
-            DomainName: !GetAtt FrontendBucket.RegionalDomainName
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${FrontendCdnOriginAccessIdentity}
-        DefaultCacheBehavior:
-          TargetOriginId: FrontendS3Origin
-          ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-          CachedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-          Compress: true
-          ForwardedValues:
-            QueryString: false
-            Cookies:
-              Forward: none
-  FrontendBucket:
-    Type: AWS::S3::Bucket
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /auth/verify"
+      Target: !Sub "integrations/${AuthIntegration}"
+
+  # Requests
+  RouteRequestsList:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      BucketName: !Sub ${AWS::StackName}-frontendb-${AWS::AccountId}
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: alias/aws/s3
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        IgnorePublicAcls: true
-        BlockPublicPolicy: true
-        RestrictPublicBuckets: true
-  FrontendBucketBucketPolicy:
-    Type: AWS::S3::BucketPolicy
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /requests"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsGet:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      Bucket: !Ref FrontendBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: RequireTLS
-            Effect: Deny
-            Principal: '*'
-            Action: s3:*
-            Resource:
-              - !GetAtt FrontendBucket.Arn
-              - !Sub ${FrontendBucket.Arn}/*
-            Condition:
-              Bool:
-                aws:SecureTransport: 'false'
-          - Sid: AllowCloudFrontRead
-            Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
-                ${FrontendCdnOriginAccessIdentity}
-            Action: s3:GetObject
-            Resource: !Sub ${FrontendBucket.Arn}/*
-  FrontendCdnOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /requests/{id}"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsCreate:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: MyCDN
-  FrontendCdnBucketPolicy:
-    Type: AWS::S3::BucketPolicy
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /requests"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsPatch:
+    Type: AWS::ApiGatewayV2::Route
     Properties:
-      Bucket: !Ref FrontendBucket
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
-                ${FrontendCdnOriginAccessIdentity}
-            Action: s3:GetObject
-            Resource: !Sub
-              - ${BucketArn}/*
-              - BucketArn: !GetAtt FrontendBucket.Arn
+      ApiId: !Ref HttpApi
+      RouteKey: "PATCH /requests/{id}"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  # Incidents
+  RouteIncidentsList:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /incidents"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsGet:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /incidents/{id}"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsCreate:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /incidents"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsPatch:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "PATCH /incidents/{id}"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  # Monitoring
+  RouteMonitoringLogs:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /monitoring/logs"
+      Target: !Sub "integrations/${MonitoringIntegration}"
+
+  RouteMonitoringAlarms:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /monitoring/alarms"
+      Target: !Sub "integrations/${MonitoringIntegration}"
+
+  # Audit
+  RouteAuditPost:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /audit"
+      Target: !Sub "integrations/${AuditIntegration}"
+
 Outputs:
-  FrontendUrl:
-    Description: CloudFront URL for the frontend
-    Value: !Sub https://${FrontendCdn.DomainName}
-Metadata:
-  AWS::Composer::Groups:
-    Group:
-      Label: Group
-      Members:
-        - FrontendCdn
+  HttpApiId:
+    Description: "HTTP API ID"
+    Value: !Ref HttpApi
+
+  HttpApiInvokeUrl:
+    Description: "Base invoke URL (stage depends on StageName; $default has no stage segment)."
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
