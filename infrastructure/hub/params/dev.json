@@ -1,5 +1,5 @@
 {
   "ApiName": "campus-control-system-dev",
   "StageName": "$default",
-  "CorsAllowedOrigins": "http://localhost:5173"
+  "CorsAllowedOrigins": "https://main.dw7m0a8uo4frv.amplifyapp.com"
 }
