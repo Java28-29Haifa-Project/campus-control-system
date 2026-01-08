@@ -3,10 +3,10 @@
 ## Общая архитектура
 
 Проект реализует современную serverless-архитектуру на AWS с использованием multi-account подхода для изоляции работы отдельных групп.
-
+     
 ### Компоненты
 - **Frontend**: Single Page Application на React, хостинг на Amazon S3 + CloudFront (CDN, HTTPS).
-- **Backend**: Микросервисы на AWS Lambda (serverless functions).
+- **Backend**:   Микросервисы на AWS Lambda (serverless functions).
 - **API**: Amazon API Gateway — единая точка входа, маршрутизация запросов к Lambda-функциям.
 - **База данных**: Amazon RDS for PostgreSQL (управляемая реляционная СУБД).
 - **Аутентификация** (опционально): Amazon Cognito.
