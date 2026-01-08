@@ -1,13 +1,5 @@
 {
   "ApiName": "campus-control-system-dev",
-  "StageName": "dev",
-
-  "AuthLambdaArn": "TBD",
-  "UsersLambdaArn": "TBD",
-  "CoreLambdaArn": "TBD",
-  "RequestLambdaArn": "TBD",
-  "MonitoringLambdaArn": "TBD",
-  "AuditLambdaArn": "TBD",
-  "IncidentLambdaArn": "TBD",
-  "HealthLambdaArn": "TBD"
+  "StageName": "$default",
+  "CorsAllowedOrigins": "http://localhost:5173"
 }
