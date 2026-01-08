@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080'; // change port if needed
+const BASE_URL = 'http://localhost:8080';
 
 const endpoints = [
     { method: 'get', url: '/health' },
