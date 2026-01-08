@@ -5,7 +5,7 @@ import { authLambdaServiceMock } from '../services/lambda-sdk/mocks/AuthLambdaSe
 import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 import { monitoringLambdaServiceMock } from '../services/lambda-sdk/mocks/MonitoringLambdaServiceMock.js';
 import { auditLambdaServiceMock } from '../services/lambda-sdk/mocks/AuditLambdaServiceMock.js';
-import { incidentLambdaServiceMock as requestLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js'; // or existing Request mock
+import { incidentLambdaServiceMock as requestLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 
 class HealthController {
 
