@@ -11,3 +11,5 @@ export const Paths = {
     HEALTH: '/health',
 } as const;
 export type Path = typeof Paths[keyof typeof Paths];
+
+
