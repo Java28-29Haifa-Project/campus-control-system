@@ -23,7 +23,7 @@ const HealthPage = () => {
             <h1 >Health Page</h1>
             <button onClick={healthCheck} className='health-button'>Check health</button>
             <p>The status of health is: </p>
-            <h1>{status}</h1>
+            <h1 >{status}</h1>
         </div>
     );
 };
