@@ -10,6 +10,10 @@ import { auditRoutes } from './routes/audit.routes.js';
 
 import {errorHandler} from './errors/error-handler.js';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const launchServer = () => {
     const app = express();
 
