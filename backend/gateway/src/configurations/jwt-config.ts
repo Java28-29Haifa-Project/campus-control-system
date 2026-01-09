@@ -1,6 +1,5 @@
 export const jwtConfig = {
-    accessTokenSecret: 'your-super-secret-access-key-change-in-production',
-    refreshTokenSecret: 'your-super-secret-refresh-key-change-in-production',
-    accessTokenExpiry: '15m',
-    refreshTokenExpiry: '7d'
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || 'default-access-secret',
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || 'default-refresh-secret',
+    refreshTokenExpiry: process.env.REFRESH_TOKEN_EXPIRY || '7d',
 };
