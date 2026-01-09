@@ -1,20 +1,45 @@
 # EOSM Gateway
 
-Express.js API Gateway for EOSM microservices architecture.
+**EOSM Gateway** is an Express.js–based API Gateway that serves as
+the backend entry point for the EOSM microservices architecture. 
+It is designed to run locally for development and inside AWS ECS Fargate behind 
+AWS API Gateway for cloud deployment.
+
+## Core Responsibilities
+- **Request routing** to backend services
+- **Validation and filtering** of incoming requests
+- **Service abstraction** (currently mocked, transitioning to AWS Lambda)
+- **Single entry point** for frontend clients
+
 
 ## Status
 
-Node.js Gateway created (Express server with basic structure)
+## Current Status
+- Express.js server implemented with TypeScript
+- Health check endpoint implemented
+- Requests endpoint with filtering support
+- Architecture defined (API Gateway → VPC Link → ALB → ECS)
+-️ Authentication, authorization, and real Lambda integration are pending
 
-Health check endpoint implemented (`GET /health`)
+## Architecture Overview
+### Traffic Flow 
+`Internet` → `AWS API Gateway (HTTP API)` → `VPC Link` → `Internal ALB` → `ECS Fargate (Node.js)` → `AWS Lambda` → `External DBs`
 
-Requests endpoint implemented with stubbed Lambda service
 
-Query parameter filtering supported for requests
+- **Public Entry:** API Gateway handles the public-facing endpoint and throttling.
+- **Security:** VPC Link and Internal ALB ensure the ECS tasks are not exposed to the public internet.
+- **Service Logic:** Business logic resides in Lambda services (mocked during current phase).
+
+## Technology Stack
+- **Node.js** v22.20.0
+- **Express.js** & **TypeScript**
+- **AWS Infrastructure:** API Gateway, ECS Fargate, ALB, Lambda
+- **Package Manager:** npm
+
 ## Prerequisites
-
 - Node.js v22.20.0
 - npm
+- (Optional) Docker & AWS CLI
 
 ## Installation
 ```bash
@@ -54,9 +79,14 @@ Response(200):
 ]
 
 ```
+#### AWS & Deployment Notes
+- CORS: Expected to be configured at the API Gateway level.
+- Networking: The Express gateway does not expose itself publicly; all traffic is routed via the Internal ALB.
 
+### TODO
 - //TODO production.json
 - //TODO test
+- //TODO error handling
 
 
 ## Next Steps
@@ -67,3 +97,5 @@ Response(200):
 4. Replace stub service with real AWS Lambda invocation
 5. Add comprehensive tests
 6. Add role-based access
+7. Finalize production.json and environment-specific configs
+8. Add structured logging and improved error handling.
