@@ -8,7 +8,7 @@ export const requireRole = (...allowedRoles: string[]) => {
         }
 
         if (!allowedRoles.includes(req.user.role)) {
-            return next(new HttpError(403, `Access denied. Required roles: ${allowedRoles.join(', ')}`));
+            return next(new HttpError(403, `Access denied`));
         }
 
         next();

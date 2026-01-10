@@ -1,11 +1,9 @@
-//TODO
-
 import { Request, Response, NextFunction } from 'express';
 import { authLambdaServiceMock } from '../services/lambda-sdk/mocks/AuthLambdaServiceMock.js';
 import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 import { monitoringLambdaServiceMock } from '../services/lambda-sdk/mocks/MonitoringLambdaServiceMock.js';
 import { auditLambdaServiceMock } from '../services/lambda-sdk/mocks/AuditLambdaServiceMock.js';
-import { incidentLambdaServiceMock as requestLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
+import { requestLambdaServiceMock } from '../services/lambda-sdk/mocks/RequestLambdaServiceMock.js';
 
 class HealthController {
 

@@ -26,7 +26,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         next();
     } catch (error: any) {
         if (error.name === 'TokenExpiredError') {
-            next(new HttpError(401, 'Token expired - please refresh'));
+            next(new HttpError(401, 'Token expired'));
         } else if (error.name === 'JsonWebTokenError') {
             next(new HttpError(401, 'Invalid token'));
         } else {
