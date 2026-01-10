@@ -1,5 +1,3 @@
-//TODO
-
 import express from 'express';
 import { incidentController } from '../controllers/incident.controller.js';
 

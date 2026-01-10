@@ -1,5 +1,3 @@
-//TODO
-
 import express from 'express';
 import { monitoringController } from '../controllers/monitoring.controller.js';
 

@@ -6,9 +6,9 @@ export const requestLambdaServiceMock: IRequestLambdaService = {
             {
                 requestId: 'req0',
                 requestNumber: 'REQ-0',
-                userId: 'user0',
-                userName: 'name0',
-                userEmail: 'email0@test.org',
+                userId: 'user_001',
+                userName: 'john_user',
+                userEmail: 'user@test.org',
                 supportId: null,
                 supportName: null,
                 category: 'electrical',
@@ -21,7 +21,7 @@ export const requestLambdaServiceMock: IRequestLambdaService = {
             {
                 requestId: 'req1',
                 requestNumber: 'REQ-1',
-                userId: 'user1',
+                userId: 'support_001',
                 userName: 'name1',
                 userEmail: 'email1@test.org',
                 supportId: null,
