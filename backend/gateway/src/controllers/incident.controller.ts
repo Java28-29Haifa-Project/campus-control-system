@@ -1,5 +1,3 @@
-//TODO check protocol
-
 import { Request, Response, NextFunction } from 'express';
 import { incidentServiceAWSLambda } from '../services/impl/IncidentServiceImplAWSLambda.js';
 

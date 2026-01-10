@@ -21,3 +21,7 @@ replay_pid*
 /.github/
 /.idea/
 /.github/
+
+# Environment files
+.env
+
