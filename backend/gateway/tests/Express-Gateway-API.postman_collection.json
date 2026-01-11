@@ -1,0 +1,419 @@
+{
+  "info": {
+    "name": "Express Gateway API",
+    "_postman_id": "express-gateway-collection",
+    "description": "",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Auth Lambda Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/lambdas/auth",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "lambdas", "auth"]
+            }
+          }
+        },
+        {
+          "name": "Request Lambda Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/lambdas/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "lambdas", "request"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login as USER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Cookies are set\", function () {",
+                  "    pm.expect(pm.cookies.has('accessToken')).to.be.true;",
+                  "    pm.expect(pm.cookies.has('refreshToken')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('userId');",
+                  "    pm.expect(jsonData).to.have.property('role');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@test.org\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as SUPPORT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"support@test.org\",\n  \"password\": \"support123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.org\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requests",
+      "item": [
+        {
+          "name": "Get All Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"]
+            }
+          }
+        },
+        {
+          "name": "Get Requests by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests?status=new",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "new"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/req0",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "req0"]
+            }
+          }
+        },
+        {
+          "name": "Create Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"plumbing\",\n  \"subject\": \"Leaking pipe\",\n  \"description\": \"Pipe in kitchen is leaking\",\n  \"userReportedPriority\": \"high\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"]
+            }
+          }
+        },
+        {
+          "name": "Update Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_service\",\n  \"comment\": \"Working on it\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/req0",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "req0"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incidents",
+      "item": [
+        {
+          "name": "Get All Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Incident",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/incidents/inc0",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", "inc0"]
+            }
+          }
+        },
+        {
+          "name": "Create Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketIds\": [\"req0\", \"req1\"],\n  \"impact\": \"high\",\n  \"urgency\": \"critical\",\n  \"category\": \"Network\",\n  \"description\": \"Network outage\",\n  \"createdBy\": \"support_001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents"]
+            }
+          }
+        },
+        {
+          "name": "Update Incident",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\",\n  \"urgency\": \"high\",\n  \"updatedBy\": \"engineer_001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/incidents/inc0",
+              "host": ["{{baseUrl}}"],
+              "path": ["incidents", "inc0"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Monitoring (ADMIN only)",
+      "item": [
+        {
+          "name": "Get Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "logs"]
+            }
+          }
+        },
+        {
+          "name": "Get Logs by Level",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/logs?level=ERROR",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "logs"],
+              "query": [
+                {
+                  "key": "level",
+                  "value": "ERROR"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Alarms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring/alarms",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring", "alarms"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit (ADMIN only)",
+      "item": [
+        {
+          "name": "Send Audit Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actor\": \"admin_001\",\n  \"action\": \"UPDATE_INCIDENT\",\n  \"entityType\": \"INCIDENT\",\n  \"entityId\": \"inc0\",\n  \"timestamp\": \"2026-01-10T12:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/audit",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
