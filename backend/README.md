@@ -78,8 +78,16 @@ Response(200):
   }
 ]
 
+
+
 ```
-#### AWS & Deployment Notes
+
+### API Documentation
+
+For detailed API information, see the [API Documentation](docs/API-DOCUMENTATION.md).
+
+
+### AWS & Deployment Notes
 - CORS: Expected to be configured at the API Gateway level.
 - Networking: The Express gateway does not expose itself publicly; all traffic is routed via the Internal ALB.
 
