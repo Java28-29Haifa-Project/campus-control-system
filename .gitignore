@@ -24,4 +24,4 @@ replay_pid*
 
 # Environment files
 .env
-
+task-definition-with-env.json
