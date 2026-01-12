@@ -1,0 +1,4 @@
+{
+  "ThrottlingRateLimit": 5,
+  "ThrottlingBurstLimit": 10
+}

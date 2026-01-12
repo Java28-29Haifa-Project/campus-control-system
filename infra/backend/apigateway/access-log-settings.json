@@ -1,0 +1,4 @@
+{
+  "DestinationArn": "arn:aws:logs:us-east-1:757434564846:log-group:/aws/apigateway/express-gateway-api",
+  "Format": "$context.requestId $context.error.message $context.error.messageString"
+}
