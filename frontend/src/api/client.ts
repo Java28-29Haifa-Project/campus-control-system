@@ -1,6 +1,5 @@
 import ApiError from "../utils/ApiError.ts";
 
-
 const baseurl = import.meta.env.VITE_API_BASE_URL;
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -13,7 +12,7 @@ type RequestOptions = {
     credentials?: RequestCredentials;
 }
 
-export const request= async (path:string, options: RequestOptions = {}): Promise<any> => {
+export const request= async <T>(path:string, options: RequestOptions = {}): Promise<T> => {
     let response:Response;
     try{
         response = await fetch((`${baseurl}` + path), {
@@ -38,7 +37,7 @@ export const request= async (path:string, options: RequestOptions = {}): Promise
             throw new ApiError("Request failed", response.status,"UNKNOWN");
         }
 
-        return await response.json();
+        return await response.json() as T;
     } catch(e){
         if(e instanceof ApiError){
             throw  e;
