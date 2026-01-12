@@ -1,0 +1,279 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Hub stack: HTTP API Gateway routing to 6 Lambda functions (health/auth/request/incident/monitoring/audit). Это CloudFormation (SAM не обязателен).
+Lambda-ресурсы здесь не создаются (потому что код функций у вас отдельно). Мы подключаем готовые функции через параметры ...LambdaArn.
+Когда вы деплоите функции — вы подставите их ARN в параметры (или в отдельный prod.json)."
+
+
+Parameters:
+  ApiName:
+    Type: String
+    Default: campus-control-system-dev
+
+  StageName:
+    Type: String
+    Default: $default
+
+  CorsAllowedOrigins:
+    Type: String
+    Default: http://localhost:5173
+
+  HealthLambdaArn:
+    Type: String
+    Default: TBD
+
+  AuthLambdaArn:
+    Type: String
+    Default: TBD
+
+  RequestLambdaArn:
+    Type: String
+    Default: TBD
+
+  IncidentLambdaArn:
+    Type: String
+    Default: TBD
+
+  MonitoringLambdaArn:
+    Type: String
+    Default: TBD
+
+  AuditLambdaArn:
+    Type: String
+    Default: TBD
+
+Resources:
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Ref ApiName
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref CorsAllowedOrigins
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowCredentials: true
+        MaxAge: 3600
+
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: !Ref StageName
+      AutoDeploy: true
+
+  # ----------------------------
+  # Integrations (AWS_PROXY)
+  # ----------------------------
+
+  HealthIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref HealthLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  AuthIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref AuthLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  RequestIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref RequestLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  IncidentIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref IncidentLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  MonitoringIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref MonitoringLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  AuditIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Ref AuditLambdaArn
+      PayloadFormatVersion: "2.0"
+      TimeoutInMillis: 29000
+
+  # ----------------------------
+  # Routes
+  # ----------------------------
+
+  # Health
+  RouteHealth:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasRequest:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/request"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasAuth:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/auth"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasIncident:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/incident"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasMonitoring:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/monitoring"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  RouteHealthLambdasAudit:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /health/lambdas/audit"
+      Target: !Sub "integrations/${HealthIntegration}"
+
+  # Auth
+  RouteAuthLogin:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /auth/login"
+      Target: !Sub "integrations/${AuthIntegration}"
+
+  RouteAuthVerify:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /auth/verify"
+      Target: !Sub "integrations/${AuthIntegration}"
+
+  # Requests
+  RouteRequestsList:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /requests"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsGet:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /requests/{id}"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsCreate:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /requests"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  RouteRequestsPatch:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "PATCH /requests/{id}"
+      Target: !Sub "integrations/${RequestIntegration}"
+
+  # Incidents
+  RouteIncidentsList:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /incidents"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsGet:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /incidents/{id}"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsCreate:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /incidents"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  RouteIncidentsPatch:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "PATCH /incidents/{id}"
+      Target: !Sub "integrations/${IncidentIntegration}"
+
+  # Monitoring
+  RouteMonitoringLogs:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /monitoring/logs"
+      Target: !Sub "integrations/${MonitoringIntegration}"
+
+  RouteMonitoringAlarms:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "GET /monitoring/alarms"
+      Target: !Sub "integrations/${MonitoringIntegration}"
+
+  # Audit
+  RouteAuditPost:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "POST /audit"
+      Target: !Sub "integrations/${AuditIntegration}"
+
+Outputs:
+  HttpApiId:
+    Description: "HTTP API ID"
+    Value: !Ref HttpApi
+
+  HttpApiInvokeUrl:
+    Description: "Base invoke URL (stage depends on StageName; $default has no stage segment)."
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"

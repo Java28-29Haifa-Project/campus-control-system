@@ -1,0 +1,5 @@
+{
+  "ApiName": "campus-control-system-dev",
+  "StageName": "$default",
+  "CorsAllowedOrigins": "http://localhost:5173"
+}
