@@ -1,0 +1,245 @@
+Root: F:\Code\Tel-ran\!Project\campus-control-system
+
+├── backend/
+│   ├── backend\gateway/
+│   │   ├── backend\gateway\config/
+│   │   │   └── backend\gateway\config\lib-config.json
+│   │   ├── backend\gateway\src/
+│   │   │   ├── backend\gateway\src\configurations/
+│   │   │   │   └── backend\gateway\src\configurations\app-config.ts
+│   │   │   ├── backend\gateway\src\controllers/
+│   │   │   │   ├── backend\gateway\src\controllers\audit.controller.ts
+│   │   │   │   ├── backend\gateway\src\controllers\auth.controller.ts
+│   │   │   │   ├── backend\gateway\src\controllers\health.controller.ts
+│   │   │   │   ├── backend\gateway\src\controllers\incident.controller.ts
+│   │   │   │   ├── backend\gateway\src\controllers\monitoring.controller.ts
+│   │   │   │   └── backend\gateway\src\controllers\request.controller.ts
+│   │   │   ├── backend\gateway\src\errors/
+│   │   │   │   ├── backend\gateway\src\errors\error-handler.ts
+│   │   │   │   └── backend\gateway\src\errors\http-error.ts
+│   │   │   ├── backend\gateway\src\routes/
+│   │   │   │   ├── backend\gateway\src\routes\audit.routes.ts
+│   │   │   │   ├── backend\gateway\src\routes\auth.routes.ts
+│   │   │   │   ├── backend\gateway\src\routes\health.routes.ts
+│   │   │   │   ├── backend\gateway\src\routes\incident.routes.ts
+│   │   │   │   ├── backend\gateway\src\routes\monitoring.routes.ts
+│   │   │   │   └── backend\gateway\src\routes\request.routes.ts
+│   │   │   ├── backend\gateway\src\services/
+│   │   │   │   ├── backend\gateway\src\services\impl/
+│   │   │   │   │   ├── backend\gateway\src\services\impl\AuditServiceImplAWSLambda.ts
+│   │   │   │   │   ├── backend\gateway\src\services\impl\AuthServiceImplAWSLambda.ts
+│   │   │   │   │   ├── backend\gateway\src\services\impl\IncidentServiceImplAWSLambda.ts
+│   │   │   │   │   ├── backend\gateway\src\services\impl\MonitoringServiceImplAWSLambda.ts
+│   │   │   │   │   └── backend\gateway\src\services\impl\RequestServiceImplAWSLambda.ts
+│   │   │   │   ├── backend\gateway\src\services\lambda-sdk/
+│   │   │   │   │   ├── backend\gateway\src\services\lambda-sdk\interfaces/
+│   │   │   │   │   │   ├── backend\gateway\src\services\lambda-sdk\interfaces\IAuditLambdaService.ts
+│   │   │   │   │   │   ├── backend\gateway\src\services\lambda-sdk\interfaces\IAuthLambdaService.ts
+│   │   │   │   │   │   ├── backend\gateway\src\services\lambda-sdk\interfaces\IIncidentLambdaService.ts
+│   │   │   │   │   │   ├── backend\gateway\src\services\lambda-sdk\interfaces\IMonitoringLambdaService.ts
+│   │   │   │   │   │   └── backend\gateway\src\services\lambda-sdk\interfaces\IRequestLambdaService.ts
+│   │   │   │   │   └── backend\gateway\src\services\lambda-sdk\mocks/
+│   │   │   │   │       ├── backend\gateway\src\services\lambda-sdk\mocks\AuditLambdaServiceMock.ts
+│   │   │   │   │       ├── backend\gateway\src\services\lambda-sdk\mocks\AuthLambdaServiceMock.ts
+│   │   │   │   │       ├── backend\gateway\src\services\lambda-sdk\mocks\IncidentLambdaServiceMock.ts
+│   │   │   │   │       ├── backend\gateway\src\services\lambda-sdk\mocks\MonitoringLambdaServiceMock.ts
+│   │   │   │   │       └── backend\gateway\src\services\lambda-sdk\mocks\RequestLambdaServiceMock.ts
+│   │   │   │   ├── backend\gateway\src\services\AuditService.ts
+│   │   │   │   ├── backend\gateway\src\services\AuthService.ts
+│   │   │   │   ├── backend\gateway\src\services\IncidentService.ts
+│   │   │   │   ├── backend\gateway\src\services\MonitoringService.ts
+│   │   │   │   └── backend\gateway\src\services\RequestService.ts
+│   │   │   ├── backend\gateway\src\types/
+│   │   │   │   ├── backend\gateway\src\types\audit.ts
+│   │   │   │   ├── backend\gateway\src\types\auth.ts
+│   │   │   │   ├── backend\gateway\src\types\incident.ts
+│   │   │   │   ├── backend\gateway\src\types\monitoring.ts
+│   │   │   │   └── backend\gateway\src\types\ticketRequest.ts
+│   │   │   ├── backend\gateway\src\app.ts
+│   │   │   └── backend\gateway\src\server.ts
+│   │   ├── backend\gateway\tests/
+│   │   │   └── backend\gateway\tests\test-endpoints.js
+│   │   ├── backend\gateway\Dockerfile
+│   │   ├── backend\gateway\gateway-deploy.sh
+│   │   ├── backend\gateway\jest.config.js
+│   │   ├── backend\gateway\jest.config.ts
+│   │   ├── backend\gateway\package-lock.json
+│   │   ├── backend\gateway\package.json
+│   │   └── backend\gateway\tsconfig.json
+│   └── backend\README.md
+├── docs/
+│   ├── docs\DevOps/
+│   │   ├── docs\DevOps\README-apigateway-deploy.en.md
+│   │   ├── docs\DevOps\README-apigateway-deploy.ru.md
+│   │   ├── docs\DevOps\README-backend-deploy.en.md
+│   │   ├── docs\DevOps\README-backend-deploy.ru.md
+│   │   ├── docs\DevOps\README-devops-setup.en.md
+│   │   ├── docs\DevOps\README-devops-setup.ru.md
+│   │   ├── docs\DevOps\README-frontend-deploy.en.md
+│   │   ├── docs\DevOps\README-frontend-deploy.ru.md
+│   │   ├── docs\DevOps\README-rds-deploy.en.md
+│   │   ├── docs\DevOps\README-rds-deploy.ru.md
+│   │   ├── docs\DevOps\README-rds-vpc-peering.en.md
+│   │   ├── docs\DevOps\README-rds-vpc-peering.ru.md
+│   │   ├── docs\DevOps\README-vpc-peering-concise.en.md
+│   │   ├── docs\DevOps\README-vpc-peering-concise.ru.md
+│   │   ├── docs\DevOps\README-vpc-peering-multi-account.en.md
+│   │   ├── docs\DevOps\README-vpc-peering-multi-account.ru.md
+│   │   ├── docs\DevOps\README-vpc-peering-variables.en.md
+│   │   ├── docs\DevOps\README-vpc-peering-variables.ru.md
+│   │   ├── docs\DevOps\README.md
+│   │   └── docs\DevOps\README_rus.md
+│   ├── docs\ACCOUNTS.md
+│   ├── docs\DEPLOYMENT_FLOW.md
+│   ├── docs\GATEWAY-API-ENDPOINTS.txt
+│   ├── docs\GATEWAY-LAMBDA-CONTRACT.txt
+│   ├── docs\infrastructure-composer-template.yaml.png
+│   ├── docs\INTEGRATION_CONTRACT.md
+│   └── docs\TROUBLESHOOTING.md
+├── frontend/
+│   ├── frontend\public/
+│   │   └── frontend\public\vite.svg
+│   ├── frontend\src/
+│   │   ├── frontend\src\api/
+│   │   │   └── frontend\src\api\client.ts
+│   │   ├── frontend\src\assets/
+│   │   │   ├── frontend\src\assets\building-8259184_1920.jpg
+│   │   │   └── frontend\src\assets\react.svg
+│   │   ├── frontend\src\components/
+│   │   │   ├── frontend\src\components\configurations/
+│   │   │   │   └── frontend\src\components\configurations\nav-config.ts
+│   │   │   ├── frontend\src\components\loginform/
+│   │   │   │   ├── frontend\src\components\loginform\loginForm.css
+│   │   │   │   └── frontend\src\components\loginform\LoginForm.tsx
+│   │   │   └── frontend\src\components\Navbar.tsx
+│   │   ├── frontend\src\layouts/
+│   │   │   └── frontend\src\layouts\RootLayout.tsx
+│   │   ├── frontend\src\pages/
+│   │   │   ├── frontend\src\pages\servicePages/
+│   │   │   │   ├── frontend\src\pages\servicePages\Alarm.tsx
+│   │   │   │   ├── frontend\src\pages\servicePages\ErrorPage.tsx
+│   │   │   │   ├── frontend\src\pages\servicePages\health.css
+│   │   │   │   └── frontend\src\pages\servicePages\HealthPage.tsx
+│   │   │   ├── frontend\src\pages\Home.tsx
+│   │   │   ├── frontend\src\pages\Incident.tsx
+│   │   │   ├── frontend\src\pages\Profile.tsx
+│   │   │   └── frontend\src\pages\Ticket.tsx
+│   │   ├── frontend\src\utils/
+│   │   │   └── frontend\src\utils\types.ts
+│   │   ├── frontend\src\App.css
+│   │   ├── frontend\src\App.tsx
+│   │   ├── frontend\src\index.css
+│   │   └── frontend\src\main.tsx
+│   ├── frontend\eslint.config.js
+│   ├── frontend\index.html
+│   ├── frontend\package-lock.json
+│   ├── frontend\package.json
+│   ├── frontend\README.md
+│   ├── frontend\tsconfig.app.json
+│   ├── frontend\tsconfig.json
+│   ├── frontend\tsconfig.node.json
+│   └── frontend\vite.config.ts
+├── infra/
+│   └── infra\backend/
+│       ├── infra\backend\apigateway/
+│       │   ├── infra\backend\apigateway\access-log-settings.json
+│       │   └── infra\backend\apigateway\throttle-settings.json
+│       ├── infra\backend\ecs/
+│       │   └── infra\backend\ecs\task-definition.json
+│       └── infra\backend\iam/
+│           ├── infra\backend\iam\api-gateway-logging-trust-policy.json
+│           └── infra\backend\iam\ecs-task-trust-policy.json
+├── infrastructure/
+│   ├── infrastructure\backend/
+│   │   └── infrastructure\backend\README.md
+│   ├── infrastructure\frontend/
+│   │   ├── infrastructure\frontend\src/
+│   │   └── infrastructure\frontend\README.md
+│   ├── infrastructure\frontend-hosting/
+│   │   ├── infrastructure\frontend-hosting\params/
+│   │   │   ├── infrastructure\frontend-hosting\params\dev.json
+│   │   │   └── infrastructure\frontend-hosting\params\prod.json
+│   │   ├── infrastructure\frontend-hosting\README.md
+│   │   └── infrastructure\frontend-hosting\template.yaml
+│   ├── infrastructure\hub/
+│   │   ├── infrastructure\hub\params/
+│   │   │   ├── infrastructure\hub\params\dev.json
+│   │   │   └── infrastructure\hub\params\prod.json
+│   │   ├── infrastructure\hub\README.md
+│   │   └── infrastructure\hub\template.yaml
+│   ├── infrastructure\lambdas/
+│   │   └── infrastructure\lambdas\README.md
+│   ├── infrastructure\services/
+│   │   ├── infrastructure\services\auth/
+│   │   │   ├── infrastructure\services\auth\src/
+│   │   │   ├── infrastructure\services\auth\README.md
+│   │   │   └── infrastructure\services\auth\template.yaml
+│   │   ├── infrastructure\services\core/
+│   │   │   ├── infrastructure\services\core\src/
+│   │   │   ├── infrastructure\services\core\README.md
+│   │   │   └── infrastructure\services\core\template.yaml
+│   │   ├── infrastructure\services\users/
+│   │   │   ├── infrastructure\services\users\src/
+│   │   │   ├── infrastructure\services\users\README.md
+│   │   │   └── infrastructure\services\users\template.yaml
+│   │   └── infrastructure\services\README.md
+│   ├── infrastructure\services-contract/
+│   │   ├── infrastructure\services-contract\examples/
+│   │   │   └── infrastructure\services-contract\examples\lambda-response.json
+│   │   ├── infrastructure\services-contract\openapi/
+│   │   │   └── infrastructure\services-contract\openapi\hub.openapi.yaml
+│   │   └── infrastructure\services-contract\README.md
+│   ├── infrastructure\README.md
+│   └── infrastructure\template.yaml
+├── lambdas/
+│   ├── lambdas\request-service/
+│   │   ├── lambdas\request-service\src/
+│   │   │   └── lambdas\request-service\src\main/
+│   │   │       └── lambdas\request-service\src\main\java/
+│   │   │           └── lambdas\request-service\src\main\java\com/
+│   │   │               └── lambdas\request-service\src\main\java\com\eosm/
+│   │   │                   └── lambdas\request-service\src\main\java\com\eosm\request/
+│   │   │                       ├── lambdas\request-service\src\main\java\com\eosm\request\actions/
+│   │   │                       │   └── lambdas\request-service\src\main\java\com\eosm\request\actions\CreateRequestAction.java
+│   │   │                       ├── lambdas\request-service\src\main\java\com\eosm\request\contract/
+│   │   │                       │   ├── lambdas\request-service\src\main\java\com\eosm\request\contract\GatewayRequest.java
+│   │   │                       │   └── lambdas\request-service\src\main\java\com\eosm\request\contract\GatewayResponse.java
+│   │   │                       ├── lambdas\request-service\src\main\java\com\eosm\request\handler/
+│   │   │                       │   └── lambdas\request-service\src\main\java\com\eosm\request\handler\RequestLambdaHandler.java
+│   │   │                       └── lambdas\request-service\src\main\java\com\eosm\request\util/
+│   │   │                           ├── lambdas\request-service\src\main\java\com\eosm\request\util\Json.java
+│   │   │                           └── lambdas\request-service\src\main\java\com\eosm\request\util\Val.java
+│   │   ├── lambdas\request-service\target/
+│   │   │   └── lambdas\request-service\target\classes/
+│   │   │       ├── lambdas\request-service\target\classes\com/
+│   │   │       │   └── lambdas\request-service\target\classes\com\eosm/
+│   │   │       │       └── lambdas\request-service\target\classes\com\eosm\request/
+│   │   │       │           ├── lambdas\request-service\target\classes\com\eosm\request\actions/
+│   │   │       │           │   └── lambdas\request-service\target\classes\com\eosm\request\actions\CreateRequestAction.class
+│   │   │       │           ├── lambdas\request-service\target\classes\com\eosm\request\contract/
+│   │   │       │           │   ├── lambdas\request-service\target\classes\com\eosm\request\contract\GatewayRequest.class
+│   │   │       │           │   ├── lambdas\request-service\target\classes\com\eosm\request\contract\GatewayResponse$ErrorBody.class
+│   │   │       │           │   └── lambdas\request-service\target\classes\com\eosm\request\contract\GatewayResponse.class
+│   │   │       │           ├── lambdas\request-service\target\classes\com\eosm\request\handler/
+│   │   │       │           │   └── lambdas\request-service\target\classes\com\eosm\request\handler\RequestLambdaHandler.class
+│   │   │       │           └── lambdas\request-service\target\classes\com\eosm\request\util/
+│   │   │       │               ├── lambdas\request-service\target\classes\com\eosm\request\util\Json.class
+│   │   │       │               └── lambdas\request-service\target\classes\com\eosm\request\util\Val.class
+│   │   │       └── lambdas\request-service\target\classes\META-INF/
+│   │   │           ├── lambdas\request-service\target\classes\META-INF\maven/
+│   │   │           │   └── lambdas\request-service\target\classes\META-INF\maven\com.eosm/
+│   │   │           │       └── lambdas\request-service\target\classes\META-INF\maven\com.eosm\request-service/
+│   │   │           │           ├── lambdas\request-service\target\classes\META-INF\maven\com.eosm\request-service\pom.properties
+│   │   │           │           └── lambdas\request-service\target\classes\META-INF\maven\com.eosm\request-service\pom.xml
+│   │   │           └── lambdas\request-service\target\classes\META-INF\MANIFEST.MF
+│   │   ├── lambdas\request-service\pom.xml
+│   │   └── lambdas\request-service\README.txt
+│   └── lambdas\README.md
+├── dump_project_structure.py
+├── LICENSE
+└── README.md
+
+Excluded names: .cache, .git, .idea, .mypy_cache, .next, .pytest_cache, .ruff_cache, .serverless, .terraform, .turbo, .venv, .vscode, __pycache__, build, coverage, dist, node_modules, venv
+Include hidden: False
+Max depth: 12
+Show sizes: False
