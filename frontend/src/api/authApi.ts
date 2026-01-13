@@ -8,7 +8,7 @@ export function login(loginData: LoginRequest): Promise<User> {
     });
 };
 
-export function verify(loginData: VerifyTokenRequest): Promise<User> {
+export function verify(loginData: VerifyTokenRequest): Promise<VerifyTokenResponse> {
     return request<VerifyTokenResponse>("/auth/verify", {
         method: "POST",
         body: loginData,
