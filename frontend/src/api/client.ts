@@ -28,13 +28,16 @@ export const request= async <T>(path:string, options: RequestOptions = {}): Prom
         });
 
         if(response.status === 401){
-            throw new ApiError("Unauthorized", 401,"UNAUTHORIZED")
+            const msg = await response.text();
+            throw new ApiError(msg ||"Unauthorized", 401,"UNAUTHORIZED")
         }
         if(response.status >= 500){
-            throw new ApiError("Server Error", response.status,"SERVER_ERROR");
+            const msg = await response.text();
+            throw new ApiError(msg ||"Server Error", response.status,"SERVER_ERROR");
         }
         if(!response.ok){
-            throw new ApiError("Request failed", response.status,"UNKNOWN");
+            const msg = await response.text();
+            throw new ApiError(msg ||"Request failed", response.status,"UNKNOWN");
         }
 
         return await response.json() as T;

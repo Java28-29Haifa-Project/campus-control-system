@@ -8,6 +8,7 @@ import * as React from "react";
 
 import frameDay from "../../assets/images/panelLogin.png";
 import frameNight from "../../assets/images/panelLoginNight.png";
+import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 
 type Props = {
     isDarkMode: boolean;
@@ -36,9 +37,25 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
             await login({email, password});
             console.log("Login success");
             navigate("/ticket");
-        } catch (e) {
-            setError("Login failed");
-            console.log("Catch works", e);
+        } catch (err) {
+            console.log("Login error", err);
+
+            if( err instanceof ApiError) {
+                const messageFromCode = LOGIN_ERROR_MESSAGES[err.code];
+                if (messageFromCode) {
+                    setError(messageFromCode);
+                    return;
+                }
+                if(err.status === 401) {
+                    setError(LOGIN_ERROR_MESSAGES.UNAUTHORIZED);
+                }
+                else if(err.status >= 500) {
+                    setError(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
+                }
+                else
+                    setError("Unexpected error");
+            }
+
         } finally {
             setLoading(false);
         }
@@ -53,7 +70,7 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
                         <div className="input-box">
                             <input
-                                type="text"
+                                type="Email"
                             placeholder='Email'
                             required
                             value={email}
@@ -81,7 +98,7 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
                             {error && <div>{error}</div>}
 
-                            <button type="submit" onClick={onPlayClick}>
+                            <button type="submit" onClick={onPlayClick} disabled={loading}>
                             {loading ? "Logging in..." : "Login"}
                             </button>
 
@@ -94,4 +111,4 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
                 );
                 };
 
-                export default LoginForm;
+export default LoginForm;
