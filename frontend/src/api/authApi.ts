@@ -1,4 +1,4 @@
-import type {LoginRequest, User, VerifyTokenRequest, VerifyTokenResponse} from "../types/authTypes.ts";
+import type {LoginRequest, User, VerifyToken} from "../types/authTypes.ts";
 import {request} from "./client.ts";
 
 export function login(loginData: LoginRequest): Promise<User> {
@@ -8,9 +8,14 @@ export function login(loginData: LoginRequest): Promise<User> {
     });
 };
 
-export function verify(loginData: VerifyTokenRequest): Promise<VerifyTokenResponse> {
-    return request<VerifyTokenResponse>("/auth/verify", {
+export function getCurrentUser(): Promise<User> {
+    return request<User>("/auth/me", {
+        method: "GET",
+    })
+}
+
+export function refreshToken(): Promise<VerifyToken> {
+    return request<VerifyToken>("/auth/refresh", {
         method: "POST",
-        body: loginData,
     })
 }
