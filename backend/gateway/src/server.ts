@@ -1,5 +1,6 @@
 import express from 'express'
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import {config} from './configurations/app-config.js';
 
 import {requestRoutes} from './routes/request.routes.js';
@@ -20,6 +21,14 @@ export const launchServer = () => {
     });
 
     //==================Middleware=================
+    app.use(cors({
+        origin: process.env.FRONTEND_URL || 'https://main.dw7m0a8uo4frv.amplifyapp.com',
+        credentials: true,
+        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+        exposedHeaders: ['Set-Cookie']
+    }));
+
     app.use(express.json());
     app.use(cookieParser());
 
