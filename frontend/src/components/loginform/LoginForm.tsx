@@ -1,14 +1,14 @@
 
 import { FaUser, FaLock } from "react-icons/fa";
 import './loginForm.css';
-import {type FormEvent, useState} from "react";
-import {login} from "../../api/authApi.ts";
+import {type FormEvent, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import * as React from "react";
 
 import frameDay from "../../assets/images/panelLogin.png";
 import frameNight from "../../assets/images/panelLoginNight.png";
-import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
+import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
+import {loginThunk} from "../../state/slices/authSlice.ts";
 
 type Props = {
     isDarkMode: boolean;
@@ -21,46 +21,24 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-
-
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+
+    const isLoading = useAppSelector(state => state.auth.isLoading);
+    const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+    const authError = useAppSelector(state => state.auth.error);
+
 
     const onSubmitLogin = async (e: FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setLoading(true);
-
-        try {
-            await login({email, password});
-            console.log("Login success");
-            navigate("/ticket");
-        } catch (err) {
-            console.log("Login error", err);
-
-            if( err instanceof ApiError) {
-                const messageFromCode = LOGIN_ERROR_MESSAGES[err.code];
-                if (messageFromCode) {
-                    setError(messageFromCode);
-                    return;
-                }
-                if(err.status === 401) {
-                    setError(LOGIN_ERROR_MESSAGES.UNAUTHORIZED);
-                }
-                else if(err.status >= 500) {
-                    setError(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
-                }
-                else
-                    setError("Unexpected error");
-            }
-
-        } finally {
-            setLoading(false);
-        }
+        dispatch(loginThunk({email, password}));
     }
 
+    useEffect(() => {
+        if (isAuthenticated){
+            navigate("/ticket", { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
                 <div className='wrapper'>
@@ -96,10 +74,10 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
                             {/*    <a href="#">Forgot password?</a>*/}
                             {/*</div>*/}
 
-                            {error && <div>{error}</div>}
+                            {authError && <div>{authError}</div>}
 
-                            <button type="submit" onClick={onPlayClick} disabled={loading}>
-                            {loading ? "Logging in..." : "Login"}
+                            <button type="submit" onClick={onPlayClick} disabled={isLoading}>
+                            {isLoading ? "Logging in..." : "Login"}
                             </button>
 
                             {/*<div className="register-link">*/}
