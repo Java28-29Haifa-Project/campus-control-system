@@ -10,14 +10,7 @@ export type LoginRequest = {
     password: string;
 };
 
-export type VerifyTokenRequest = {
+export type VerifyToken = {
     userId: string;
 };
 
-export type VerifyTokenResponse = {
-    valid: boolean;
-    userId: string;
-    username: string;
-    email: string;
-    role: 'USER' | 'ADMIN' | 'SUPPORT' | 'ENGINEER';
-}
