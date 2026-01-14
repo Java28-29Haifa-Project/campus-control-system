@@ -10,11 +10,11 @@ import HealthPage from "./pages/servicePages/HealthPage.tsx";
 import RootLayout from "./layouts/RootLayout.tsx";
 import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
 import {navItem} from "./components/configurations/nav-config.ts";
+import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
 
 function App() {
     const location = useLocation();
     const navigate = useNavigate();
-
 
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -29,6 +29,7 @@ function App() {
 
     return (
         <div>
+            <AuthVerify />
             <Routes>
 
                 <Route path={'/'} element={

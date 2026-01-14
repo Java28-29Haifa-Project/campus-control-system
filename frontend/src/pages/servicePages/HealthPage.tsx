@@ -1,6 +1,6 @@
-import {request} from "../../api/client.ts";
 import {useState} from "react";
 import './health.css';
+import {healthApi} from "../../api/healthApi.ts";
 
 
 const HealthPage = () => {
@@ -9,9 +9,7 @@ const HealthPage = () => {
 
     const healthCheck = async () => {
         try{
-            const data = await request("/health", {
-                method: "GET"
-            });
+            const data = await healthApi();
             setStatus(JSON.stringify(data, null, 2));
         }catch(e){
             setStatus("Error, check console");
