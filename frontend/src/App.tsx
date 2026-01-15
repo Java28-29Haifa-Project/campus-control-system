@@ -12,6 +12,7 @@ import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
 import {navItem} from "./components/configurations/nav-config.ts";
 import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
 import {Paths} from "./utils/types.ts";
+import ProtectedRoute from "./pages/servicePages/ProtectedRoute.tsx";
 
 function App() {
     // const location = useLocation();
@@ -41,11 +42,29 @@ function App() {
                     />
                 }>
                     <Route index element={<Home isDarkMode={isDarkMode}/>}/>
-                    <Route path={Paths.TICKET} element={<Ticket/>}/>
-                    <Route path={Paths.INCIDENT} element={<Incident/>}/>
-                    <Route path={Paths.PROFILE} element={<Profile/>}/>
-                    <Route path={Paths.ALARM} element={<Alarm/>}/>
                     <Route path={Paths.HEALTH} element={<HealthPage/>}/>
+
+                    <Route path={Paths.PROFILE} element={
+                        <ProtectedRoute>
+                            <Profile/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={Paths.TICKET} element={
+                        <ProtectedRoute allowedRoles={['ADMIN','USER']}>
+                            <Ticket/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={Paths.INCIDENT} element={
+                        <ProtectedRoute allowedRoles={["SUPPORT", "ENGINEER", "ADMIN"]}>
+                            <Incident/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={Paths.ALARM} element={
+                        <ProtectedRoute allowedRoles={["ENGINEER", "ADMIN"]}>
+                            <Alarm/>
+                        </ProtectedRoute>
+                    }/>
+
                 </Route>
 
                 <Route path='*' element={<ErrorPage />}/>
