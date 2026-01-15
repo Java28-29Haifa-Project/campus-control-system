@@ -2,16 +2,16 @@ import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {useEffect} from "react";
 import {verifyTokenThunk} from "../../state/slices/authSlice.ts";
 
-
 const AuthVerify = () => {
 
     const dispatch = useAppDispatch();
     const isVerified = useAppSelector(state => state.auth.isVerified);
     useEffect(() => {
-        dispatch(verifyTokenThunk())
+        if(isVerified === "idle" || isVerified === "failed")
+            dispatch(verifyTokenThunk())
     }, [dispatch]);
 
-    if (!isVerified) {
+    if (isVerified === "loading") {
         return <div>Loading...</div>;
     }
     return null;

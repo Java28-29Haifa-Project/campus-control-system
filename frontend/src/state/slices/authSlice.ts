@@ -3,17 +3,19 @@ import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolki
 import {getCurrentUser, login, refreshToken} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 
+export type AuthStatus = "idle" | "loading" | "succeeded" | "failed";
+
 export interface AuthState {
     user: User | null;
     isAuthenticated: boolean,
-    isVerified: boolean,
+    isVerified: AuthStatus,
     isLoading: boolean,
     error: string | null,
 }
 const initialState: AuthState = {
     user: null,
     isAuthenticated: false,
-    isVerified: false,
+    isVerified: "idle",
     isLoading: false,
     error: null,
 }
@@ -90,6 +92,7 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.isAuthenticated = false;
+            state.isVerified = "idle";
             state.isLoading = false;
             state.error = null;
         }
@@ -98,35 +101,39 @@ const authSlice = createSlice({
         builder
             .addCase(loginThunk.pending, (state) => {
                 state.isLoading = true;
+                state.isVerified = "loading";
                 state.error = null;
             })
             .addCase(loginThunk.fulfilled, (state, action: PayloadAction<User>) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isVerified = "succeeded";
                 state.user = action.payload;
                 state.error = null;
             })
             .addCase(loginThunk.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
+                state.isVerified = "failed";
                 state.user = null;
                 state.error = action.payload ?? action.error.message ?? "Unexpected error";
             })
             .addCase(verifyTokenThunk.pending, (state) => {
                 state.isLoading = true;
+                state.isVerified = "loading";
                 state.error = null;
             })
             .addCase(verifyTokenThunk.fulfilled, (state, action: PayloadAction<User>) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.isVerified = true;
+                state.isVerified = "succeeded";
                 state.user = action.payload;
                 state.error = null;
             })
             .addCase(verifyTokenThunk.rejected, (state) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
-                state.isVerified = true;
+                state.isVerified = "failed";
                 state.user = null;
             })
     }

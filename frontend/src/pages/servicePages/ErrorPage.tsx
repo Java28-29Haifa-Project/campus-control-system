@@ -9,12 +9,13 @@ const ErrorPage = () => {
     return (
         <div className='container'>
             {code === 404? <h1 style={{color:"yellow"}}>404 | Not found</h1> :
-                <div>
+                <div style={{color:"yellow"}}>
                     <h1>403 – Forbidden</h1>
                     <p>You don't have permission to access this page.</p>
                 </div>
                 }
-            <Link to={Paths.HOME} style={{color:"yellow"}}>Go back to Home</Link>
+                <br/>
+            <Link to={Paths.HOME} style={{color:"yellow", fontSize:"30px", border:"1px solid yellow", padding: "10px"}}>Go back to Home</Link>
         </div>
     );
 };

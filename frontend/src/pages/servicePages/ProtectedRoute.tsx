@@ -16,8 +16,11 @@ const ProtectedRoute:React.FC<ProtectedRouteProps> = ({allowedRoles, children}) 
     const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
     const user = useAppSelector(state => state.auth.user);
 
-    if(!isVerified){
+    if (isVerified === "loading") {
         return <div>Loading...</div>;
+    }
+    if(isVerified === "failed") {
+        return <Navigate to={Paths.HOME} replace/>
     }
 
     if(!isAuthenticated || !user){

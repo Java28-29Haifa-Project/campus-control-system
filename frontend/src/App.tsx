@@ -15,19 +15,12 @@ import {Paths} from "./utils/types.ts";
 import ProtectedRoute from "./pages/servicePages/ProtectedRoute.tsx";
 
 function App() {
-    // const location = useLocation();
-    // const navigate = useNavigate();
 
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
     };
-
-    // useEffect(() => {
-    //     if(location.pathname === '/error')
-    //         navigate('/');
-    // }, []);
 
     return (
         <div>
