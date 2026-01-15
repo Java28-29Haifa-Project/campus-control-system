@@ -9,7 +9,7 @@ const AuthVerify = () => {
     useEffect(() => {
         if(isVerified === "idle" )
             dispatch(verifyTokenThunk())
-    }, [dispatch]);
+    }, [dispatch, isVerified]);
 
     if (isVerified === "loading" || isVerified === "idle") {
         return <div>Loading...</div>;
