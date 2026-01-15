@@ -24,7 +24,7 @@ const ProtectedRoute:React.FC<ProtectedRouteProps> = ({allowedRoles, children}) 
     }
 
     if(!isAuthenticated || !user){
-        return <Navigate to={Paths.HEALTH}
+        return <Navigate to={Paths.HOME}
         state={{from:location}}
         replace/>
     }
