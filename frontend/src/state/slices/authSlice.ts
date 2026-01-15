@@ -41,15 +41,19 @@ export const loginThunk = createAsyncThunk <
                 else if(err.status >= 500) {
                     return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
                 }
-                else
-                    return rejectWithValue("Unexpected error");
+                // else
+                //     return rejectWithValue("Unexpected error");
             }
             return rejectWithValue("Backend is unavailable");
         }
     }
 );
 
-export const verifyTokenThunk = createAsyncThunk( 
+export const verifyTokenThunk = createAsyncThunk<
+    User,
+    void,
+    { rejectValue: string }
+>(
     "auth/verify",
     async (_, { rejectWithValue }) => {
         try {
@@ -70,8 +74,8 @@ export const verifyTokenThunk = createAsyncThunk(
                 if(err.status >= 500){
                     return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
                 }
-                else
-                    return rejectWithValue("Unexpected error");
+                // else
+                //     return rejectWithValue("Unexpected error");
             }
             return rejectWithValue("Backend is unavailable");
         }

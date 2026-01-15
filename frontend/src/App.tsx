@@ -1,6 +1,6 @@
 import './App.css'
-import {Routes, Route, useNavigate, useLocation} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {Routes, Route} from "react-router-dom";
+import {useState} from "react";
 import Home from "./pages/Home.tsx";
 import Ticket from "./pages/Ticket.tsx";
 import Incident from "./pages/Incident.tsx";
@@ -11,10 +11,11 @@ import RootLayout from "./layouts/RootLayout.tsx";
 import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
 import {navItem} from "./components/configurations/nav-config.ts";
 import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
+import {Paths} from "./utils/types.ts";
 
 function App() {
-    const location = useLocation();
-    const navigate = useNavigate();
+    // const location = useLocation();
+    // const navigate = useNavigate();
 
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -22,17 +23,17 @@ function App() {
         setIsDarkMode(!isDarkMode);
     };
 
-    useEffect(() => {
-        if(location.pathname === '/error')
-            navigate('/');
-    }, []);
+    // useEffect(() => {
+    //     if(location.pathname === '/error')
+    //         navigate('/');
+    // }, []);
 
     return (
         <div>
             <AuthVerify />
             <Routes>
 
-                <Route path={'/'} element={
+                <Route path={Paths.HOME} element={
                     <RootLayout
                         items={navItem}
                         isDarkMode={isDarkMode}
@@ -40,14 +41,14 @@ function App() {
                     />
                 }>
                     <Route index element={<Home isDarkMode={isDarkMode}/>}/>
-                    <Route path='ticket' element={<Ticket/>}/>
-                    <Route path='incident' element={<Incident/>}/>
-                    <Route path='profile' element={<Profile/>}/>
-                    <Route path='alarm' element={<Alarm/>}/>
-                    <Route path='health' element={<HealthPage/>}/>
+                    <Route path={Paths.TICKET} element={<Ticket/>}/>
+                    <Route path={Paths.INCIDENT} element={<Incident/>}/>
+                    <Route path={Paths.PROFILE} element={<Profile/>}/>
+                    <Route path={Paths.ALARM} element={<Alarm/>}/>
+                    <Route path={Paths.HEALTH} element={<HealthPage/>}/>
                 </Route>
 
-                <Route path='*' element={<ErrorPage/>}/>
+                <Route path='*' element={<ErrorPage />}/>
             </Routes>
         </div>
     )

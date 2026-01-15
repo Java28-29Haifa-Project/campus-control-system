@@ -11,7 +11,7 @@ const AuthVerify = () => {
         dispatch(verifyTokenThunk())
     }, [dispatch]);
 
-    if (isVerified) {
+    if (!isVerified) {
         return <div>Loading...</div>;
     }
     return null;
