@@ -36,7 +36,7 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
     useEffect(() => {
         if (isAuthenticated){
-            navigate("/ticket", { replace: true });
+            navigate("/profile", { replace: true });
         }
     }, [isAuthenticated, navigate]);
 

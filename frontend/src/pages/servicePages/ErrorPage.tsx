@@ -15,7 +15,7 @@ const ErrorPage = () => {
                 </div>
                 }
                 <br/>
-            <Link to={Paths.HEALTH} style={{color:"yellow", fontSize:"30px", border:"1px solid yellow", padding: "10px"}}>Go back to Home</Link>
+            <Link to={Paths.HOME} style={{color:"yellow", fontSize:"30px", border:"1px solid yellow", padding: "10px"}}>Go back to Home</Link>
         </div>
     );
 };

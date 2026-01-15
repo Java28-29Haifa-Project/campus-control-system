@@ -7,11 +7,11 @@ const AuthVerify = () => {
     const dispatch = useAppDispatch();
     const isVerified = useAppSelector(state => state.auth.isVerified);
     useEffect(() => {
-        if(isVerified === "idle" )
+        if(isVerified === "idle")
             dispatch(verifyTokenThunk())
     }, [dispatch, isVerified]);
 
-    if (isVerified === "loading" || isVerified === "idle") {
+    if (isVerified === "loading") {
         return <div>Loading...</div>;
     }
     return null;
