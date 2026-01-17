@@ -22,7 +22,7 @@ export const launchServer = () => {
 
     //==================Middleware=================
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'https://main.dw7m0a8uo4frv.amplifyapp.com',
+        origin: process.env.FRONTEND_URL || 'https://main.d2q14890n6r4m7.amplifyapp.com/',
         credentials: true,
         methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
