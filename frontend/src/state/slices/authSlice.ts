@@ -90,11 +90,7 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         logout: (state) => {
-            state.user = null;
-            state.isAuthenticated = false;
-            state.isVerified = "idle";
-            state.isLoading = false;
-            state.error = null;
+            Object.assign(state, initialState);
         }
     },
     extraReducers: (builder) => {
@@ -130,15 +126,19 @@ const authSlice = createSlice({
                 state.user = action.payload;
                 state.error = null;
             })
-            .addCase(verifyTokenThunk.rejected, (state) => {
-                state.isLoading = false;
-                state.isAuthenticated = false;
+            .addCase(verifyTokenThunk.rejected, (state, action) => {
+                if((action.payload ?? "") === LOGIN_ERROR_MESSAGES.UNAUTHORIZED) {
+                    state.user = null;
+                    state.isAuthenticated = false;
+                    state.isLoading = false;
+                    state.isVerified = "failed";
+                    state.error = LOGIN_ERROR_MESSAGES.UNAUTHORIZED;
+                }
                 state.isVerified = "failed";
-                state.user = null;
+                state.isLoading = false;
+                state.error = action.payload ?? action.error.message ?? null;
             })
     }
-
 })
-
 export const { logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;

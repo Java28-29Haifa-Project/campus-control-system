@@ -32,6 +32,7 @@ function App() {
                         items={navItem}
                         isDarkMode={isDarkMode}
                         onToggleTheme={toggleTheme}
+
                     />
                 }>
                     <Route index element={<Home isDarkMode={isDarkMode}/>}/>
