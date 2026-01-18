@@ -1,9 +1,11 @@
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {Paths} from "../../utils/types.ts";
 
 const ErrorPage = () => {
 
     const { state } = useLocation();
+    const navigate = useNavigate();
+
     const code = state?.code ?? 404;
 
     return (
@@ -15,7 +17,17 @@ const ErrorPage = () => {
                 </div>
                 }
                 <br/>
-            <Link to={Paths.HOME} style={{color:"yellow", fontSize:"30px", border:"1px solid yellow", padding: "10px"}}>Go back to Home</Link>
+            <div style={{ marginTop: 16 }}>
+                <button onClick={() => navigate(-1)}>Back</button>{" "}
+                <Link to={Paths.HOME}
+                      style={{
+                          color:"yellow",
+                          fontSize:"30px",
+                          border:"1px solid yellow",
+                          padding: "10px"}}
+                >
+                    Go to Home</Link>
+            </div>
         </div>
     );
 };
