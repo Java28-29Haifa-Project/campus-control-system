@@ -3,21 +3,10 @@ import { FaUser, FaLock } from "react-icons/fa";
 import './loginForm.css';
 import {type FormEvent, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import * as React from "react";
-
-import frameDay from "../../assets/images/panelLogin.png";
-import frameNight from "../../assets/images/panelLoginNight.png";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {loginThunk} from "../../state/slices/authSlice.ts";
 
-type Props = {
-    isDarkMode: boolean;
-    onPlayClick: () => void;
-};
-
-const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
-
-    const currentFrame = isDarkMode ? frameNight : frameDay;
+const LoginForm= () => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -36,13 +25,13 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
     useEffect(() => {
         if (isAuthenticated){
-            navigate("/profile", { replace: true });
+            navigate("/dashboard", { replace: true });
         }
     }, [isAuthenticated, navigate]);
 
     return (
-                <div className='wrapper'>
-                    <img src={currentFrame} alt="" className="frame-bg"/>
+        <div className="auth-page">
+                <div className='login-wrapper'>
                     <form onSubmit={onSubmitLogin}>
                         <h1>Login</h1>
 
@@ -53,7 +42,6 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            onClick={onPlayClick}
                             />
                             <FaUser className='icon'/>
                         </div>
@@ -64,7 +52,6 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
                                 required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            onClick={onPlayClick}
                             />
                             <FaLock className='icon'/>
                             </div>
@@ -76,7 +63,7 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
 
                             {authError && <div>{authError}</div>}
 
-                            <button type="submit" onClick={onPlayClick} disabled={isLoading}>
+                            <button type="submit" disabled={isLoading}>
                             {isLoading ? "Logging in..." : "Login"}
                             </button>
 
@@ -86,6 +73,7 @@ const LoginForm: React.FC<Props> = ({ isDarkMode, onPlayClick }) => {
                             {/*</div>*/}
                     </form>
                 </div>
+        // </div>
                 );
                 };
 
