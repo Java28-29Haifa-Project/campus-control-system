@@ -3,7 +3,8 @@ import { healthController } from '../controllers/health.controller.js';
 
 export const healthRoutes = express.Router();
 
-healthRoutes.get('/', healthController.getGatewayHealth);
+healthRoutes.get('/sync', healthController.getLambdaSync);
+healthRoutes.get('/async', healthController.getLambdaAsync);
 
 healthRoutes.get('/request', healthController.getRequestLambdaHealth);
 healthRoutes.get('/auth', healthController.getAuthLambdaHealth);
