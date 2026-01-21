@@ -16,9 +16,10 @@ import { requireRole } from './middleware/role.middleware.js';
 
 export const launchServer = () => {
     const app = express();
-    app.listen(config.port, () => {
-        console.log(`Server runs at http://localhost:${config.port}`);
+    app.listen(config.port, '0.0.0.0', () => {
+        console.log(`Server runs on port ${config.port}`);
     });
+
 
     //==================Middleware=================
     app.use(cors({
