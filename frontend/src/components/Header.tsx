@@ -12,7 +12,7 @@ const Header = () => {
             <div className="header-left">LOGO</div>
             <div className="header-center">Campus Control System</div>
             <div>
-                {auth? <p>Hello, {auth.email}</p> : <p>Hello, guest</p>}
+                {auth? <p>Hello, {auth.userId}</p> : <p>Hello, guest</p>}
             </div>
             <div className="header-right">
                 {isAuthenticated && <button onClick={() => {

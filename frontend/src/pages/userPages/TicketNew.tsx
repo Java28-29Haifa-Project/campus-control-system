@@ -1,9 +1,10 @@
+import TicketFormPage from "./TicketFormPage.tsx";
 
 const CreateTicket = () => {
 
     return (
         <div >
-            <h1>New Ticket page</h1>
+            <TicketFormPage/>
         </div>
     );
 };

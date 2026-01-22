@@ -6,6 +6,7 @@ export const Paths = {
     HOME: '/',
     TICKET: '/ticket',
     TICKET_NEW: '/ticket/new',
+    TICKET_DETAILS: "/ticket/:id",
     TICKET_SUPPORT: '/support/ticket',
     INCIDENT: '/incident',
     INCIDENT_NEW: '/incident/new',

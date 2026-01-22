@@ -5,8 +5,6 @@ import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
 import {Paths} from "./utils/types.ts";
 import ProtectedRoute from "./pages/servicePages/ProtectedRoute.tsx";
 import AuthLayout from "./layouts/AuthLayout.tsx";
-import LoginForm from "./components/loginform/LoginForm.tsx";
-import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
 import HealthPage from "./pages/servicePages/health/HealthPage.tsx";
 import Ticket from "./pages/userPages/Ticket.tsx";
 import TicketSupport from "./pages/supportPages/TicketSupport.tsx";
@@ -17,6 +15,8 @@ import Incident from "./pages/engineerPages/Incident.tsx";
 import Alarm from "./pages/adminPages/Alarm.tsx";
 import Logs from "./pages/adminPages/Logs.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import TicketDetailsPage from "./pages/userPages/TicketDetailsPage.tsx";
+import LoginForm from "./components/LoginForm.tsx";
 
 function App() {
 
@@ -28,7 +28,7 @@ function App() {
 
             <Route element={
                 <>
-                    <AuthVerify/>
+                    {/*<AuthVerify/>*/}
                     <RootLayout/>
                 </>
             }>
@@ -40,6 +40,7 @@ function App() {
                     <ProtectedRoute allowedRoles={['ADMIN', 'USER']}/>}>
                         <Route path={Paths.TICKET} element={<Ticket/>}/>
                         <Route path={Paths.TICKET_NEW} element={<CreateTicket/>}/>
+                        <Route path={Paths.TICKET_DETAILS} element={<TicketDetailsPage/>}/>
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
