@@ -17,6 +17,7 @@ import Logs from "./pages/adminPages/Logs.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import TicketDetailsPage from "./pages/userPages/TicketDetailsPage.tsx";
 import LoginForm from "./components/LoginForm.tsx";
+import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
 
 function App() {
 
@@ -28,7 +29,7 @@ function App() {
 
             <Route element={
                 <>
-                    {/*<AuthVerify/>*/}
+                    <AuthVerify/>
                     <RootLayout/>
                 </>
             }>
