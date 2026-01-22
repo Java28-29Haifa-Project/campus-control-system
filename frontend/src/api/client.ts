@@ -1,6 +1,6 @@
 import ApiError from "../utils/ApiError.ts";
 
-const baseurl = import.meta.env.VITE_API_BASE_URL;
+// const baseurl = import.meta.env.VITE_API_BASE_URL;
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -15,8 +15,8 @@ type RequestOptions = {
 export const request= async <T>(path:string, options: RequestOptions = {}): Promise<T> => {
     let response:Response;
     try{
-        response = await fetch((`${baseurl}` + path), {
-        //response = await fetch((path), {
+        // response = await fetch((`${baseurl}` + path), {
+        response = await fetch((path), {
             method: options.method ?? "GET",
             headers: {
                 ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),

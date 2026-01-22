@@ -15,7 +15,7 @@ export interface Ticket {
     userReportedPriority: UserPriority;
 }
 
-export interface RequestTicket {
+export interface TicketRequest {
     subject: string;
     description: string;
     category: Category;

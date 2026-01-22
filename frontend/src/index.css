@@ -5,16 +5,17 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background: url('./assets/building.jpg') no-repeat bottom center;
-    background-size: cover;
-}
+    body {
+        font-family: 'Poppins', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: url('./assets/building.jpg') no-repeat bottom center;
+        background-size: cover;
+    }
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
@@ -96,41 +97,5 @@ code {
     color: #fff;
 }
 
-/*.container {*/
-/*    position: absolute;*/
-/*    top: 280px;*/
-/*    transform: translateX(-50%);*/
-/*    width: auto; height: auto;*/
-/*    color: inherit;*/
-/*    z-index: 5;*/
-/*    user-select: text;*/
-/*}*/
-/*.header{*/
-/*    position: absolute;*/
-/*    top: 0;*/
-/*    left: 0;*/
-/*    background: transparent;*/
-/*    border: 2px solid rgba(255, 255, 255, .2);*/
-/*    box-shadow: 0 0 10px rgba(0, 0, 0, .2);*/
-/*    backdrop-filter: blur(30px);*/
-/*    color:#ffff;*/
-/*    min-width: 100vw;*/
-/*}*/
-/*.navbar{*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    left: 0;*/
-/*    background: transparent;*/
-/*    border: 2px solid rgba(255, 255, 255, .2);*/
-/*    box-shadow: 0 0 10px rgba(0, 0, 0, .2);*/
-/*    backdrop-filter: blur(30px);*/
-/*    color:#ffff;*/
-/*    padding: 30px 20px;*/
-/*    min-height: 100vh;*/
-/*}*/
-/*.navbar-wrapper {*/
-/*    display: block;*/
-/*    margin: 20px 0 ;*/
-/*    color: inherit;*/
-/*}*/
+
 

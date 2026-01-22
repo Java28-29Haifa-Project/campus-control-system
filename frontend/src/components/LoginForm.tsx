@@ -1,10 +1,11 @@
 
 import { FaUser, FaLock } from "react-icons/fa";
-import './loginForm.css';
+import './../styles/forms.css';
 import {type FormEvent, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {loginThunk} from "../../state/slices/authSlice.ts";
+import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
+import {loginThunk} from "../state/slices/authSlice.ts";
+
 
 const LoginForm= () => {
 
