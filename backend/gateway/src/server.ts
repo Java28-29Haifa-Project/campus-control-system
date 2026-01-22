@@ -16,13 +16,14 @@ import { requireRole } from './middleware/role.middleware.js';
 
 export const launchServer = () => {
     const app = express();
-    app.listen(config.port, () => {
-        console.log(`Server runs at http://localhost:${config.port}`);
+    app.listen(config.port, '0.0.0.0', () => {
+        console.log(`Server runs on port ${config.port}`);
     });
+
 
     //==================Middleware=================
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'https://main.dw7m0a8uo4frv.amplifyapp.com',
+        origin: process.env.FRONTEND_URL || 'https://main.d2q14890n6r4m7.amplifyapp.com/',
         credentials: true,
         methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
