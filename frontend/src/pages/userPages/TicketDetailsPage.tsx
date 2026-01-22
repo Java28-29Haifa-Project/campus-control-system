@@ -1,25 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './../../styles/forms.css';
 import { useParams, useNavigate } from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
+import {clearCurrentTicket, fetchTicketByIdThunk} from "../../state/slices/ticketSlice.ts";
 
 const TicketDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    // const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    // const { current, isLoadingCurrent, error } = useAppSelector(
-    //     (state) => state.ticket
-    // );
+    const { current, isLoadingCurrent, error } = useAppSelector(
+        (state) => state.ticket
+    );
 
-    // useEffect(() => {
-    //     if (id) {
-    //         dispatch(fetchTicketByIdThunk(id));
-    //     }
-    //
-    //     return () => {
-    //         dispatch(clearCurrentTicket());
-    //     };
-    // }, [dispatch, id]);
+    useEffect(() => {
+        if (id) {
+            dispatch(fetchTicketByIdThunk(id));
+        }
+
+        return () => {
+            dispatch(clearCurrentTicket());
+        };
+    }, [dispatch, id]);
 
     if (!id) {
         return (
@@ -39,30 +41,17 @@ const TicketDetailsPage: React.FC = () => {
             </div>
         );
     }
-    //mock -remove later
-    const mockTicket = {
-        id,
-        subject: "Problem with internet",
-        description:
-            "Internet connection is unstable in room 305. It drops every 5–10 minutes and interrupts online classes.",
-        status: "OPEN",
-        priority: "LOW",
-        category: "ELECTRICAL",
-        createdAt: "2026-01-22T10:25:00Z"
-    };
+    if (isLoadingCurrent) {
+        return <div>Loading ticket...</div>;
+    }
 
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
-    // if (isLoadingCurrent) {
-    //     return <div>Loading ticket...</div>;
-    // }
-    //
-    // if (error) {
-    //     return <div>Error: {error}</div>;
-    // }
-    //
-    // if (!current) {
-    //     return <div>Ticket not found</div>;
-    // }
+    if (!current) {
+        return <div>Ticket not found</div>;
+    }
 
     return (
         <div className="auth-page">
@@ -75,34 +64,34 @@ const TicketDetailsPage: React.FC = () => {
                     ← Back to list
                 </button>
 
-                <h1>Ticket #{mockTicket.id}</h1>
+                <h1>Ticket #{current.id}</h1>
 
                 <div className="ticket-details-meta">
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Subject</span>
                         <span className="ticket-details-value">
-                            {mockTicket.subject}
+                            {current.subject}
                         </span>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Category</span>
                         <span className="ticket-details-value">
-                            {mockTicket.category}
+                            {current.category}
                         </span>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Priority</span>
                         <span className="ticket-details-value">
-                            {mockTicket.priority}
+                            {current.userReportedPriority}
                         </span>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Status</span>
                         <span className="ticket-details-value">
-                            {mockTicket.status}
+                            {current.status}
                         </span>
                     </div>
 
@@ -110,7 +99,7 @@ const TicketDetailsPage: React.FC = () => {
                         <span className="ticket-details-label">Created at</span>
                         <span className="ticket-details-value">
                             {new Date(
-                                mockTicket.createdAt
+                                current.createdAt
                             ).toLocaleString()}
                         </span>
                     </div>
@@ -120,7 +109,7 @@ const TicketDetailsPage: React.FC = () => {
                     <span className="ticket-details-label">
                         Description
                     </span>
-                    <p>{mockTicket.description}</p>
+                    <p>{current.description}</p>
                 </div>
 
 

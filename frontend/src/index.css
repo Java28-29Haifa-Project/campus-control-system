@@ -41,7 +41,6 @@ code {
     color: #fff;
     z-index: 1000;
 }
-
 .header-left {
     font-weight: 700;
 }
@@ -67,7 +66,7 @@ code {
     position: fixed;
     top: 60px;
     left: 0;
-    width: 80px;
+    width: 200px; /* было 80px */
     height: calc(100vh - 60px);
     backdrop-filter: blur(25px);
     background: rgba(30, 30, 30, .6);
@@ -75,6 +74,7 @@ code {
     padding: 20px;
     display: flex;
     flex-direction: column;
+    z-index: 900;
 }
 
 .navbar-link {
@@ -95,6 +95,7 @@ code {
     margin-left: 200px;
     padding: 20px;
     color: #fff;
+    box-sizing: border-box;
 }
 
 

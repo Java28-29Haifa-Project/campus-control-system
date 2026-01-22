@@ -1,24 +1,28 @@
 .health-wrapper {
-    position: fixed;
-    inset: 0;
+    min-height: calc(100vh - 60px);
+    padding: 80px 20px 24px;
     display: flex;
-    align-items: center;
+    align-items: center;     /* можно flex-start, если не хочешь по центру */
     justify-content: center;
-    padding: 20px;
+    box-sizing: border-box;
 }
 
 
 .wrapper {
-    background: transparent;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.08);
     border: 2px solid rgba(255, 255, 255, .2);
     box-shadow: 0 0 10px rgba(0, 0, 0, .2);
     backdrop-filter: blur(30px);
     padding: 32px 36px 40px;
-    color: #fff;
-    font-family: inherit;
-    display: flex;
-    flex-direction: column;
+    border-radius: 18px;
 }
+
 
 h1 {
     margin-bottom: 20px;

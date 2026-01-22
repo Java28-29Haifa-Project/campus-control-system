@@ -1,19 +1,14 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
-import type {TicketStatus} from "../../types/ticketTypes.ts";
+import type { TicketStatus } from "../../types/ticketTypes.ts";
 
 const TicketListPage: React.FC = () => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
-    const {
-        items,
-        isLoadingList,
-        error,
-        filterStatus,
-    } = useAppSelector((state) => state.ticket);
+    const { items, isLoadingList, error, filterStatus, } = useAppSelector((state) => state.ticket);
 
     useEffect(() => {
         dispatch(fetchTicketsThunk());
@@ -22,9 +17,10 @@ const TicketListPage: React.FC = () => {
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value as TicketStatus | "ALL";
         dispatch(setFilterStatus(value));
+        setFilterStatus(value);
     };
 
-    const filteredTickets = items.filter(ticket => {
+    const filteredTickets = items.filter((ticket) => {
         if (filterStatus === "ALL") return true;
         return ticket.status === filterStatus;
     });
@@ -38,64 +34,110 @@ const TicketListPage: React.FC = () => {
     };
 
     if (isLoadingList) {
-        return <div>Загружаем тикеты...</div>;
+        return <div>Loading tickets...</div>;
     }
 
     if (error) {
-        return <div>Ошибка при загрузке тикетов: {error}</div>;
+        return <div>Error loading: {error}</div>;
     }
 
     return (
-        <div style={{ padding: "24px" }}>
-    <h1>Мои тикеты</h1>
+        <div className="auth-page">
+            <div className="ticket-table-wrapper">
+                <h1>My tickets</h1>
 
-    <div style={{ marginBottom: "16px", display: "flex", gap: "16px" }}>
-    <button onClick={handleCreateClick}>Создать тикет</button>
+                <div className="ticket-form-actions">
+                    <button type="button" onClick={handleCreateClick}
+                            className="secondary-btn" >
+                        Create Ticket
+                    </button>
+                    {/*<button*/}
+                    {/*    type="button"*/}
+                    {/*    className="secondary-btn"*/}
+                    {/*    onClick={() => setFilterStatus("ALL")}*/}
+                    {/*>*/}
+                    {/*    Reset filter*/}
+                    {/*</button>*/}
+                </div>
 
-    <div>
-    <label>
-        Фильтр по статусу:&nbsp;
-    <select value={filterStatus} onChange={handleFilterChange}>
-    <option value="ALL">Все</option>
-        <option value="NEW">Новые</option>
-        <option value="IN_PROGRESS">В работе</option>
-    <option value="RESOLVED">Решённые</option>
-        <option value="CLOSED">Закрытые</option>
-        </select>
-        </label>
+                <div style={{ marginTop: 12, marginBottom: 16 }}>
+                    <label
+                        style={{
+                            fontSize: 12,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                            color: "rgba(255,255,255,0.7)",
+                        }}
+                    >
+                        Filter by status
+                    </label>
+                    <div className="select-box">
+                        <select value={filterStatus} onChange={handleFilterChange}>
+                            <option value="ALL">All</option>
+                            <option value="NEW">New</option>
+                            <option value="IN_PROGRESS">In service</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                </div>
+
+                {filteredTickets.length === 0 ? (
+                    <p style={{ marginTop: 8 }}>No tickets yet</p>
+                ) : (
+                    <div style={{ maxHeight: 320, overflowY: "auto" }}>
+                        <table
+                            border={1}
+                            cellPadding={8}
+                            cellSpacing={0}
+                            style={{
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                background: "rgba(0,0,0,0.35)",
+                                color: "#fff",
+                                fontSize: 14,
+                            }}
+                        >
+                            <thead>
+                            <tr>
+                                <th style={{ textAlign: "left" }}>Title</th>
+                                <th style={{ textAlign: "left" }}>Description</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {filteredTickets.map((ticket) => (
+                                <tr
+                                    key={ticket.id}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => handleRowClick(ticket.id)}
+                                >
+                                    <td>{ticket.subject}</td>
+                                    <td>
+                                        {ticket.description.length > 60
+                                            ? `${ticket.description.slice(0, 60)}...`
+                                            : ticket.description}
+                                    </td>
+                                    <td>{ticket.status}</td>
+                                    <td>
+                                        {new Date(ticket.createdAt).toLocaleString(undefined, {
+                                            year: "numeric",
+                                            month: "2-digit",
+                                            day: "2-digit",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
-        </div>
-
-    {filteredTickets.length === 0 ? (
-        <p>Тикетов пока нет.</p>
-    ) : (
-        <table border={1} cellPadding={8} cellSpacing={0}>
-        <thead>
-            <tr>
-                <th>Тема</th>
-        <th>Описание</th>
-        <th>Статус</th>
-        <th>Дата создания</th>
-    </tr>
-    </thead>
-    <tbody>
-    {filteredTickets.map((ticket) => (
-            <tr
-                key={ticket.id}
-        style={{ cursor: "pointer" }}
-        onClick={() => handleRowClick(ticket.id)}
-    >
-        <td>{ticket.subject}</td>
-        <td>{ticket.description.slice(0, 50)}...</td>
-    <td>{ticket.status}</td>
-    <td>{new Date(ticket.createdAt).toLocaleString()}</td>
-    </tr>
-    ))}
-        </tbody>
-        </table>
-    )}
-    </div>
-);
+    );
 };
 
 export default TicketListPage;

@@ -4,7 +4,7 @@ export const userNavItems:RouteType[] = [
     {path: Paths.DASHBOARD, title: "Dashboard"},
     {path: Paths.TICKET, title: "Tickets"},
     {path: Paths.TICKET_NEW, title: "Create ticket"},
-    {path: Paths.TICKET_DETAILS, title: "Ticket details"},
+    // {path: Paths.TICKET_DETAILS, title: "Ticket details"},
 ];
 export const supportNavItems:RouteType[] = [
     {path: Paths.DASHBOARD, title: "Dashboard"},
