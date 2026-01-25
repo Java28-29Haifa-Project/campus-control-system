@@ -21,6 +21,7 @@ class RequestServiceImplAWSLambda implements RequestService {
         });
 
         return {
+            userId: lambdaResponse.userId,
             requestId: lambdaResponse.requestId,
             requestNumber: lambdaResponse.requestNumber,
             category: lambdaResponse.category as any,
