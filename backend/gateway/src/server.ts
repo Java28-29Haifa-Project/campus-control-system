@@ -62,7 +62,7 @@ export const launchServer = () => {
 
     // CORS configuration
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'https://main.d2q14890n6r4m7.amplifyapp.com/',
+        origin: process.env.FRONTEND_URL || 'https://main.d2q14890n6r4m7.amplifyapp.com',
         credentials: true,
         methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Correlation-ID'],
@@ -153,7 +153,7 @@ export const launchServer = () => {
 
     // ==================== Start Server ====================
     const server = app.listen(config.port, '0.0.0.0', () => {
-        Logger.info('🚀 Server started successfully', {
+        Logger.info('Server started successfully', {
             port: config.port,
             environment: process.env.NODE_ENV || 'development',
             nodeVersion: process.version
