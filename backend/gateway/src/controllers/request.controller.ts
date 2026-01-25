@@ -1,4 +1,8 @@
 import { requestServiceAWSLambda } from '../services/impl/RequestServiceImplAWSLambda.js';
+import { getAllRequestsFromDB } from '../utils/request.read.repository.ts';
+import { getRequestByIdFromDB } from '../utils/request.read.repository.ts';
+
+
 import { RequestService } from '../services/RequestService.js';
 import { Request, Response, NextFunction } from 'express';
 import { TicketRequestStatus, CreateRequestInput, UpdateRequestInput } from '../types/ticketRequest.js';
@@ -18,13 +22,7 @@ class RequestController {
                 status = statusParam as TicketRequestStatus;
             }
 
-            const result = await this.service.getAllRequests(status);
-
-            if (req.user?.role === 'USER') {
-                const filteredResult = result.filter((r: any) => r.userId === req.user?.userId);
-                return res.json(filteredResult);
-            }
-
+            const result = await getAllRequestsFromDB(status, req.user);
             res.json(result);
         } catch (error) {
             next(error);
@@ -34,13 +32,17 @@ class RequestController {
     getRequestById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
-            const result = await this.service.getRequestById(id);
+
+            const result = await getRequestByIdFromDB(id);
 
             if (!result) {
                 return res.status(404).json({ error: 'Request not found' });
             }
 
-            if (req.user?.role === 'USER' && (result as any).userId !== req.user.userId) {
+            if (
+                req.user?.role === 'USER' &&
+                (result as any).userId !== req.user.userId
+            ) {
                 return res.status(403).json({ error: 'Access denied - not your request' });
             }
 
@@ -48,7 +50,8 @@ class RequestController {
         } catch (error) {
             next(error);
         }
-    }
+    };
+
 
     createRequest = async (req: Request, res: Response, next: NextFunction) => {
         try {
