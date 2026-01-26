@@ -17,7 +17,6 @@ class AuthController {
                 throw new HttpError(400, 'Email and password are required');
             }
 
-            // Query database instead of mock data
             const result = await pool.query(
                 'SELECT user_id, username, email, password_hash, role FROM users WHERE email = $1',
                 [email]
@@ -29,14 +28,12 @@ class AuthController {
 
             const user = result.rows[0];
 
-            // Use bcrypt to compare passwords
             const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
             if (!isValidPassword) {
                 throw new HttpError(401, 'Invalid credentials');
             }
 
-            // Generate tokens
             const { accessToken, refreshToken } = JwtUtils.generateTokenPair({
                 userId: user.user_id,
                 username: user.username,
@@ -44,7 +41,6 @@ class AuthController {
                 role: user.role
             });
 
-            // Set cookies
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
@@ -59,7 +55,6 @@ class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
-            // Return user info
             res.status(200).json({
                 userId: user.user_id,
                 username: user.username,
@@ -88,7 +83,6 @@ class AuthController {
 
             const payload = JwtUtils.verifyRefreshToken(refreshToken);
 
-            // Query database for user
             const result = await pool.query(
                 'SELECT user_id, username, email, role FROM users WHERE user_id = $1',
                 [payload.userId]
@@ -100,10 +94,8 @@ class AuthController {
 
             const user = result.rows[0];
 
-            // Blacklist old refresh token
             await JwtUtils.blacklistRefreshToken(refreshToken);
 
-            // Generate new tokens
             const tokens = JwtUtils.generateTokenPair({
                 userId: user.user_id,
                 username: user.username,

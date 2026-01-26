@@ -1,11 +1,3 @@
-/**
- * Request Controller - Updated with BFF Pattern
- *
- * Handles HTTP requests for ticket/request operations.
- * - READ operations: Use RequestQueryRepository (direct DB access)
- * - WRITE operations: Use RequestService (Lambda invocation)
- */
-
 import { Request, Response, NextFunction } from 'express';
 import { requestQueryRepository } from '../repositories/impl/RequestQueryRepositoryDB.js';
 import { requestServiceAWSLambda } from '../services/impl/RequestServiceImplAWSLambda.js';
@@ -27,12 +19,6 @@ class RequestController {
         this.readRepository = readRepository;
     }
 
-    /**
-     * GET /requests
-     * Get all requests (filtered by user role)
-     * - USER: only their own requests
-     * - ADMIN/SUPPORT/ENGINEER: all requests
-     */
     getAllRequests = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { status } = req.query;
@@ -44,7 +30,6 @@ class RequestController {
                 status
             });
 
-            // Call repository for read operation (BFF)
             const requests = await this.readRepository.getAllRequests(
                 status as any,
                 user
@@ -65,11 +50,6 @@ class RequestController {
         }
     };
 
-    /**
-     * GET /requests/:id
-     * Get a specific request by ID
-     * Enforces RBAC: users can only see their own requests
-     */
     getRequestById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
@@ -81,14 +61,12 @@ class RequestController {
                 role: user?.role
             });
 
-            // Call repository for read operation
             const request = await this.readRepository.getRequestById(id);
 
             if (!request) {
                 throw new NotFoundError('Request');
             }
 
-            // RBAC: Users can only see their own requests
             if (user?.role === 'USER' && request.userId !== user.userId) {
                 Logger.security('Unauthorized request access attempt', {
                     requestId: id,
@@ -114,16 +92,11 @@ class RequestController {
         }
     };
 
-    /**
-     * GET /requests/user/:userId/stats
-     * Get request statistics for a user
-     */
     getUserStats = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params;
             const currentUser = req.user;
 
-            // RBAC: Users can only see their own stats
             if (currentUser?.role === 'USER' && userId !== currentUser.userId) {
                 throw new ForbiddenError('You can only access your own statistics');
             }
@@ -150,16 +123,10 @@ class RequestController {
         }
     };
 
-    /**
-     * POST /requests
-     * Create a new request
-     * WRITE operation - goes through Lambda
-     */
     createRequest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user;
 
-            // Prepare input for Lambda
             const input: CreateRequestInput = {
                 category: req.body.category,
                 subject: req.body.subject,
@@ -173,7 +140,6 @@ class RequestController {
                 priority: input.userReportedPriority
             });
 
-            // Call Lambda through service (WRITE operation)
             const result = await this.writeService.createRequest(input);
 
             Logger.info('[RequestController] Successfully created request', {
@@ -193,25 +159,17 @@ class RequestController {
         }
     };
 
-    /**
-     * PATCH /requests/:id
-     * Update an existing request
-     * WRITE operation - goes through Lambda
-     */
     updateRequest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
             const user = req.user;
 
-            // First, check if request exists and user has permission
             const existingRequest = await this.readRepository.getRequestById(id);
 
             if (!existingRequest) {
                 throw new NotFoundError('Request');
             }
 
-            // RBAC: Users can only update their own requests
-            // SUPPORT/ENGINEER/ADMIN can update any request
             if (user?.role === 'USER' && existingRequest.userId !== user.userId) {
                 Logger.security('Unauthorized request update attempt', {
                     requestId: id,
@@ -221,7 +179,6 @@ class RequestController {
                 throw new ForbiddenError('You can only update your own requests');
             }
 
-            // Prepare input for Lambda
             const input: UpdateRequestInput = {
                 requestId: id,
                 category: req.body.category,
@@ -237,7 +194,6 @@ class RequestController {
                 updates: req.body
             });
 
-            // Call Lambda through service (WRITE operation)
             const result = await this.writeService.updateRequest(input);
 
             Logger.info('[RequestController] Successfully updated request', {
