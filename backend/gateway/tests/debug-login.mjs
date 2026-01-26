@@ -19,7 +19,7 @@ async function debugLogin() {
         );
         
         if (result.rows.length === 0) {
-            console.log('❌ User not found!');
+            console.log('User not found!');
             return;
         }
         
@@ -40,11 +40,11 @@ async function debugLogin() {
         const isValid = await bcrypt.compare(password, user.password_hash);
         
         if (isValid) {
-            console.log('✅ PASSWORD MATCHES!');
+            console.log('PASSWORD MATCHES!');
             console.log('\nThe hash is correct and bcrypt comparison works.');
             console.log('Problem must be in the auth controller code.');
         } else {
-            console.log('❌ PASSWORD DOES NOT MATCH!');
+            console.log('PASSWORD DOES NOT MATCH!');
             console.log('\nThe hash in database is still wrong or corrupt.');
         }
         
