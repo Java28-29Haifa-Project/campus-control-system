@@ -1,5 +1,6 @@
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Paths} from "../../utils/types.ts";
+import {Paths} from "../../types/types.ts";
+
 
 const ErrorPage = () => {
 

@@ -1,8 +1,17 @@
 import { createSlice, createAsyncThunk, type PayloadAction, } from "@reduxjs/toolkit";
 import type {Ticket, TicketRequest, TicketStatus} from "../../types/ticketTypes.ts";
 import {createTicketApi, getTicketByIdApi, getTicketsApi} from "../../api/ticketApi.ts";
-import ApiError from "../../utils/ApiError.ts";
+import ApiError, {TICKET_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 
+const mapTicketErrorCodeToMessage = (code?: string | null): string => {
+    if (!code) {
+        return TICKET_ERROR_MESSAGES.UNKNOWN;
+    }
+    if (TICKET_ERROR_MESSAGES[code]) {
+        return TICKET_ERROR_MESSAGES[code];
+    }
+    return code;
+};
 
 export const fetchTicketsThunk = createAsyncThunk<
     Ticket[],
@@ -15,7 +24,7 @@ export const fetchTicketsThunk = createAsyncThunk<
             return await getTicketsApi();
         } catch (e) {
             if (e instanceof ApiError) {
-                return rejectWithValue(e.message);
+                return rejectWithValue(e.code || "SERVER_ERROR");
             }
             return rejectWithValue("Failed to load tickets");
         }
@@ -33,7 +42,7 @@ export const fetchTicketByIdThunk = createAsyncThunk<
             return await getTicketByIdApi(id);
         } catch (e) {
             if (e instanceof ApiError) {
-                return rejectWithValue(e.message);
+                return rejectWithValue(e.code || "SERVER_ERROR");
             }
             return rejectWithValue("Failed to load ticket");
         }
@@ -52,7 +61,7 @@ export const createTicketThunk = createAsyncThunk<
             return ticket;
         } catch (e) {
             if (e instanceof ApiError) {
-                return rejectWithValue(e.message);
+                return rejectWithValue(e.code || "SERVER_ERROR");
             }
             return rejectWithValue("Failed to create ticket");
         }
@@ -102,7 +111,9 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicketsThunk.rejected, (state, action) => {
                 state.isLoadingList = false;
-                state.error = action.payload ?? "Unknown error";
+                state.error = mapTicketErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
             });
 
         builder
@@ -116,7 +127,9 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicketByIdThunk.rejected, (state, action) => {
                 state.isLoadingCurrent = false;
-                state.error = action.payload ?? "Unknown error";
+                state.error = mapTicketErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
             });
 
         builder
@@ -130,7 +143,9 @@ const ticketSlice = createSlice({
             })
             .addCase(createTicketThunk.rejected, (state, action) => {
                 state.isCreating = false;
-                state.error = action.payload ?? "Unknown error";
+                state.error = mapTicketErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
             });
     }
 });

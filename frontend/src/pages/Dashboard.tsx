@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {useAppSelector} from "../state/hooks.ts";
-import {Paths} from "../utils/types.ts";
+import {Paths} from "../types/types.ts";
 
 
 const Dashboard = () => {

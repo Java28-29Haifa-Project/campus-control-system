@@ -3,7 +3,8 @@ import './../../styles/forms.css';
 import { useNavigate } from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {createTicketThunk} from "../../state/slices/ticketSlice.ts";
-import type {Category, UserPriority} from "../../types/ticketTypes.ts";
+import {Category, UserPriority} from "../../types/ticketTypes.ts";
+import {validateTicketForm} from "../../utils/validation.ts";
 
 const TicketFormPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -12,7 +13,7 @@ const TicketFormPage: React.FC = () => {
     const { isCreating, error } = useAppSelector((state) => state.ticket);
 
     const [subject, setSubject] = useState("");
-    const [description, setDescription] = useState("");
+    // const [description, setDescription] = useState("");
     const [category, setCategory] = useState<Category | "">("");
     const [priority, setPriority] = useState<UserPriority | "">("");
 
@@ -21,7 +22,7 @@ const TicketFormPage: React.FC = () => {
 
     const resetForm = () => {
         setSubject("");
-        setDescription("");
+        // setDescription("");
         setCategory("");
         setPriority("");
         setValidationError(null);
@@ -30,16 +31,18 @@ const TicketFormPage: React.FC = () => {
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        if (!subject.trim() || !description.trim()) {
-            alert("Please fill in the fields");
+        const validationMessage = validateTicketForm(subject);
+        if(validationMessage) {
+            setValidationError(validationMessage);
             return;
         }
+        setValidationError(null);
 
         try {
             const resultAction = await dispatch(
                 createTicketThunk({
                     subject,
-                    description,
+                    // description,
                     category: category as Category,
                     userReportedPriority: priority as UserPriority
                 })
@@ -95,21 +98,20 @@ const TicketFormPage: React.FC = () => {
                     <div className="input-box">
                         <input
                             type="text"
-                            placeholder="Subject"
+                            placeholder="Title"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
                             required
                         />
                     </div>
 
-                    <div className="input-box textarea-box">
-                        <textarea
-                            placeholder="Describe your issue..."
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {/*<div className="input-box textarea-box">*/}
+                    {/*    <textarea*/}
+                    {/*        placeholder="Describe your issue..."*/}
+                    {/*        value={description}*/}
+                    {/*        onChange={(e) => setDescription(e.target.value)}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
 
                     <div className="input-box select-box">
                         <select
@@ -117,13 +119,14 @@ const TicketFormPage: React.FC = () => {
                             onChange={(e) =>
                                 setCategory(e.target.value as Category | "")
                             }
+                            required
                         >
                             <option value="" disabled>
                                 Select category…
                             </option>
-                            <option value="ELECTRICAL">Electrical</option>
-                            <option value="PLUMBING">Plumbing</option>
-                            <option value="GENERAL">General</option>
+                            <option value={Category.Electrical}>Electrical</option>
+                            <option value={Category.Plumbing}>Plumbing</option>
+                            <option value={Category.General}>General</option>
                         </select>
                     </div>
 
@@ -133,14 +136,15 @@ const TicketFormPage: React.FC = () => {
                             onChange={(e) =>
                                 setPriority(e.target.value as UserPriority | "")
                             }
+                            required
                         >
                             <option value="" disabled>
                                 Select priority…
                             </option>
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                            <option value="URGENCY">Urgency</option>
+                            <option value={UserPriority.Low}>Low</option>
+                            <option value={UserPriority.Medium}>Medium</option>
+                            <option value={UserPriority.High}>High</option>
+                            <option value={UserPriority.Urgent}>Urgent</option>
                         </select>
                     </div>
 
