@@ -19,6 +19,7 @@ export enum TicketRequestStatus {
 }
 
 export type TicketRequest = {
+    userId: string;
     requestId: string;
     requestNumber: string;
     category: TicketRequestCategory;

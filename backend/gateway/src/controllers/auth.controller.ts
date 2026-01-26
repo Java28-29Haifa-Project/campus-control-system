@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { authServiceAWSLambda } from '../services/impl/AuthServiceImplAWSLambda.js';
-import { findUserByEmail, findUserById } from '../data/mock-users.js';
+import bcrypt from 'bcrypt';
+import { Pool } from 'pg';
 import { JwtUtils } from '../utils/jwt.utils.js';
 import { HttpError } from '../errors/http-error.js';
 
-class AuthController {
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL
+});
 
+class AuthController {
     async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { email, password } = req.body;
@@ -14,14 +17,25 @@ class AuthController {
                 throw new HttpError(400, 'Email and password are required');
             }
 
-            const user = findUserByEmail(email);
+            const result = await pool.query(
+                'SELECT user_id, username, email, password_hash, role FROM users WHERE email = $1',
+                [email]
+            );
 
-            if (!user || user.password !== password) {
+            if (result.rows.length === 0) {
+                throw new HttpError(401, 'Invalid credentials');
+            }
+
+            const user = result.rows[0];
+
+            const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+            if (!isValidPassword) {
                 throw new HttpError(401, 'Invalid credentials');
             }
 
             const { accessToken, refreshToken } = JwtUtils.generateTokenPair({
-                userId: user.userId,
+                userId: user.user_id,
                 username: user.username,
                 email: user.email,
                 role: user.role
@@ -42,7 +56,7 @@ class AuthController {
             });
 
             res.status(200).json({
-                userId: user.userId,
+                userId: user.user_id,
                 username: user.username,
                 email: user.email,
                 role: user.role
@@ -62,21 +76,28 @@ class AuthController {
             }
 
             const isBlacklisted = await JwtUtils.isTokenBlacklisted(refreshToken);
+
             if (isBlacklisted) {
                 throw new HttpError(401, 'Token has been revoked');
             }
 
             const payload = JwtUtils.verifyRefreshToken(refreshToken);
 
-            const user = findUserById(payload.userId);
-            if (!user) {
+            const result = await pool.query(
+                'SELECT user_id, username, email, role FROM users WHERE user_id = $1',
+                [payload.userId]
+            );
+
+            if (result.rows.length === 0) {
                 throw new HttpError(401, 'User not found');
             }
+
+            const user = result.rows[0];
 
             await JwtUtils.blacklistRefreshToken(refreshToken);
 
             const tokens = JwtUtils.generateTokenPair({
-                userId: user.userId,
+                userId: user.user_id,
                 username: user.username,
                 email: user.email,
                 role: user.role
@@ -144,16 +165,6 @@ class AuthController {
                 role: req.user.role
             });
 
-        } catch (error) {
-            next(error);
-        }
-    }
-
-// TODO:  Must be removed after refactoring, do not use for new code
-    async verifyToken(req: Request, res: Response, next: NextFunction) {
-        try {
-            const result = await authServiceAWSLambda.verifyToken(req.body);
-            res.status(200).send(result);
         } catch (error) {
             next(error);
         }

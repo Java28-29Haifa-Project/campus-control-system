@@ -34,3 +34,39 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         }
     }
 };
+
+export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const refreshToken = req.cookies?.refreshToken;
+
+        if (!refreshToken) {
+            throw new HttpError(401, 'Refresh token required');
+        }
+
+        const isBlacklisted = await JwtUtils.isTokenBlacklisted(refreshToken);
+
+        if (isBlacklisted) {
+            throw new HttpError(401, 'Token has been revoked');
+        }
+
+        const payload = JwtUtils.verifyRefreshToken(refreshToken);
+
+        req.user = {
+            userId: payload.userId,
+            username: '',
+            email: '',
+            role: 'USER',
+            type: 'access'
+        };
+
+        next();
+    } catch (error: any) {
+        if (error.name === 'TokenExpiredError') {
+            next(new HttpError(401, 'Refresh token expired'));
+        } else if (error.name === 'JsonWebTokenError') {
+            next(new HttpError(401, 'Invalid refresh token'));
+        } else {
+            next(error);
+        }
+    }
+};

@@ -1,50 +1,35 @@
 import { createClient } from 'redis';
 import { redisConfig } from '../configurations/redis-config.js';
 
-class RedisClient {
-    private client;
-    private isConnected = false;
+const client = createClient({
+    socket: {
+        host: redisConfig.host,
+        port: redisConfig.port
+    },
+    password: redisConfig.password
+});
 
-    constructor() {
-        this.client = createClient({
-            socket: {
-                host: redisConfig.host,
-                port: redisConfig.port
-            },
-            password: redisConfig.password
-        });
+client.on('error', (err) => console.error('Redis error:', err));
+client.on('ready', () => console.log('Connected to Redis'));
 
-        this.client.on('error', (err) => console.error('Redis Client Error', err));
-        this.client.on('connect', () => {
-            console.log('Connected to Redis Cloud');
-            this.isConnected = true;
-        });
-    }
+client.connect().catch(err => console.error('Redis connection failed:', err));
 
-    async connect() {
-        if (!this.isConnected) {
-            await this.client.connect();
-        }
-    }
-
-    async addToBlacklist(tokenId: string, expirySeconds: number): Promise<void> {
-        await this.connect();
-        await this.client.setEx(`blacklist:${tokenId}`, expirySeconds, 'revoked');
-        console.log(`Token ${tokenId} added to blacklist (TTL: ${expirySeconds}s)`);
-    }
-
-    async isBlacklisted(tokenId: string): Promise<boolean> {
-        await this.connect();
-        const result = await this.client.exists(`blacklist:${tokenId}`);
-        return result === 1;
-    }
-
-    async disconnect() {
-        if (this.isConnected) {
-            await this.client.disconnect();
-            this.isConnected = false;
-        }
+export async function addToBlacklist(tokenId: string, expirySeconds: number): Promise<void> {
+    try {
+        await client.setEx(`blacklist:${tokenId}`, expirySeconds, 'revoked');
+    } catch (error) {
+        console.error('Error blacklisting token:', error);
     }
 }
 
-export const redisClient = new RedisClient();
+export async function isBlacklisted(tokenId: string): Promise<boolean> {
+    try {
+        const result = await client.exists(`blacklist:${tokenId}`);
+        return result === 1;
+    } catch (error) {
+        console.error('Error checking blacklist:', error);
+        return false;
+    }
+}
+
+export { client as redisClient };

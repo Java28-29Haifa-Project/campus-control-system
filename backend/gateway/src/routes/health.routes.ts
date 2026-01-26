@@ -6,7 +6,7 @@ export const healthRoutes = express.Router();
 healthRoutes.get('/sync', healthController.getLambdaSync);
 healthRoutes.get('/async', healthController.getLambdaAsync);
 
-healthRoutes.get('/request', healthController.getRequestLambdaHealth);
+// healthRoutes.get('/request', healthController.getRequestLambdaHealth);
 healthRoutes.get('/auth', healthController.getAuthLambdaHealth);
 healthRoutes.get('/incident', healthController.getIncidentLambdaHealth);
 healthRoutes.get('/monitoring', healthController.getMonitoringLambdaHealth);
