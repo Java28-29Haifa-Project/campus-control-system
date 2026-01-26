@@ -1,6 +1,7 @@
 # Express Gateway API Documentation
 
-**Base URL (Production):** `https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com`
+**Base URL (Production):** `https://eosm-gateway.com`  
+**Alternative URL:** `https://www.eosm-gateway.com
 
 **Authentication:** JWT tokens via HTTP-only cookies (handled automatically by browser)
 
@@ -151,6 +152,11 @@ GET /requests?status=new
 **Query Parameters:**
 - `status`: `new`, `rejected`, `in_service`, `done`
 
+**Validation Rules:**
+- `category`: Must be `plumbing`, `electrical`, or `general` (lowercase)
+- `subject`: Minimum 10 characters, maximum 500 characters
+- `userReportedPriority`: Must be `low`, `medium`, `high`, or `urgent` (lowercase)
+
 ---
 
 ### Get Single Request
@@ -178,30 +184,38 @@ GET /requests/:id
 ```
 POST /requests
 ```
-**Requires:** Authentication
+**Requires:** Authentication (USER role only)
 
 **Request Body:**
 ```json
 {
   "category": "plumbing",
-  "subject": "Leaking pipe",
+  "subject": "Leaking pipe in kitchen area",
   "description": "Pipe in kitchen is leaking",
   "userReportedPriority": "high"
 }
 ```
 
+**Validation:**
+- `category`: Required, must be `plumbing`, `electrical`, or `general`
+- `subject`: Required, 10-500 characters
+- `description`: Optional
+- `userReportedPriority`: Required, must be `low`, `medium`, `high`, or `urgent`
+
 **Response (201):**
 ```json
 {
-  "requestId": "req2",
-  "requestNumber": "REQ-2",
+  "requestId": "abc123ef-4567-89ab-cdef-0123456789ab",
+  "requestNumber": "REQ-20260126-0001",
   "userId": "user_001",
   "category": "plumbing",
-  "subject": "Leaking pipe",
+  "subject": "Leaking pipe in kitchen area",
   "status": "new",
   "createdAt": "2025-01-10T12:00:00Z"
 }
 ```
+
+**Note:** Request creation uses Lambda for write operations (see Architecture section below).
 
 ---
 
@@ -209,7 +223,11 @@ POST /requests
 ```
 PATCH /requests/:id
 ```
-**Requires:** Authentication (SUPPORT+ role)
+**Requires:** Authentication
+
+**Permissions:**
+- **USER**: Can update their own requests (subject, description, category, priority only)
+- **SUPPORT+**: Can update any request (including status, assignment)
 
 **Request Body:**
 ```json
@@ -413,7 +431,9 @@ POST /audit
 | Endpoint | USER | SUPPORT | ENGINEER | ADMIN |
 |----------|------|---------|----------|-------|
 | `/auth/*` | Allowed | Allowed | Allowed | Allowed |
-| `/requests` | Allowed (own only) | Allowed (all) | Allowed (all) | Allowed (all) |
+| `/requests` (GET) | Allowed (own only) | Allowed (all) | Allowed (all) | Allowed (all) |
+| `/requests` (POST) | Allowed | Denied | Denied | Denied |
+| `/requests` (PATCH) | Allowed (own only) | Allowed (all) | Allowed (all) | Allowed (all) |
 | `/incidents` | Denied | Allowed | Allowed | Allowed |
 | `/monitoring` | Denied | Denied | Denied | Allowed |
 | `/audit` | Denied | Denied | Denied | Allowed |
@@ -425,7 +445,23 @@ POST /audit
 ### 400 Bad Request
 ```json
 {
-  "error": "Email and password are required"
+  "error": "Validation failed",
+  "details": [
+    {
+      "code": "invalid_value",
+      "values": ["plumbing", "electrical", "general"],
+      "path": ["category"],
+      "message": "Invalid option: expected one of \"plumbing\"|\"electrical\"|\"general\""
+    },
+    {
+      "origin": "string",
+      "code": "too_small",
+      "minimum": 10,
+      "inclusive": true,
+      "path": ["subject"],
+      "message": "Too small: expected string to have >=10 characters"
+    }
+  ]
 }
 ```
 
@@ -456,6 +492,16 @@ or
 }
 ```
 
+### 500 Internal Server Error
+```json
+{
+  "error": "Internal server error",
+  "statusCode": 500,
+  "timestamp": "2026-01-26T09:46:07.807Z",
+  "path": "/requests"
+}
+```
+
 ---
 
 ## Cookie Management
@@ -469,7 +515,7 @@ or
 **Example with fetch():**
 ```javascript
 // Login
-const response = await fetch('https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com/auth/login', {
+const response = await fetch('https://eosm-gateway.com/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
@@ -477,7 +523,7 @@ const response = await fetch('https://7vsdxftpoc.execute-api.us-east-1.amazonaws
 });
 
 // Subsequent requests
-const user = await fetch('https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com/auth/me', {
+const user = await fetch('https://eosm-gateway.com/auth/me', {
   credentials: 'include'
 });
 ```
@@ -487,7 +533,7 @@ const user = await fetch('https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://7vsdxftpoc.execute-api.us-east-1.amazonaws.com',
+  baseURL: 'https://eosm-gateway.com',
   withCredentials: true // Enable cookies
 });
 
@@ -558,3 +604,6 @@ const user = await api.get('/auth/me');
 
 **Issue:** "Access denied"
 - **Solution:** User doesn't have required role for this endpoint
+
+**Issue:** Frontend sends uppercase values (PLUMBING, HIGH)
+- **Solution:** All values must be lowercase (`plumbing`, `high`)
