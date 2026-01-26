@@ -114,11 +114,11 @@ const TicketListPage: React.FC = () => {
                                     onClick={() => handleRowClick(ticket.id)}
                                 >
                                     <td>{ticket.subject}</td>
-                                    <td>
-                                        {ticket.description.length > 60
-                                            ? `${ticket.description.slice(0, 60)}...`
-                                            : ticket.description}
-                                    </td>
+                                    {/*<td>*/}
+                                    {/*    {ticket.description.length > 60*/}
+                                    {/*        ? `${ticket.description.slice(0, 60)}...`*/}
+                                    {/*        : ticket.description}*/}
+                                    {/*</td>*/}
                                     <td>{ticket.status}</td>
                                     <td>
                                         {new Date(ticket.createdAt).toLocaleString(undefined, {

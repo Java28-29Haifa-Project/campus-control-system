@@ -13,7 +13,7 @@ const TicketFormPage: React.FC = () => {
     const { isCreating, error } = useAppSelector((state) => state.ticket);
 
     const [subject, setSubject] = useState("");
-    const [description, setDescription] = useState("");
+    // const [description, setDescription] = useState("");
     const [category, setCategory] = useState<Category | "">("");
     const [priority, setPriority] = useState<UserPriority | "">("");
 
@@ -22,7 +22,7 @@ const TicketFormPage: React.FC = () => {
 
     const resetForm = () => {
         setSubject("");
-        setDescription("");
+        // setDescription("");
         setCategory("");
         setPriority("");
         setValidationError(null);
@@ -31,7 +31,7 @@ const TicketFormPage: React.FC = () => {
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        const validationMessage = validateTicketForm(subject, description);
+        const validationMessage = validateTicketForm(subject);
         if(validationMessage) {
             setValidationError(validationMessage);
             return;
@@ -42,7 +42,7 @@ const TicketFormPage: React.FC = () => {
             const resultAction = await dispatch(
                 createTicketThunk({
                     subject,
-                    description,
+                    // description,
                     category: category as Category,
                     userReportedPriority: priority as UserPriority
                 })
@@ -105,14 +105,13 @@ const TicketFormPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="input-box textarea-box">
-                        <textarea
-                            placeholder="Describe your issue..."
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {/*<div className="input-box textarea-box">*/}
+                    {/*    <textarea*/}
+                    {/*        placeholder="Describe your issue..."*/}
+                    {/*        value={description}*/}
+                    {/*        onChange={(e) => setDescription(e.target.value)}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
 
                     <div className="input-box select-box">
                         <select

@@ -22,7 +22,7 @@ export interface Ticket {
     id: string;
     userId: string;
     subject: string;
-    description: string;
+    // description?: string;
     status: TicketStatus;
     category: Category;
     createdAt: string;
@@ -32,7 +32,7 @@ export interface Ticket {
 
 export interface TicketRequest {
     subject: string;
-    description: string;
+    // description?: string;
     category: Category;
     userReportedPriority: UserPriority;
 }
