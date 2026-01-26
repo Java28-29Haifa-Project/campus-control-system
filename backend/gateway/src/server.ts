@@ -1,21 +1,9 @@
-/**
- * Server Configuration - Enhanced with Middleware
- *
- * Sets up Express server with:
- * - Rate limiting
- * - Structured logging
- * - Request validation
- * - Enhanced error handling
- * - RBAC
- */
-
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './configurations/app-config.js';
 
-// Routes
 import { requestRoutes } from './routes/request.routes.js';
 import { healthRoutes } from './routes/health.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
@@ -23,7 +11,6 @@ import { incidentRoutes } from './routes/incident.routes.js';
 import { monitoringRoutes } from './routes/monitoring.routes.js';
 import { auditRoutes } from './routes/audit.routes.js';
 
-// Middleware
 import { authMiddleware } from './middleware/auth.middleware.js';
 import { requireRole } from './middleware/role.middleware.js';
 import {
@@ -34,7 +21,6 @@ import {
 } from './middleware/rate-limit.middleware.js';
 import { sanitizeRequest } from './middleware/validation.middleware.js';
 
-// Error handling
 import {
     errorHandler,
     notFoundHandler,
@@ -42,7 +28,6 @@ import {
     handleUncaughtException
 } from './errors/error-handler.js';
 
-// Logger
 import Logger, { requestLoggerMiddleware } from './utils/logger.js';
 
 export const launchServer = () => {
@@ -54,13 +39,11 @@ export const launchServer = () => {
 
     // ==================== Security Middleware ====================
 
-    // Helmet for security headers
     app.use(helmet({
-        contentSecurityPolicy: false, // Allow frontend to load resources
+        contentSecurityPolicy: false,
         crossOriginEmbedderPolicy: false
     }));
 
-    // CORS configuration
     app.use(cors({
         origin: process.env.FRONTEND_URL || 'https://main.d2q14890n6r4m7.amplifyapp.com',
         credentials: true,

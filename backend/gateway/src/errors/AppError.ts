@@ -1,13 +1,3 @@
-/**
- * Custom Error Classes
- *
- * Provides specific error types for different scenarios with proper HTTP status codes.
- * These errors are caught by the error handler middleware and converted to appropriate responses.
- */
-
-/**
- * Base application error class
- */
 export class AppError extends Error {
     public readonly statusCode: number;
     public readonly isOperational: boolean;
@@ -24,18 +14,12 @@ export class AppError extends Error {
         this.isOperational = isOperational;
         this.context = context;
 
-        // Maintains proper stack trace for where our error was thrown
         Error.captureStackTrace(this, this.constructor);
 
-        // Set the prototype explicitly for proper instanceof checks
         Object.setPrototypeOf(this, AppError.prototype);
     }
 }
 
-/**
- * Validation Error (400 Bad Request)
- * Used for invalid request data, validation failures
- */
 export class ValidationError extends AppError {
     constructor(message: string, context?: Record<string, any>) {
         super(message, 400, true, context);
@@ -43,10 +27,6 @@ export class ValidationError extends AppError {
     }
 }
 
-/**
- * Unauthorized Error (401 Unauthorized)
- * Used for missing or invalid authentication
- */
 export class UnauthorizedError extends AppError {
     constructor(message: string = 'Authentication required', context?: Record<string, any>) {
         super(message, 401, true, context);
@@ -54,10 +34,6 @@ export class UnauthorizedError extends AppError {
     }
 }
 
-/**
- * Forbidden Error (403 Forbidden)
- * Used when user is authenticated but lacks permissions
- */
 export class ForbiddenError extends AppError {
     constructor(message: string = 'Access denied', context?: Record<string, any>) {
         super(message, 403, true, context);
@@ -65,10 +41,6 @@ export class ForbiddenError extends AppError {
     }
 }
 
-/**
- * Not Found Error (404 Not Found)
- * Used when requested resource doesn't exist
- */
 export class NotFoundError extends AppError {
     constructor(resource: string = 'Resource', context?: Record<string, any>) {
         super(`${resource} not found`, 404, true, context);
@@ -76,10 +48,6 @@ export class NotFoundError extends AppError {
     }
 }
 
-/**
- * Conflict Error (409 Conflict)
- * Used for duplicate resources, constraint violations
- */
 export class ConflictError extends AppError {
     constructor(message: string = 'Resource already exists', context?: Record<string, any>) {
         super(message, 409, true, context);
@@ -87,10 +55,6 @@ export class ConflictError extends AppError {
     }
 }
 
-/**
- * Database Error (500 Internal Server Error)
- * Used for database connection issues, query failures
- */
 export class DatabaseError extends AppError {
     constructor(message: string = 'Database operation failed', context?: Record<string, any>) {
         super(message, 500, true, context);
@@ -98,10 +62,6 @@ export class DatabaseError extends AppError {
     }
 }
 
-/**
- * Lambda Error (503 Service Unavailable)
- * Used for Lambda invocation failures, timeouts
- */
 export class LambdaError extends AppError {
     constructor(
         functionName: string,
@@ -118,10 +78,6 @@ export class LambdaError extends AppError {
     }
 }
 
-/**
- * Rate Limit Error (429 Too Many Requests)
- * Used when rate limit is exceeded
- */
 export class RateLimitError extends AppError {
     constructor(message: string = 'Too many requests', retryAfter?: number) {
         super(message, 429, true, { retryAfter });
@@ -129,10 +85,6 @@ export class RateLimitError extends AppError {
     }
 }
 
-/**
- * External Service Error (502 Bad Gateway)
- * Used when external service (Redis, etc.) fails
- */
 export class ExternalServiceError extends AppError {
     constructor(
         service: string,
@@ -144,9 +96,6 @@ export class ExternalServiceError extends AppError {
     }
 }
 
-/**
- * Helper function to check if error is operational
- */
 export function isOperationalError(error: Error): boolean {
     if (error instanceof AppError) {
         return error.isOperational;
@@ -154,11 +103,7 @@ export function isOperationalError(error: Error): boolean {
     return false;
 }
 
-/**
- * Helper function to map database errors to appropriate AppErrors
- */
 export function mapDatabaseError(error: any): AppError {
-    // PostgreSQL error codes
     const pgErrorCode = error.code;
 
     switch (pgErrorCode) {
@@ -207,9 +152,6 @@ export function mapDatabaseError(error: any): AppError {
     }
 }
 
-/**
- * Helper function to map Lambda errors
- */
 export function mapLambdaError(functionName: string, error: any): LambdaError {
     return new LambdaError(functionName, error, {
         statusCode: error.StatusCode,

@@ -1,3 +1,5 @@
+//TODO delete
+
 import { User } from '../types/auth.js';
 
 export interface StoredUser extends User {

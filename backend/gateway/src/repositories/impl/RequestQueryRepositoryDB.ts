@@ -1,4 +1,3 @@
-
 import { Pool, QueryResult } from 'pg';
 import { RequestQueryRepository } from '../RequestQueryRepository.js';
 import { TicketRequest, TicketRequestStatus } from '../../types/ticketRequest.js';

@@ -1,4 +1,4 @@
--- Drop existing tables (for clean setup)
+-- Drop existing tables
 DROP TABLE IF EXISTS incident_requests CASCADE;
 DROP TABLE IF EXISTS incidents CASCADE;
 DROP TABLE IF EXISTS requests CASCADE;
@@ -101,7 +101,7 @@ CREATE TRIGGER update_incidents_updated_at BEFORE UPDATE ON incidents
 -- SEED DATA (for testing)
 
 -- Insert test users (passwords are hashed version of 'password123')
--- /////////// In production, use bcrypt hashing from your application
+-- /////////// In production -> bcrypt
 INSERT INTO users (user_id, username, email, password_hash, role) VALUES
                                                                       ('user_001', 'john_user', 'user@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'USER'),
                                                                       ('admin_001', 'admin_alice', 'admin@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'ADMIN'),
