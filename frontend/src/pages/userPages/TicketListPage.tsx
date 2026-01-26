@@ -1,8 +1,14 @@
 import React, {useEffect} from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
+
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
+
 import type { TicketStatus } from "../../types/ticketTypes.ts";
+
+import ThemedLayout from "../../components/ThemedLayout";
 
 const TicketListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -17,7 +23,6 @@ const TicketListPage: React.FC = () => {
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value as TicketStatus | "ALL";
         dispatch(setFilterStatus(value));
-        setFilterStatus(value);
     };
 
     const filteredTickets = items.filter((ticket) => {
@@ -34,31 +39,36 @@ const TicketListPage: React.FC = () => {
     };
 
     if (isLoadingList) {
-        return <div>Loading tickets...</div>;
+        return (
+            <ThemedLayout imageName="Ticket">
+                <div>Loading tickets...</div>
+            </ThemedLayout>
+        );
     }
 
     if (error) {
-        return <div>Error loading: {error}</div>;
+        return (
+            <ThemedLayout imageName="Ticket">
+                <div>Error loading: {error}</div>
+            </ThemedLayout>
+        );
     }
 
     return (
-        <div className="auth-page">
-            <div className="ticket-table-wrapper">
-                <h1>My tickets</h1>
+        <ThemedLayout imageName="Ticket">
 
-                <div className="ticket-form-actions">
+            <div style={{ width: "100%", textAlign: "center" }}>
+
+                <h1 style={{ marginTop: 0 }}>My tickets</h1>
+
+
+                <div className="ticket-form-actions" style={{ justifyContent: 'center', marginBottom: '20px' }}>
                     <button type="button" onClick={handleCreateClick}
                             className="secondary-btn" >
                         Create Ticket
                     </button>
-                    {/*<button*/}
-                    {/*    type="button"*/}
-                    {/*    className="secondary-btn"*/}
-                    {/*    onClick={() => setFilterStatus("ALL")}*/}
-                    {/*>*/}
-                    {/*    Reset filter*/}
-                    {/*</button>*/}
                 </div>
+
 
                 <div style={{ marginTop: 12, marginBottom: 16 }}>
                     <label
@@ -66,12 +76,14 @@ const TicketListPage: React.FC = () => {
                             fontSize: 12,
                             textTransform: "uppercase",
                             letterSpacing: "0.08em",
-                            color: "rgba(255,255,255,0.7)",
+                            opacity: 0.7,
+                            display: "block",
+                            marginBottom: "5px"
                         }}
                     >
                         Filter by status
                     </label>
-                    <div className="select-box">
+                    <div className="select-box" style={{ maxWidth: "200px", margin: "0 auto" }}>
                         <select value={filterStatus} onChange={handleFilterChange}>
                             <option value="ALL">All</option>
                             <option value="NEW">New</option>
@@ -82,27 +94,32 @@ const TicketListPage: React.FC = () => {
                     </div>
                 </div>
 
+
                 {filteredTickets.length === 0 ? (
                     <p style={{ marginTop: 8 }}>No tickets yet</p>
                 ) : (
-                    <div style={{ maxHeight: 320, overflowY: "auto" }}>
+                    <div style={{ maxHeight: 320, overflowY: "auto", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.2)" }}>
                         <table
-                            border={1}
-                            cellPadding={8}
+                            cellPadding={12}
                             cellSpacing={0}
                             style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
-                                background: "rgba(0,0,0,0.35)",
-                                color: "#fff",
+
+                                background: "rgba(0,0,0,0.1)",
+                                color: "inherit",
                                 fontSize: 14,
                             }}
                         >
                             <thead>
-                            <tr>
+                            <tr style={{ background: "rgba(0,0,0,0.2)" }}>
+
                                 <th style={{ textAlign: "left" }}>Title</th>
+
                                 <th style={{ textAlign: "left" }}>Description</th>
+
                                 <th>Status</th>
+
                                 <th>Date</th>
                             </tr>
                             </thead>
@@ -110,19 +127,21 @@ const TicketListPage: React.FC = () => {
                             {filteredTickets.map((ticket) => (
                                 <tr
                                     key={ticket.id}
-                                    style={{ cursor: "pointer" }}
+                                    style={{
+                                        cursor: "pointer",
+                                        borderBottom: "1px solid rgba(255,255,255,0.1)"
+                                    }}
                                     onClick={() => handleRowClick(ticket.id)}
                                 >
-                                    <td>{ticket.subject}</td>
-                                    <td>
-                                        {ticket.description.length > 60
-                                            ? `${ticket.description.slice(0, 60)}...`
+                                    <td style={{ textAlign: "left" }}>{ticket.subject}</td>
+                                    <td style={{ textAlign: "left" }}>
+                                        {ticket.description.length > 30
+                                            ? `${ticket.description.slice(0, 30)}...`
                                             : ticket.description}
                                     </td>
                                     <td>{ticket.status}</td>
                                     <td>
                                         {new Date(ticket.createdAt).toLocaleString(undefined, {
-                                            year: "numeric",
                                             month: "2-digit",
                                             day: "2-digit",
                                             hour: "2-digit",
@@ -136,7 +155,7 @@ const TicketListPage: React.FC = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </ThemedLayout>
     );
 };
 

@@ -1,64 +1,29 @@
-import { Link } from "react-router-dom";
-import {useAppSelector} from "../state/hooks.ts";
-import {Paths} from "../utils/types.ts";
-
+import ThemedLayout from "../components/ThemedLayout";
 
 const Dashboard = () => {
-    const user = useAppSelector(state => state.auth.user);
-
-    if (!user) {
-        return null;
-    }
-
     return (
-        <div style={{ padding: "24px" }}>
-            <h1>Welcome, {user.username}!</h1>
+        <ThemedLayout imageName="Home">
+            <div style={{ textAlign: 'left', width: '100%' }}>
+                <h1 style={{
+                    fontSize: '4rem',
+                    fontWeight: '900',
+                    margin: 0,
+                    textTransform: 'uppercase',
 
-            {user.role === "USER" && (
-                <>
-                    <p>You can manage your tickets here:</p>
-                    <ul>
-                        <li><Link to={Paths.TICKET}>My Tickets</Link></li>
-                        <li><Link to={Paths.TICKET_NEW}>Create Ticket</Link></li>
-                    </ul>
-                </>
-            )}
 
-            {user.role === "SUPPORT" && (
-                <>
-                    <p>You can work with support tickets here:</p>
-                    <ul>
-                        <li><Link to={Paths.TICKET_SUPPORT}>Support Tickets</Link></li>
-                        <li><Link to={Paths.INCIDENT_NEW}>Create Incident</Link></li>
-                    </ul>
-                </>
-            )}
+                    background: 'linear-gradient(90deg, #FFB800, #FF8A00)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
 
-            {user.role === "ENGINEER" && (
-                <>
-                    <p>You can work with incidents here:</p>
-                    <ul>
-                        <li><Link to={Paths.INCIDENT}>All Incidents</Link></li>
-                        <li><Link to={Paths.INCIDENT_MY}>My Incidents</Link></li>
-                    </ul>
-                </>
-            )}
-
-            {user.role === "ADMIN" && (
-                <>
-                    <p>Admin area:</p>
-                    <ul>
-                        <li><Link to={Paths.TICKET_SUPPORT}>Support Tickets</Link></li>
-                        <li><Link to={Paths.INCIDENT}>Incidents</Link></li>
-                        <li><Link to={Paths.LOGS}>Logs</Link></li>
-                        <li><Link to={Paths.ALARM}>Alarms</Link></li>
-                        <li><Link to={Paths.HEALTH}>Health</Link></li>
-                    </ul>
-                </>
-            )}
-        </div>
+                    display: 'inline-block',
+                    lineHeight: 1
+                }}>
+                    WELCOME!
+                </h1>
+            </div>
+        </ThemedLayout>
     );
 };
-
 
 export default Dashboard;
