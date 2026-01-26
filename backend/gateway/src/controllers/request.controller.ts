@@ -2,23 +2,25 @@ import { Request, Response, NextFunction } from 'express';
 import { requestQueryRepository } from '../repositories/impl/RequestQueryRepositoryDB.js';
 import { requestWriteLambdaServiceAWS } from '../services/lambda-sdk/services/RequestWriteLambdaServiceAWS.js';
 import { HttpError } from '../errors/http-error.js';
+import {TicketRequestStatus} from "../types/ticketRequest.js";
 
 class RequestController {
 
     async getAllRequests(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const status = req.query.status as any;
+            const statusRaw = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
+            const status: TicketRequestStatus | undefined = Object.values(TicketRequestStatus).includes(statusRaw as TicketRequestStatus)
+                ? (statusRaw as TicketRequestStatus)
+                : undefined;
+
             const user = {
                 userId: req.user.userId,
                 role: req.user.role
             };
 
             const requests = await requestQueryRepository.getAllRequests(status, user);
-
             res.status(200).json(requests);
 
         } catch (error: any) {
@@ -28,21 +30,13 @@ class RequestController {
 
     async getRequestById(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const { requestId } = req.params;
-
+            const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
             const request = await requestQueryRepository.getRequestById(requestId);
 
-            if (!request) {
-                throw new HttpError(404, 'Request not found');
-            }
-
-            if (req.user.role === 'USER' && request.userId !== req.user.userId) {
-                throw new HttpError(403, 'Access denied');
-            }
+            if (!request) throw new HttpError(404, 'Request not found');
+            if (req.user.role === 'USER' && request.userId !== req.user.userId) throw new HttpError(403, 'Access denied');
 
             res.status(200).json(request);
 
@@ -53,19 +47,17 @@ class RequestController {
 
     async getRequestsByUser(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const { userId } = req.params;
-            const status = req.query.status as any;
+            const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+            const statusRaw = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
+            const status: TicketRequestStatus | undefined = Object.values(TicketRequestStatus).includes(statusRaw as TicketRequestStatus)
+                ? (statusRaw as TicketRequestStatus)
+                : undefined;
 
-            if (req.user.role === 'USER' && userId !== req.user.userId) {
-                throw new HttpError(403, 'Access denied');
-            }
+            if (req.user.role === 'USER' && userId !== req.user.userId) throw new HttpError(403, 'Access denied');
 
             const requests = await requestQueryRepository.getRequestsByUser(userId, status);
-
             res.status(200).json(requests);
 
         } catch (error: any) {
@@ -75,18 +67,12 @@ class RequestController {
 
     async getUserRequestStats(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const { userId } = req.params;
-
-            if (req.user.role === 'USER' && userId !== req.user.userId) {
-                throw new HttpError(403, 'Access denied');
-            }
+            const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+            if (req.user.role === 'USER' && userId !== req.user.userId) throw new HttpError(403, 'Access denied');
 
             const stats = await requestQueryRepository.getUserRequestStats(userId);
-
             res.status(200).json(stats);
 
         } catch (error: any) {
@@ -94,19 +80,12 @@ class RequestController {
         }
     }
 
-
     async createRequest(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
-
-            if (req.user.role !== 'USER') {
-                throw new HttpError(403, 'Only users can create requests');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
+            if (req.user.role !== 'USER') throw new HttpError(403, 'Only users can create requests');
 
             const { category, subject, userReportedPriority } = req.body;
-
             const result = await requestWriteLambdaServiceAWS.createRequest({
                 action: 'CREATE_REQUEST',
                 category,
@@ -124,26 +103,19 @@ class RequestController {
 
     async updateRequest(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) {
-                throw new HttpError(401, 'Authentication required');
-            }
+            if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const { requestId } = req.params;
+            const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
             const { category, subject, userReportedPriority, status } = req.body;
 
             const existingRequest = await requestQueryRepository.getRequestById(requestId);
+            if (!existingRequest) throw new HttpError(404, 'Request not found');
 
-            if (!existingRequest) {
-                throw new HttpError(404, 'Request not found');
-            }
-
-            if (req.user.role === 'USER' && existingRequest.userId !== req.user.userId) {
+            if (req.user.role === 'USER' && existingRequest.userId !== req.user.userId)
                 throw new HttpError(403, 'Access denied: You can only update your own requests');
-            }
 
-            if (req.user.role === 'USER' && status !== undefined) {
+            if (req.user.role === 'USER' && status !== undefined)
                 throw new HttpError(403, 'Access denied: Only support staff can change status');
-            }
 
             const result = await requestWriteLambdaServiceAWS.updateRequest({
                 action: 'UPDATE_REQUEST',
@@ -151,7 +123,7 @@ class RequestController {
                 category,
                 subject,
                 userReportedPriority,
-                status: req.user.role !== 'USER' ? status : undefined,
+                status: Object.values(TicketRequestStatus).includes(status as TicketRequestStatus) ? (status as TicketRequestStatus) : undefined,
                 updatedBy: req.user.userId
             });
 
