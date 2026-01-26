@@ -1,0 +1,120 @@
+
+.themed-page-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+
+.themed-image-side {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    z-index: 0;
+
+    height: 100%;
+    width: 100%;
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-start;
+
+
+    padding-left: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.themed-image-side img {
+    max-width: 65vw;
+    max-height: 85vh;
+    object-fit: contain;
+
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));
+    transition: transform 0.5s ease;
+}
+
+
+.themed-content-side {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    z-index: 1;
+
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+
+    align-items: center;
+    justify-content: center;
+
+
+    padding: 20px;
+
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+
+.content-wrapper {
+    width: 100%;
+    max-width: 500px;
+
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    padding: 35px;
+    border-radius: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    animation: slideInRight 0.5s ease-out;
+}
+
+
+body.night-mode .content-wrapper {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+
+@media (max-width: 768px) {
+
+    .themed-image-side {
+        justify-content: center;
+        padding-left: 0;
+        padding: 20px;
+        opacity: 0.25;
+    }
+
+    .themed-image-side img {
+        max-width: 100%;
+        max-height: 60vh;
+    }
+
+    .themed-content-side {
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        padding-bottom: 100px;
+    }
+
+    .content-wrapper {
+        max-width: 100%;
+        backdrop-filter: blur(10px);
+    }
+}

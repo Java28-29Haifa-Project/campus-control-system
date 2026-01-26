@@ -1,18 +1,25 @@
-import {Outlet} from "react-router-dom";
+import {Outlet, useLocation} from "react-router-dom";
+
 import type {RouteType} from "../utils/types.ts";
+
 import * as React from "react";
+
 import Navbar from "../components/Navbar.tsx";
+
 import Header from "../components/Header.tsx";
+
 import {useAppSelector} from "../state/hooks.ts";
+
 import {
     adminNavItem,
     engineerNavItems,
     supportNavItems,
     userNavItems
 } from "../components/configurations/nav-config.ts";
+import {Paths} from "../utils/types.ts";
 
 const RootLayout: React.FC = () => {
-
+    const location = useLocation();
     const user = useAppSelector((state) => state.auth.user);
 
     let items: RouteType[] = [];
@@ -31,15 +38,21 @@ const RootLayout: React.FC = () => {
             case "ADMIN":
                 items = adminNavItem;
                 break;
-                default:
-                    items = [];
+            default:
+                items = [];
         }
     }
+
+
+    const showNavbar = location.pathname !== Paths.DASHBOARD;
 
     return (
         <div className="layout">
             <Header/>
-            <Navbar items={items}/>
+
+
+            {showNavbar && <Navbar items={items}/>}
+
             <main className="content">
                 <Outlet/>
             </main>
