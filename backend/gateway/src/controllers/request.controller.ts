@@ -1,217 +1,166 @@
 import { Request, Response, NextFunction } from 'express';
 import { requestQueryRepository } from '../repositories/impl/RequestQueryRepositoryDB.js';
-import { requestServiceAWSLambda } from '../services/impl/RequestServiceImplAWSLambda.js';
-import { RequestService } from '../services/RequestService.js';
-import { RequestQueryRepository } from '../repositories/RequestQueryRepository.js';
-import { CreateRequestInput, UpdateRequestInput } from '../types/ticketRequest.js';
-import { NotFoundError, ForbiddenError } from '../errors/AppError.js';
-import Logger from '../utils/logger.js';
+import { requestWriteLambdaServiceAWS } from '../services/lambda-sdk/services/RequestWriteLambdaServiceAWS.js';
+import { HttpError } from '../errors/http-error.js';
 
 class RequestController {
-    private writeService: RequestService;
-    private readRepository: RequestQueryRepository;
 
-    constructor(
-        writeService: RequestService = requestServiceAWSLambda,
-        readRepository: RequestQueryRepository = requestQueryRepository
-    ) {
-        this.writeService = writeService;
-        this.readRepository = readRepository;
-    }
-
-    getAllRequests = async (req: Request, res: Response, next: NextFunction) => {
+    async getAllRequests(req: Request, res: Response, next: NextFunction) {
         try {
-            const { status } = req.query;
-            const user = req.user;
-
-            Logger.info('[RequestController] Getting all requests', {
-                userId: user?.userId,
-                role: user?.role,
-                status
-            });
-
-            const requests = await this.readRepository.getAllRequests(
-                status as any,
-                user
-            );
-
-            Logger.info('[RequestController] Successfully retrieved requests', {
-                count: requests.length,
-                userId: user?.userId
-            });
-
-            res.status(200).json(requests);
-        } catch (error) {
-            Logger.error('[RequestController] Error getting requests', {
-                error,
-                userId: req.user?.userId
-            });
-            next(error);
-        }
-    };
-
-    getRequestById = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { id } = req.params;
-            const user = req.user;
-
-            Logger.info('[RequestController] Getting request by ID', {
-                requestId: id,
-                userId: user?.userId,
-                role: user?.role
-            });
-
-            const request = await this.readRepository.getRequestById(id);
-
-            if (!request) {
-                throw new NotFoundError('Request');
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
             }
 
-            if (user?.role === 'USER' && request.userId !== user.userId) {
-                Logger.security('Unauthorized request access attempt', {
-                    requestId: id,
-                    requestOwner: request.userId,
-                    attemptedBy: user.userId
-                });
-                throw new ForbiddenError('You can only access your own requests');
-            }
-
-            Logger.info('[RequestController] Successfully retrieved request', {
-                requestId: id,
-                userId: user?.userId
-            });
-
-            res.status(200).json(request);
-        } catch (error) {
-            Logger.error('[RequestController] Error getting request by ID', {
-                error,
-                requestId: req.params.id,
-                userId: req.user?.userId
-            });
-            next(error);
-        }
-    };
-
-    getUserStats = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { userId } = req.params;
-            const currentUser = req.user;
-
-            if (currentUser?.role === 'USER' && userId !== currentUser.userId) {
-                throw new ForbiddenError('You can only access your own statistics');
-            }
-
-            Logger.info('[RequestController] Getting user stats', {
-                targetUserId: userId,
-                requestedBy: currentUser?.userId
-            });
-
-            const stats = await this.readRepository.getUserRequestStats(userId);
-
-            Logger.info('[RequestController] Successfully retrieved user stats', {
-                userId,
-                total: stats.total
-            });
-
-            res.status(200).json(stats);
-        } catch (error) {
-            Logger.error('[RequestController] Error getting user stats', {
-                error,
-                userId: req.params.userId
-            });
-            next(error);
-        }
-    };
-
-    createRequest = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user;
-
-            const input: CreateRequestInput = {
-                category: req.body.category,
-                subject: req.body.subject,
-                userReportedPriority: req.body.userReportedPriority,
-                createdBy: user!.userId
+            const status = req.query.status as any;
+            const user = {
+                userId: req.user.userId,
+                role: req.user.role
             };
 
-            Logger.info('[RequestController] Creating new request', {
-                userId: user?.userId,
-                category: input.category,
-                priority: input.userReportedPriority
-            });
+            const requests = await requestQueryRepository.getAllRequests(status, user);
 
-            const result = await this.writeService.createRequest(input);
+            res.status(200).json(requests);
 
-            Logger.info('[RequestController] Successfully created request', {
-                requestId: result.requestId,
-                requestNumber: result.requestNumber,
-                userId: user?.userId
+        } catch (error: any) {
+            next(new HttpError(500, error.message));
+        }
+    }
+
+    async getRequestById(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
+            }
+
+            const { requestId } = req.params;
+
+            const request = await requestQueryRepository.getRequestById(requestId);
+
+            if (!request) {
+                throw new HttpError(404, 'Request not found');
+            }
+
+            if (req.user.role === 'USER' && request.userId !== req.user.userId) {
+                throw new HttpError(403, 'Access denied');
+            }
+
+            res.status(200).json(request);
+
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    async getRequestsByUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
+            }
+
+            const { userId } = req.params;
+            const status = req.query.status as any;
+
+            if (req.user.role === 'USER' && userId !== req.user.userId) {
+                throw new HttpError(403, 'Access denied');
+            }
+
+            const requests = await requestQueryRepository.getRequestsByUser(userId, status);
+
+            res.status(200).json(requests);
+
+        } catch (error: any) {
+            next(new HttpError(500, error.message));
+        }
+    }
+
+    async getUserRequestStats(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
+            }
+
+            const { userId } = req.params;
+
+            if (req.user.role === 'USER' && userId !== req.user.userId) {
+                throw new HttpError(403, 'Access denied');
+            }
+
+            const stats = await requestQueryRepository.getUserRequestStats(userId);
+
+            res.status(200).json(stats);
+
+        } catch (error: any) {
+            next(new HttpError(500, error.message));
+        }
+    }
+
+
+    async createRequest(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
+            }
+
+            if (req.user.role !== 'USER') {
+                throw new HttpError(403, 'Only users can create requests');
+            }
+
+            const { category, subject, userReportedPriority } = req.body;
+
+            const result = await requestWriteLambdaServiceAWS.createRequest({
+                action: 'CREATE_REQUEST',
+                category,
+                subject,
+                userReportedPriority,
+                createdBy: req.user.userId
             });
 
             res.status(201).json(result);
-        } catch (error) {
-            Logger.error('[RequestController] Error creating request', {
-                error,
-                userId: req.user?.userId,
-                body: req.body
-            });
-            next(error);
+
+        } catch (error: any) {
+            next(new HttpError(error.statusCode || 500, error.message));
         }
-    };
+    }
 
-    updateRequest = async (req: Request, res: Response, next: NextFunction) => {
+    async updateRequest(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id } = req.params;
-            const user = req.user;
+            if (!req.user) {
+                throw new HttpError(401, 'Authentication required');
+            }
 
-            const existingRequest = await this.readRepository.getRequestById(id);
+            const { requestId } = req.params;
+            const { category, subject, userReportedPriority, status } = req.body;
+
+            const existingRequest = await requestQueryRepository.getRequestById(requestId);
 
             if (!existingRequest) {
-                throw new NotFoundError('Request');
+                throw new HttpError(404, 'Request not found');
             }
 
-            if (user?.role === 'USER' && existingRequest.userId !== user.userId) {
-                Logger.security('Unauthorized request update attempt', {
-                    requestId: id,
-                    requestOwner: existingRequest.userId,
-                    attemptedBy: user.userId
-                });
-                throw new ForbiddenError('You can only update your own requests');
+            if (req.user.role === 'USER' && existingRequest.userId !== req.user.userId) {
+                throw new HttpError(403, 'Access denied: You can only update your own requests');
             }
 
-            const input: UpdateRequestInput = {
-                requestId: id,
-                category: req.body.category,
-                subject: req.body.subject,
-                userReportedPriority: req.body.userReportedPriority,
-                status: req.body.status,
-                updatedBy: user!.userId
-            };
+            if (req.user.role === 'USER' && status !== undefined) {
+                throw new HttpError(403, 'Access denied: Only support staff can change status');
+            }
 
-            Logger.info('[RequestController] Updating request', {
-                requestId: id,
-                userId: user?.userId,
-                updates: req.body
-            });
-
-            const result = await this.writeService.updateRequest(input);
-
-            Logger.info('[RequestController] Successfully updated request', {
-                requestId: id,
-                userId: user?.userId
+            const result = await requestWriteLambdaServiceAWS.updateRequest({
+                action: 'UPDATE_REQUEST',
+                requestId,
+                category,
+                subject,
+                userReportedPriority,
+                status: req.user.role !== 'USER' ? status : undefined,
+                updatedBy: req.user.userId
             });
 
             res.status(200).json(result);
-        } catch (error) {
-            Logger.error('[RequestController] Error updating request', {
-                error,
-                requestId: req.params.id,
-                userId: req.user?.userId,
-                body: req.body
-            });
-            next(error);
+
+        } catch (error: any) {
+            next(new HttpError(error.statusCode || 500, error.message));
         }
-    };
+    }
 }
 
 export const requestController = new RequestController();

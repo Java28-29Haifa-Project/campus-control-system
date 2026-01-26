@@ -40,10 +40,10 @@ requestRoutes.get(
  * GET /requests/user/:userId/stats
  * Get request statistics for a user
  */
-requestRoutes.get(
-    '/user/:userId/stats',
-    requestController.getUserStats
-);
+// requestRoutes.get(
+//     '/user/:userId/stats',
+//     requestController.getUserStats
+// );
 
 /**
  * POST /requests

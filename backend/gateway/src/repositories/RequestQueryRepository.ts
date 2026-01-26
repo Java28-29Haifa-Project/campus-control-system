@@ -19,4 +19,6 @@ export interface RequestQueryRepository {
         done: number;
         rejected: number;
     }>;
+    getRequestCountToday(): Promise<number>;
+
 }

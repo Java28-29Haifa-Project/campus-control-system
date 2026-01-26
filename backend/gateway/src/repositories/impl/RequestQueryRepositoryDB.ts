@@ -174,6 +174,23 @@ class RequestQueryRepositoryDB implements RequestQueryRepository {
             throw new Error(`Failed to fetch request stats for user ${userId}`);
         }
     }
+
+    async getRequestCountToday(): Promise<number> {
+        try {
+            const query = `
+            SELECT COUNT(*) as count 
+            FROM requests 
+            WHERE DATE(created_at) = CURRENT_DATE
+        `;
+
+            const result: QueryResult = await this.pool.query(query);
+            return parseInt(result.rows[0].count, 10);
+        } catch (error) {
+            console.error('[RequestQueryRepositoryDB] Error in getRequestCountToday:', error);
+            throw new Error('Failed to get request count for today');
+        }
+    }
+
 }
 
 export const requestQueryRepository = new RequestQueryRepositoryDB(db);
