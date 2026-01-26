@@ -32,7 +32,7 @@ class RequestController {
         try {
             if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+            const requestId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const request = await requestQueryRepository.getRequestById(requestId);
 
             if (!request) throw new HttpError(404, 'Request not found');

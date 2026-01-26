@@ -88,7 +88,6 @@ export const launchServer = () => {
     app.use('/requests',
         authMiddleware, // Require authentication
         (req, res, next) => {
-            // Apply appropriate rate limiter based on method
             if (req.method === 'GET') {
                 return readRateLimiter(req, res, next);
             } else {
