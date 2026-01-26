@@ -1,4 +1,5 @@
-import {Paths, type RouteType} from "../../utils/types.ts";
+import {Paths, type RouteType} from "../../types/types.ts";
+
 
 export const userNavItems:RouteType[] = [
     {path: Paths.DASHBOARD, title: "Dashboard"},

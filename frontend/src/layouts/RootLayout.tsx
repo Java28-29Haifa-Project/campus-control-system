@@ -1,5 +1,4 @@
 import {Outlet} from "react-router-dom";
-import type {RouteType} from "../utils/types.ts";
 import * as React from "react";
 import Navbar from "../components/Navbar.tsx";
 import Header from "../components/Header.tsx";
@@ -10,6 +9,7 @@ import {
     supportNavItems,
     userNavItems
 } from "../components/configurations/nav-config.ts";
+import type {RouteType} from "../types/types.ts";
 
 const RootLayout: React.FC = () => {
 

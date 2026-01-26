@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
-import type { RouteType } from "../utils/types";
 import * as React from "react";
+import type {RouteType} from "../types/types.ts";
 
 type Props = {
     items: RouteType[];

@@ -2,7 +2,6 @@ import './App.css'
 import {Routes, Route} from "react-router-dom";
 import RootLayout from "./layouts/RootLayout.tsx";
 import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
-import {Paths} from "./utils/types.ts";
 import ProtectedRoute from "./pages/servicePages/ProtectedRoute.tsx";
 import AuthLayout from "./layouts/AuthLayout.tsx";
 import HealthPage from "./pages/servicePages/health/HealthPage.tsx";
@@ -18,6 +17,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import TicketDetailsPage from "./pages/userPages/TicketDetailsPage.tsx";
 import LoginForm from "./components/LoginForm.tsx";
 import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
+import {Paths} from "./types/types.ts";
 
 function App() {
 
@@ -28,7 +28,7 @@ function App() {
             </Route>
 
             <Route element={
-                <>
+                <>clear
                     <AuthVerify/>
                     <RootLayout/>
                 </>

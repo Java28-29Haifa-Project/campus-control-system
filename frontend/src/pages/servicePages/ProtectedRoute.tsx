@@ -1,8 +1,8 @@
 import React from 'react';
 import type {User} from "../../types/authTypes.ts";
 import {useAppSelector} from "../../state/hooks.ts";
-import {Paths} from "../../utils/types.ts";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import {Paths} from "../../types/types.ts";
 
 type ProtectedRouteProps = {
     allowedRoles?: User["role"][];

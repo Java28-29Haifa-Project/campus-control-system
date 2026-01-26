@@ -2,13 +2,13 @@ import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
-import type { TicketStatus } from "../../types/ticketTypes.ts";
+import {TicketStatus} from "../../types/ticketTypes.ts";
 
 const TicketListPage: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const { items, isLoadingList, error, filterStatus, } = useAppSelector((state) => state.ticket);
+    const { items, isLoadingList, error, filterStatus } = useAppSelector((state) => state.ticket);
 
     useEffect(() => {
         dispatch(fetchTicketsThunk());
@@ -74,10 +74,10 @@ const TicketListPage: React.FC = () => {
                     <div className="select-box">
                         <select value={filterStatus} onChange={handleFilterChange}>
                             <option value="ALL">All</option>
-                            <option value="NEW">New</option>
-                            <option value="IN_PROGRESS">In service</option>
-                            <option value="REJECTED">Rejected</option>
-                            <option value="Done">Done</option>
+                            <option value={TicketStatus.New}>New</option>
+                            <option value={TicketStatus.InService}>In service</option>
+                            <option value={TicketStatus.Rejected}>Rejected</option>
+                            <option value={TicketStatus.Done}>Done</option>
                         </select>
                     </div>
                 </div>
