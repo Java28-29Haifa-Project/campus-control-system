@@ -35,24 +35,20 @@ class RequestQueryRepositoryDB implements RequestQueryRepository {
             const params: any[] = [];
             const conditions: string[] = [];
 
-            // Role-based filtering: USERs only see their own requests
             if (user?.role === 'USER') {
                 conditions.push(`user_id = $${params.length + 1}`);
                 params.push(user.userId);
             }
 
-            // Status filter
             if (status) {
                 conditions.push(`status = $${params.length + 1}`);
                 params.push(status);
             }
 
-            // Apply WHERE clause if conditions exist
             if (conditions.length > 0) {
                 query += ' WHERE ' + conditions.join(' AND ');
             }
 
-            // Order by most recent first
             query += ' ORDER BY created_at DESC';
 
             const result: QueryResult = await this.pool.query(query, params);
