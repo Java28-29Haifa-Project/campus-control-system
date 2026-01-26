@@ -101,7 +101,7 @@ const TicketListPage: React.FC = () => {
                             <thead>
                             <tr>
                                 <th style={{ textAlign: "left" }}>Title</th>
-                                <th style={{ textAlign: "left" }}>Description</th>
+                                {/*<th style={{ textAlign: "left" }}>Description</th>*/}
                                 <th>Status</th>
                                 <th>Date</th>
                             </tr>
@@ -109,9 +109,9 @@ const TicketListPage: React.FC = () => {
                             <tbody>
                             {filteredTickets.map((ticket) => (
                                 <tr
-                                    key={ticket.id}
+                                    key={ticket.requestId}
                                     style={{ cursor: "pointer" }}
-                                    onClick={() => handleRowClick(ticket.id)}
+                                    onClick={() => handleRowClick(ticket.requestId)}
                                 >
                                     <td>{ticket.subject}</td>
                                     {/*<td>*/}
