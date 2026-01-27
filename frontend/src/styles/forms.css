@@ -44,7 +44,7 @@
     position: relative;
     width: 100%;
     height: 50px;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .input-box input {
@@ -143,14 +143,15 @@
 }
 
 .register-link a {
-    color: #7ac9ff;
+    color: #fff;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 800;
     margin-left: 4px;
 }
 
 .register-link a:hover {
     text-decoration: underline;
+    color: black;
 }
 
 

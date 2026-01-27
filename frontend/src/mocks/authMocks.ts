@@ -1,4 +1,4 @@
-import type {LoginRequest, User} from "../src/types/authTypes";
+import type {LoginRequest, User} from "../types/authTypes.ts";
 
 export const mockUser: User = {
     userId: 'user_001',

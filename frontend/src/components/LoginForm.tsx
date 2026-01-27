@@ -1,10 +1,12 @@
 
-import { FaUser, FaLock } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 import './../styles/forms.css';
 import {type FormEvent, useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
 import {loginThunk} from "../state/slices/authSlice.ts";
+import {Paths} from "../types/types.ts";
 
 //TODO delete mocks
 const isMockAuth = import.meta.env.VITE_MOCK_AUTH === "true";
@@ -45,13 +47,13 @@ const LoginForm= () => {
 
                         <div className="input-box">
                             <input
-                                type="Email"
+                                type="email"
                             placeholder='Email'
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             />
-                            <FaUser className='icon'/>
+                            <MdEmail className='icon'/>
                         </div>
                         <div className="input-box">
                             <input
@@ -75,13 +77,13 @@ const LoginForm= () => {
                             {isLoading ? "Logging in..." : "Login"}
                             </button>
 
-                            {/*<div className="register-link">*/}
-                            {/*    <p>Don't have an account?*/}
-                            {/*    <a href="#">Register</a></p>*/}
-                            {/*</div>*/}
+                            <div className="register-link">
+                                <p>Don't have an account?
+                                <Link to={Paths.REGISTER}>Register</Link></p>
+                            </div>
                     </form>
                 </div>
-        // </div>
+         </div>
                 );
                 };
 

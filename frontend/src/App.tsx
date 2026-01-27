@@ -18,6 +18,7 @@ import {Paths} from "./types/types.ts";
 import ProtectedRoute from "./layouts/ProtectedRoute.tsx";
 import TicketFormPage from "./pages/userPages/TicketFormPage.tsx";
 import TicketDetails from "./pages/userPages/TicketDetails.tsx";
+import RegisterForm from "./components/RegisterForm.tsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         <Routes>
             <Route path={Paths.HOME} element={<AuthLayout/>}>
                 <Route index element={<LoginForm/>}/>
+                <Route path={Paths.REGISTER} element={<RegisterForm/>}/>
             </Route>
 
             <Route element={

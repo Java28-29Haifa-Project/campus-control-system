@@ -1,8 +1,8 @@
-import type {LoginRequest, User} from "../../types/authTypes";
+import type {LoginData, LoginRequest, User} from "../../types/authTypes";
 import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
-import {getCurrentUser, login, refreshToken} from "../../api/authApi.ts";
+import {getCurrentUser, login, refreshToken, register} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
-import {mockLoginUser, mockUser} from "../../../mocks/authMocks.ts";
+import {mockLoginUser, mockUser} from "../../mocks/authMocks.ts";
 
 const isMockAuth = import.meta.env.VITE_MOCK_AUTH === 'true';
 
@@ -23,6 +23,22 @@ const initialState: AuthState = {
     isLoading: false,
     error: null,
 }
+
+export const registerThunk = createAsyncThunk <
+    User,
+    LoginData,
+    { rejectValue: string }
+> (
+    "auth/register",
+    async (loginData: LoginData, {rejectWithValue}) => {
+        try{
+            return await register(loginData);
+        } catch (err){
+            console.log("Register failed", err);
+            return rejectWithValue("Backend is unavailable");
+        }
+    }
+);
 
 export const loginThunk = createAsyncThunk <
     User,
@@ -119,6 +135,25 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(registerThunk.pending, (state) => {
+                state.isLoading = true;
+                state.isVerified = "loading";
+                state.error = null;
+            })
+            .addCase(registerThunk.fulfilled, (state, action: PayloadAction<User>) => {
+                state.isLoading = false;
+                state.isAuthenticated = true;
+                state.isVerified = "succeeded";
+                state.user = action.payload;
+                state.error = null;
+            })
+            .addCase(registerThunk.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = false;
+                state.isVerified = "failed";
+                state.user = null;
+                state.error = action.payload ?? action.error.message ?? "Unexpected error";
+            })
             .addCase(loginThunk.pending, (state) => {
                 state.isLoading = true;
                 state.isVerified = "loading";

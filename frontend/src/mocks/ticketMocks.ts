@@ -1,4 +1,5 @@
-import {TicketStatus, UserPriority} from "../src/types/ticketTypes";
+import {TicketStatus, UserPriority} from "../types/ticketTypes.ts";
+
 
 export type MockTicket = {
     requestId: string;

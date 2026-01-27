@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import '../../../styles/forms.css';
 import { useNavigate } from "react-router-dom";
 import {TicketStatus} from "../../../types/ticketTypes.ts";
-import {type MockTicket, mockTickets} from "../../../../mocks/ticketMocks.ts";
+import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
 
 const TicketListMocksPage: React.FC = () => {
     const navigate = useNavigate();

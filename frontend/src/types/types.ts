@@ -4,6 +4,7 @@ export type RouteType = {
 }
 export const Paths = {
     HOME: '/',
+    REGISTER: '/register',
     TICKET: '/ticket',
     TICKET_NEW: '/ticket/new',
     TICKET_DETAILS: "/ticket/:id",

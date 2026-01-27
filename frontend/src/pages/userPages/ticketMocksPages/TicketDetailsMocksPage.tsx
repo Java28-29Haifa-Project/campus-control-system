@@ -1,7 +1,7 @@
 import React from "react";
 import '../../../styles/forms.css';
 import { useParams, useNavigate } from "react-router-dom";
-import {type MockTicket, mockTickets} from "../../../../mocks/ticketMocks.ts";
+import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
 
 const TicketDetailsMocksPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
