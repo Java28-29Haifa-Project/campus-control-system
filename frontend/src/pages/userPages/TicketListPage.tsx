@@ -112,7 +112,7 @@ const TicketListPage: React.FC = () => {
                                 <tr
                                     key={ticket.requestId}
                                     style={{ cursor: "pointer" }}
-                                    onClick={() => handleRowClick(ticket.requestNumber)}
+                                    onClick={() => handleRowClick(ticket.requestId)}
                                 >
                                     <td>{ticket.subject}</td>
                                     <td>{ticket.description}</td>
