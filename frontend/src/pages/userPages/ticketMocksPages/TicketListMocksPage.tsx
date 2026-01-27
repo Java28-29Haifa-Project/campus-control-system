@@ -1,22 +1,16 @@
-import React, {useEffect} from "react";
+import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
-import {TicketStatus} from "../../types/ticketTypes.ts";
+import {TicketStatus} from "../../../types/ticketTypes.ts";
+import {type MockTicket, mockTickets} from "../../../../mocks/ticketMocks.ts";
 
 const TicketListPage: React.FC = () => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const { items, isLoadingList, error, filterStatus } = useAppSelector((state) => state.ticket);
-
-    useEffect(() => {
-        dispatch(fetchTicketsThunk());
-    }, [dispatch]);
+    const [filterStatus, setFilterStatus] = useState<TicketStatus | "ALL">("ALL");
+    const [items] = useState<MockTicket[]>(mockTickets);
 
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value as TicketStatus | "ALL";
-        dispatch(setFilterStatus(value));
         setFilterStatus(value);
     };
 
@@ -32,14 +26,6 @@ const TicketListPage: React.FC = () => {
     const handleCreateClick = () => {
         navigate("/ticket/new");
     };
-
-    if (isLoadingList) {
-        return <div>Loading tickets...</div>;
-    }
-
-    if (error) {
-        return <div>Error loading: {error}</div>;
-    }
 
     return (
         <div className="auth-page">

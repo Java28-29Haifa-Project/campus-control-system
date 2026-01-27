@@ -2,7 +2,6 @@ import './App.css'
 import {Routes, Route} from "react-router-dom";
 import RootLayout from "./layouts/RootLayout.tsx";
 import ErrorPage from "./pages/servicePages/ErrorPage.tsx";
-import ProtectedRoute from "./pages/servicePages/ProtectedRoute.tsx";
 import AuthLayout from "./layouts/AuthLayout.tsx";
 import HealthPage from "./pages/servicePages/health/HealthPage.tsx";
 import Ticket from "./pages/userPages/Ticket.tsx";
@@ -18,6 +17,7 @@ import TicketDetailsPage from "./pages/userPages/TicketDetailsPage.tsx";
 import LoginForm from "./components/LoginForm.tsx";
 import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
 import {Paths} from "./types/types.ts";
+import ProtectedRoute from "./layouts/ProtectedRoute.tsx";
 
 function App() {
 

@@ -105,12 +105,12 @@ const TicketDetailsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/*<div className="ticket-details-description">*/}
-                {/*    <span className="ticket-details-label">*/}
-                {/*        Description*/}
-                {/*    </span>*/}
-                {/*    <p>{current.description}</p>*/}
-                {/*</div>*/}
+                <div className="ticket-details-description">
+                    <span className="ticket-details-label">
+                        Description
+                    </span>
+                    <p>{current.description}</p>
+                </div>
 
 
             </div>

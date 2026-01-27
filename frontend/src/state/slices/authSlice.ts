@@ -2,6 +2,9 @@ import type {LoginRequest, User} from "../../types/authTypes";
 import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import {getCurrentUser, login, refreshToken} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
+import {mockLoginUser, mockUser} from "../../../mocks/authMocks.ts";
+
+const isMockAuth = import.meta.env.VITE_MOCK_AUTH === 'true';
 
 export type AuthStatus = "idle" | "loading" | "succeeded" | "failed";
 
@@ -12,10 +15,11 @@ export interface AuthState {
     isLoading: boolean,
     error: string | null,
 }
+
 const initialState: AuthState = {
-    user: null,
-    isAuthenticated: false,
-    isVerified: "idle",
+    user: isMockAuth? mockUser : null,
+    isAuthenticated: isMockAuth,
+    isVerified: isMockAuth ? "succeeded" : "idle",
     isLoading: false,
     error: null,
 }
@@ -27,6 +31,19 @@ export const loginThunk = createAsyncThunk <
 >(
     "auth/login",
     async (loginData: LoginRequest, { rejectWithValue }) => {
+        //TODO delete mocks
+        if (isMockAuth) {
+            const { email, password } = loginData;
+
+            if (!email || !password) {
+                return rejectWithValue("Email & password required (mock)");
+            }
+            if (email !== mockLoginUser.email || password !== mockLoginUser.password) {
+                return rejectWithValue("Invalid mock credentials");
+            }
+
+            return mockUser;
+        }
         try {
             return await login(loginData);
         } catch (err) {
@@ -43,8 +60,6 @@ export const loginThunk = createAsyncThunk <
                 else if(err.status >= 500) {
                     return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
                 }
-                // else
-                //     return rejectWithValue("Unexpected error");
             }
             return rejectWithValue("Backend is unavailable");
         }
@@ -58,6 +73,11 @@ export const verifyTokenThunk = createAsyncThunk<
 >(
     "auth/verify",
     async (_, { rejectWithValue }) => {
+        //TODO delete mocks
+        if (isMockAuth) {
+            console.log("verifyTokenThunk: mock mode, returning mockUser");
+            return mockUser;
+        }
         try {
             return await getCurrentUser();
         } catch (err) {
@@ -76,8 +96,6 @@ export const verifyTokenThunk = createAsyncThunk<
                 if(err.status >= 500){
                     return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
                 }
-                // else
-                //     return rejectWithValue("Unexpected error");
             }
             return rejectWithValue("Backend is unavailable");
         }
@@ -90,7 +108,13 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         logout: (state) => {
-            Object.assign(state, initialState);
+            Object.assign(state, {
+                user: null,
+                isAuthenticated: false,
+                isVerified: "idle" as AuthStatus,
+                isLoading: false,
+                error: null,
+            });
         }
     },
     extraReducers: (builder) => {
