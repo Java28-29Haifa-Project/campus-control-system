@@ -3,6 +3,7 @@
     margin: 0 auto;
     padding: 1rem;
     text-align: center;
+    position: fixed;
 }
 @media (min-width: 1024px) {
     #root {

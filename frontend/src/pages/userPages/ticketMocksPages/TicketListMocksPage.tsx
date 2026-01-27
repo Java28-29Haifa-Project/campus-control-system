@@ -1,9 +1,10 @@
 import React, {useState} from "react";
+import '../../../styles/forms.css';
 import { useNavigate } from "react-router-dom";
 import {TicketStatus} from "../../../types/ticketTypes.ts";
 import {type MockTicket, mockTickets} from "../../../../mocks/ticketMocks.ts";
 
-const TicketListPage: React.FC = () => {
+const TicketListMocksPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [filterStatus, setFilterStatus] = useState<TicketStatus | "ALL">("ALL");
@@ -124,4 +125,4 @@ const TicketListPage: React.FC = () => {
     );
 };
 
-export default TicketListPage;
+export default TicketListMocksPage;

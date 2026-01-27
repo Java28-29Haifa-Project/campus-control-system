@@ -8,9 +8,7 @@ const Ticket = () => {
 
     return (
         <div >
-            <h1>Ticket page</h1>
             {useMockTickets? <TicketListMocksPage /> : <TicketListPage/>}
-
         </div>
     );
 };

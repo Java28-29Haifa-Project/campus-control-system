@@ -1,4 +1,4 @@
-import {TicketStatus} from "../src/types/ticketTypes";
+import {TicketStatus, UserPriority} from "../src/types/ticketTypes";
 
 export type MockTicket = {
     requestId: string;
@@ -6,6 +6,7 @@ export type MockTicket = {
     description: string;
     category: string;
     status: TicketStatus;
+    userReportedPriority: UserPriority;
     createdAt: string;
 };
 export const mockTickets: MockTicket[] = [
@@ -15,6 +16,7 @@ export const mockTickets: MockTicket[] = [
         description: "Wi-Fi network is not available in room B204. Students cannot connect during lectures.",
         category: "electrical",
         status: TicketStatus.New,
+        userReportedPriority: UserPriority.High,
         createdAt: "2025-01-01T10:25:00Z",
     },
     {
@@ -23,6 +25,7 @@ export const mockTickets: MockTicket[] = [
         description: "The projector in auditorium A101 keeps flickering and sometimes turns off completely.",
         category: "plumbing",
         status: TicketStatus.InService,
+        userReportedPriority: UserPriority.Medium,
         createdAt: "2025-01-02T09:10:00Z",
     },
     {
@@ -31,6 +34,7 @@ export const mockTickets: MockTicket[] = [
         description: "One of the chairs in the quiet zone is broken and unsafe to sit on.",
         category: "general",
         status: TicketStatus.Done,
+        userReportedPriority: UserPriority.Low,
         createdAt: "2025-01-03T12:45:00Z",
     },
     {
@@ -39,6 +43,7 @@ export const mockTickets: MockTicket[] = [
         description: "In room C310 the AC is set too low, students are freezing during the exams.",
         category: "general",
         status: TicketStatus.Rejected,
+        userReportedPriority: UserPriority.Urgent,
         createdAt: "2025-01-03T12:45:00Z",
     },
 ];

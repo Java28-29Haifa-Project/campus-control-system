@@ -1,13 +1,12 @@
 
 .auth-page {
     min-height: calc(100vh - 60px);  /* - высота header */
-    padding: 80px 16px 24px;         /* отступ сверху, чтобы не попадать под header */
+    padding: 0px 16px 24px;         /* отступ сверху, чтобы не попадать под header */
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
 }
-
 
 .login-wrapper,
 .ticket-form-wrapper,
