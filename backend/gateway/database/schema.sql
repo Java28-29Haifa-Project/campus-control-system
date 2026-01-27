@@ -19,6 +19,8 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 
+
+
 -- REQUESTS (TICKETS) TABLE
 CREATE TABLE requests (
                           request_id VARCHAR(50) PRIMARY KEY,
@@ -44,6 +46,8 @@ CREATE INDEX idx_requests_priority ON requests(user_reported_priority);
 CREATE INDEX idx_requests_created_at ON requests(created_at DESC);
 CREATE INDEX idx_requests_user_status ON requests(user_id, status);
 
+
+
 -- INCIDENTS TABLE
 CREATE TABLE incidents (
                            incident_id VARCHAR(50) PRIMARY KEY,
@@ -65,6 +69,8 @@ CREATE INDEX idx_incidents_status ON incidents(status);
 CREATE INDEX idx_incidents_priority ON incidents(priority);
 CREATE INDEX idx_incidents_created_at ON incidents(created_at DESC);
 CREATE INDEX idx_incidents_status_priority ON incidents(status, priority);
+
+
 
 -- INCIDENT-REQUEST MAPPING TABLE
 -- (Many-to-many: one incident can relate to multiple requests)
@@ -153,32 +159,6 @@ WHERE
 ORDER BY
     tablename,
     indexname;
-
--- USEFUL QUERIES FOR DEVELOPMENT
-
--- Get all requests with user info
--- SELECT
---     r.request_id,
---     r.request_number,
---     r.subject,
---     r.status,
---     u.username,
---     u.email,
---     r.created_at
--- FROM requests r
--- JOIN users u ON r.user_id = u.user_id
--- ORDER BY r.created_at DESC;
-
--- Get all incidents with linked requests
--- SELECT
---     i.incident_id,
---     i.incident_number,
---     i.status,
---     i.priority,
---     COUNT(ir.request_id) as linked_requests
--- FROM incidents i
--- LEFT JOIN incident_requests ir ON i.incident_id = ir.incident_id
--- GROUP BY i.incident_id, i.incident_number, i.status, i.priority;
 
 COMMENT ON TABLE users IS 'System users with role-based access';
 COMMENT ON TABLE requests IS 'User-submitted service requests/tickets';
