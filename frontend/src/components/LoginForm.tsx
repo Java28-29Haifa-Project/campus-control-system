@@ -6,6 +6,8 @@ import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
 import {loginThunk} from "../state/slices/authSlice.ts";
 
+//TODO delete mocks
+const isMockAuth = import.meta.env.VITE_MOCK_AUTH === "true";
 
 const LoginForm= () => {
 
@@ -21,6 +23,11 @@ const LoginForm= () => {
 
     const onSubmitLogin = async (e: FormEvent) => {
         e.preventDefault();
+        //TODO delete mocks
+        if (isMockAuth) {
+            dispatch(loginThunk({ email, password }));
+            return;
+        }
         dispatch(loginThunk({email, password}));
     }
 

@@ -14,7 +14,7 @@
 .ticket-details-wrapper,
 .ticket-table-wrapper {
     width: 100%;
-    max-width: 400px; /* у таблицы можешь больше сделать, если нужно */
+    max-width: 400px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, .2);
     box-shadow: 0 0 10px rgba(0, 0, 0, .2);
@@ -171,7 +171,9 @@
 }
 
 
-/* textarea ближе к селектам */
+.ticket-form-wrapper{
+    padding-bottom: 0;
+}
 .ticket-form-wrapper .textarea-box {
     margin-top: 8px;
     margin-bottom: 4px;
@@ -210,7 +212,6 @@
     transform: translateY(-1px);
 }
 
-/* Селекты ближе к описанию и в том же стиле, что инпуты */
 .select-box {
     height: 48px;
     margin-top: 4px;
@@ -246,19 +247,16 @@
     transform: translateY(-1px);
 }
 
-/* чуть приглушим placeholder-option */
 .select-box select option[disabled] {
     color: rgba(255, 255, 255, 0.4);
 }
 
-/* блок с кнопками */
 .ticket-form-actions {
     display: flex;
     gap: 12px;
     margin-top: 8px;
 }
 
-/* вторичная кнопка уже была создана раньше */
 .ticket-form-actions .secondary-btn {
     width: 100%;
     height: 45px;
@@ -286,14 +284,13 @@
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
-/* Адаптив для кнопок */
 @media (max-width: 480px) {
     .ticket-form-actions {
         flex-direction: column;
     }
 }
 
-/* Экран успеха с галочкой */
+
 .success-state {
     display: flex;
     flex-direction: column;
@@ -316,13 +313,12 @@
 
 
 
-/* Кнопка "Back" в начале карточки */
 .ticket-details-wrapper .back-btn {
     align-self: flex-start;
     margin-bottom: 8px;
 }
 
-/* Блок с мета-инфой о тикете */
+
 .ticket-details-meta {
     display: flex;
     flex-direction: column;
@@ -331,14 +327,14 @@
     margin-bottom: 16px;
 }
 
-/* Одна строка мета-информации */
+
 .ticket-details-row {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-/* Лейблы и значения стилизуем под общий стиль */
+
 .ticket-details-label {
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
@@ -352,7 +348,7 @@
     color: #fff;
 }
 
-/* Блок описания – как "textarea", но read-only */
+
 .ticket-details-description {
     width: 100%;
     margin-top: 4px;
@@ -369,7 +365,7 @@
     line-height: 1.5;
 }
 
-/* Если нужны кнопки действий внизу */
+
 .ticket-details-actions {
     display: flex;
     gap: 12px;
@@ -377,7 +373,7 @@
 }
 
 .ticket-table-wrapper {
-    max-width: 500px;
+    max-width: 900px;
 }
 
 
