@@ -64,7 +64,7 @@ const TicketDetailsPage: React.FC = () => {
                     ← Back to list
                 </button>
 
-                <h1>Ticket #{current.requestId}</h1>
+                <h1>Ticket #{current.requestNumber}</h1>
 
                 <div className="ticket-details-meta">
                     <div className="ticket-details-row">

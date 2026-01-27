@@ -20,6 +20,7 @@ export const enum UserPriority {
 
 export interface Ticket {
     requestId: string;
+    requestNumber: string;
     userId: string;
     subject: string;
     description?: string;
