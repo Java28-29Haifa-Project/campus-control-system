@@ -15,6 +15,11 @@ export const RequestValidationSchemas = {
         description: z.string().min(10).max(2000).optional(),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
         status: z.enum(['new', 'rejected', 'in_service', 'done']).optional()
+    }),
+
+    updateStatusBySupport: z.object({
+        //for support should not return new status in this case
+        status: z.enum(['rejected', 'in_service', 'done'])
     })
 };
 
