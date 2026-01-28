@@ -33,7 +33,7 @@ export interface Ticket {
 
 export interface TicketRequest {
     subject: string;
-    description?: string;
+    description: string;
     category: Category;
     userReportedPriority: UserPriority;
 }
