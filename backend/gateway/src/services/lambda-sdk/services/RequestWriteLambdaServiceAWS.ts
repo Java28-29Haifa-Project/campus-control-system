@@ -20,6 +20,7 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
                 requestNumber,
                 category: input.category,
                 subject: input.subject,
+                description: input.description,
                 userReportedPriority: input.userReportedPriority,
                 createdBy: input.createdBy
             }
@@ -42,6 +43,7 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
                 updates: {
                     category: input.category,
                     subject: input.subject,
+                    description: input.description,
                     userReportedPriority: input.userReportedPriority,
                     status: input.status,
                     updatedBy: input.updatedBy

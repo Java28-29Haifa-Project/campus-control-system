@@ -5,12 +5,14 @@ export const RequestValidationSchemas = {
     createRequest: z.object({
         category: z.enum(['plumbing', 'electrical', 'general']),
         subject: z.string().min(10).max(500),
-        userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent'])
+        userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']),
+        description: z.string().min(10).max(2000).optional()
     }),
 
     updateRequest: z.object({
         category: z.enum(['plumbing', 'electrical', 'general']).optional(),
         subject: z.string().min(10).max(500).optional(),
+        description: z.string().min(10).max(2000).optional(),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
         status: z.enum(['new', 'rejected', 'in_service', 'done']).optional()
     })

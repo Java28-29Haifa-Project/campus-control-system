@@ -18,6 +18,7 @@ class RequestServiceImplAWSLambda implements RequestService {
             action: 'CREATE_REQUEST',
             category: input.category,
             subject: input.subject,
+            description: input.description,
             userReportedPriority: input.userReportedPriority,
             createdBy: input.createdBy
         });
@@ -28,6 +29,7 @@ class RequestServiceImplAWSLambda implements RequestService {
             requestNumber: lambdaResponse.requestNumber,
             category: lambdaResponse.category as any,
             subject: lambdaResponse.subject,
+            description: lambdaResponse.description,
             userReportedPriority: lambdaResponse.userReportedPriority as any,
             status: lambdaResponse.status as any,
             createdAt: lambdaResponse.createdAt
@@ -40,6 +42,7 @@ class RequestServiceImplAWSLambda implements RequestService {
             requestId: input.requestId,
             category: input.category,
             subject: input.subject,
+            description: input.description,
             userReportedPriority: input.userReportedPriority,
             status: input.status,
             updatedBy: input.updatedBy
@@ -50,6 +53,7 @@ class RequestServiceImplAWSLambda implements RequestService {
             requestNumber: lambdaResponse.requestNumber,
             category: lambdaResponse.category as any,
             subject: lambdaResponse.subject,
+            description: lambdaResponse.description,
             userReportedPriority: lambdaResponse.userReportedPriority as any,
             status: lambdaResponse.status as any,
             createdAt: lambdaResponse.createdAt

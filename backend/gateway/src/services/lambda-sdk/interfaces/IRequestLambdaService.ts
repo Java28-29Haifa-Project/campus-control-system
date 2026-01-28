@@ -15,6 +15,7 @@ export interface RequestLambdaResponse {
     supportName: string | null;
     category: string;
     subject: string;
+    description: string;
     userReportedPriority: string;
     status: string;
     createdAt: string;
@@ -30,6 +31,7 @@ export interface CreateRequestInputLambda {
     action: 'CREATE_REQUEST';
     category: string;
     subject: string;
+    description: string;
     userReportedPriority: string;
     createdBy: string;
 }
@@ -39,6 +41,7 @@ export interface UpdateRequestInputLambda {
     requestId: string;
     category?: string;
     subject?: string;
+    description: string;
     userReportedPriority?: string;
     status?: string;
     updatedBy: string;
