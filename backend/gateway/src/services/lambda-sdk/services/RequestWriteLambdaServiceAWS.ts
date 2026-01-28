@@ -59,11 +59,11 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
         input: UpdateRequestStatusInputLambda
     ): Promise<RequestLambdaResponse> {
 
-        const existingRequest = await requestQueryRepository.getRequestById(input.requestId);
+        // const existingRequest = await requestQueryRepository.getRequestById(input.requestId);
 
-        if (!existingRequest) {
-            throw new Error('Request not found');
-        }
+        // if (!existingRequest) {
+        //     throw new Error('Request not found');
+        // }
 
         const command = {
             action: 'UPDATE_REQUEST_STATUS',

@@ -106,7 +106,7 @@ class RequestController {
         try {
             if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+            const requestId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { category, subject, description, userReportedPriority, status } = req.body;
 
             const existingRequest = await requestQueryRepository.getRequestById(requestId);
@@ -140,11 +140,11 @@ class RequestController {
         try {
             if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
+            const requestId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { status } = req.body;
 
-            const existing = await requestQueryRepository.getRequestById(requestId);
-            if (!existing) throw new HttpError(404, 'Request not found');
+            // const existing = await requestQueryRepository.getRequestById(requestId);
+            // if (!existing) throw new HttpError(404, 'Request not found');
 
             const result = await requestWriteLambdaServiceAWS.updateRequestStatus({
                 requestId,

@@ -34,8 +34,8 @@ requestRoutes.post(
 
 requestRoutes.patch(
     '/:id',
-    validate(RequestValidationSchemas.updateRequest, 'body'),
-    requestController.updateRequest
+    validate(RequestValidationSchemas.updateStatusBySupport, 'body'),
+    requestController.updateRequestStatus
 );
 
 export default requestRoutes;
