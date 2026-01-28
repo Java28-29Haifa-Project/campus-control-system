@@ -47,3 +47,9 @@ export type UpdateRequestInput = {
     status?: TicketRequestStatus;
     updatedBy: string;
 };
+
+export type UpdateRequestStatusInputLambda = {
+    requestId: string;
+    status: 'rejected' | 'in_service' | 'done';
+    updatedBy: string;
+};
