@@ -10,7 +10,7 @@ CREATE TABLE users (
                        username VARCHAR(100) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        password_hash VARCHAR(255) NOT NULL,
-                       role VARCHAR(20) NOT NULL CHECK (role IN ('USER', 'ADMIN', 'SUPPORT', 'ENGINEER')),
+                       role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN', 'SUPPORT', 'ENGINEER')),
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
