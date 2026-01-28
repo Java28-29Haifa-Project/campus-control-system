@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { JwtUtils } from '../utils/jwt.utils.js';
 import { HttpError } from '../errors/http-error.js';
+import { RegisterRequest } from '../types/auth.js';
+
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL
@@ -172,11 +174,11 @@ class AuthController {
 
     async register(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email, password } = req.body;
-            const user = await authService.registerUser({ name, email, password });
+            const body: RegisterRequest = req.body;
+            const user = await authService.registerUser(body);
             res.status(201).json(user);
-        } catch (error: any) {
-            next(error);
+        } catch (err) {
+            next(err);
         }
     }
 }

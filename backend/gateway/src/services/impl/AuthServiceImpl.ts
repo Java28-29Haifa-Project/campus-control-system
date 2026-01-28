@@ -8,7 +8,7 @@ import { HttpError } from '../errors/http-error.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 
 class AuthServiceImpl implements AuthService {
@@ -45,6 +45,8 @@ class AuthServiceImpl implements AuthService {
     }
 
     async registerUser(request: RegisterRequest): Promise<User> {
+        const { name, email, password } = request;
+
         const existing = await userRepository.findByEmail(email);
         if (existing) throw new HttpError(409, 'Email already registered');
 
