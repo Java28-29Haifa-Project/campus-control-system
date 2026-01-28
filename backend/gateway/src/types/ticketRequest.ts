@@ -27,6 +27,7 @@ export type TicketRequest = {
     userReportedPriority: TicketRequestPriority;
     status: TicketRequestStatus;
     createdAt: string;
+    description?: string;
 };
 
 export interface CreateRequestInput {
