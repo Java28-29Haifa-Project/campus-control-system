@@ -85,11 +85,12 @@ class RequestController {
             if (!req.user) throw new HttpError(401, 'Authentication required');
             if (req.user.role !== 'USER') throw new HttpError(403, 'Only users can create requests');
 
-            const { category, subject, userReportedPriority } = req.body;
+            const { category, subject, description, userReportedPriority } = req.body;
             const result = await requestWriteLambdaServiceAWS.createRequest({
                 action: 'CREATE_REQUEST',
                 category,
                 subject,
+                description,
                 userReportedPriority,
                 createdBy: req.user.userId
             });
@@ -106,7 +107,7 @@ class RequestController {
             if (!req.user) throw new HttpError(401, 'Authentication required');
 
             const requestId = Array.isArray(req.params.requestId) ? req.params.requestId[0] : req.params.requestId;
-            const { category, subject, userReportedPriority, status } = req.body;
+            const { category, subject, description, userReportedPriority, status } = req.body;
 
             const existingRequest = await requestQueryRepository.getRequestById(requestId);
             if (!existingRequest) throw new HttpError(404, 'Request not found');
@@ -122,6 +123,7 @@ class RequestController {
                 requestId,
                 category,
                 subject,
+                description,
                 userReportedPriority,
                 status: Object.values(TicketRequestStatus).includes(status as TicketRequestStatus) ? (status as TicketRequestStatus) : undefined,
                 updatedBy: req.user.userId
