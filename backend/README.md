@@ -301,7 +301,7 @@ Router → authMiddleware → roleMiddleware → Controller
 
 ### Read Operations (Direct Database)
 ```typescript
-// Express Gateway: RequestQueryRepository
+// Express Gateway: IRequestQueryRepository
 async getAllRequests(status, user) {
   // Role-based filtering at database level
   if (user.role === 'USER') {

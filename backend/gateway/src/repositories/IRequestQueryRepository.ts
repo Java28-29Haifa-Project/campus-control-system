@@ -1,6 +1,6 @@
 import { TicketRequest, TicketRequestStatus } from '../types/ticketRequest.js';
 
-export interface RequestQueryRepository {
+export interface IRequestQueryRepository {
     getAllRequests(
         status?: TicketRequestStatus,
         user?: { userId: string; role: string }

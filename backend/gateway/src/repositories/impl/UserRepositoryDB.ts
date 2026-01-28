@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { db } from '../../utils/db.client.js';
 import bcrypt from 'bcrypt';
 
-class UserRepositoryDB {
+class UserRepositoryDB implements IUserRepository {
     private pool: Pool;
 
     constructor(pool: Pool) {
