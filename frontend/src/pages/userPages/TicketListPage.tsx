@@ -100,6 +100,7 @@ const TicketListPage: React.FC = () => {
                         >
                             <thead>
                             <tr>
+                                <th>ID</th>
                                 <th style={{ textAlign: "left" }}>Title</th>
                                 <th style={{ textAlign: "left" }}>Description</th>
                                 <th>Category</th>
@@ -114,6 +115,7 @@ const TicketListPage: React.FC = () => {
                                     style={{ cursor: "pointer" }}
                                     onClick={() => handleRowClick(ticket.requestId)}
                                 >
+                                    <td>{ticket.requestNumber}</td>
                                     <td>{ticket.subject}</td>
                                     <td>{ticket.description}</td>
                                     <td>{ticket.category}</td>

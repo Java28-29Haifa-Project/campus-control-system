@@ -1,20 +1,22 @@
-
-import { FaLock } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import {FaLock} from "react-icons/fa";
+import {MdEmail} from "react-icons/md";
 import './../styles/forms.css';
 import {type FormEvent, useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
 import {loginThunk} from "../state/slices/authSlice.ts";
 import {Paths} from "../types/types.ts";
+import {validateLogin} from "../utils/validation.ts";
 
 //TODO delete mocks
 const isMockAuth = import.meta.env.VITE_MOCK_AUTH === "true";
 
-const LoginForm= () => {
+const LoginForm = () => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [errorValidation, setErrorValidation] = useState<string | null>(null);
+
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -27,64 +29,78 @@ const LoginForm= () => {
         e.preventDefault();
         //TODO delete mocks
         if (isMockAuth) {
-            dispatch(loginThunk({ email, password }));
+            dispatch(loginThunk({email, password}));
             return;
         }
+
+        const errorMsg = validateLogin({email, password});
+        if (errorMsg) {
+            setErrorValidation(errorMsg);
+            return;
+        }
+        setErrorValidation(null)
+
         dispatch(loginThunk({email, password}));
     }
 
     useEffect(() => {
-        if (isAuthenticated){
-            navigate("/dashboard", { replace: true });
+        if (isAuthenticated) {
+            navigate("/dashboard", {replace: true});
         }
     }, [isAuthenticated, navigate]);
 
     return (
         <div className="auth-page">
-                <div className='login-wrapper'>
-                    <form onSubmit={onSubmitLogin}>
-                        <h1>Login</h1>
+            <div className='login-wrapper'>
+                <form onSubmit={onSubmitLogin} noValidate>
+                    <h1>Login</h1>
 
-                        <div className="input-box">
-                            <input
-                                type="email"
-                            placeholder='Email'
+                    <div className="input-box">
+                        <input
+                            type="email"
                             required
+                            placeholder='Email'
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            />
-                            <MdEmail className='icon'/>
-                        </div>
-                        <div className="input-box">
-                            <input
-                                type="password"
-                                placeholder='Password'
-                                required
+                        />
+                        <MdEmail className='icon'/>
+                    </div>
+                    <div className="input-box">
+                        <input
+                            type="password"
+                            placeholder='Password'
+                            required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <FaLock className='icon'/>
-                            </div>
+                        />
+                        <FaLock className='icon'/>
+                    </div>
 
-                            {/*<div className="remember-forgot">*/}
-                            {/*  <label><input type="checkbox"/>Remember me</label>*/}
-                            {/*    <a href="#">Forgot password?</a>*/}
-                            {/*</div>*/}
+                    {/*<div className="remember-forgot">*/}
+                    {/*  <label><input type="checkbox"/>Remember me</label>*/}
+                    {/*    <a href="#">Forgot password?</a>*/}
+                    {/*</div>*/}
 
-                            {authError && <div>{authError}</div>}
+                    {errorValidation &&
+                        <div className="error-message">
+                            {errorValidation}
+                        </div>
+                    }
 
-                            <button type="submit" disabled={isLoading}>
-                            {isLoading ? "Logging in..." : "Login"}
-                            </button>
+                    {authError && <div className="error-message">{authError}</div>}
 
-                            <div className="register-link">
-                                <p>Don't have an account?
-                                <Link to={Paths.REGISTER}>Register</Link></p>
-                            </div>
-                    </form>
-                </div>
-         </div>
-                );
-                };
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? "Logging in..." : "Login"}
+                    </button>
+
+                    <div className="register-link">
+                        <p>Don't have an account?
+                            <Link to={Paths.REGISTER}>Register</Link></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
 
 export default LoginForm;
