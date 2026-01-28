@@ -1,9 +1,9 @@
 import { Pool, QueryResult } from 'pg';
-import { RequestQueryRepository } from '../RequestQueryRepository.js';
+import { IRequestQueryRepository } from '../IRequestQueryRepository.js';
 import { TicketRequest, TicketRequestStatus } from '../../types/ticketRequest.js';
 import { db } from '../../utils/db.client.js';
 
-class RequestQueryRepositoryDB implements RequestQueryRepository {
+class RequestQueryRepositoryDB implements IRequestQueryRepository {
     private pool: Pool;
 
     constructor(pool: Pool) {

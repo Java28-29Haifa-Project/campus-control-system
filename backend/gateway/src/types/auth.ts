@@ -3,6 +3,7 @@ export type User = {
     username: string;
     email: string;
     role: 'USER' | 'ADMIN' | 'SUPPORT' | 'ENGINEER';
+    createdAt?: string;
 };
 
 export type LoginRequest = {
@@ -13,4 +14,10 @@ export type LoginRequest = {
 export type VerifyTokenRequest = {
     userId: string;
 };
+
+export type RegisterRequest = {
+    name: string;
+    email: string;
+    password: string;
+}
 
