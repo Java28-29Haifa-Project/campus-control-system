@@ -2,6 +2,7 @@ import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { IRequestWriteLambdaService } from '../interfaces/IRequestWriteLambdaService.js';
 import { CreateRequestInputLambda, UpdateRequestInputLambda, RequestLambdaResponse } from '../interfaces/IRequestLambdaService.js';
 import { requestQueryRepository } from '../../../repositories/impl/RequestQueryRepositoryDB.js';
+import {UpdateRequestStatusInputLambda} from "../../../types/ticketRequest.js";
 
 const lambda = new LambdaClient({ region: process.env.AWS_REGION });
 
@@ -53,6 +54,29 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
 
         return this.invoke(command);
     }
+
+    async updateRequestStatus(
+        input: UpdateRequestStatusInputLambda
+    ): Promise<RequestLambdaResponse> {
+
+        // const existingRequest = await requestQueryRepository.getRequestById(input.requestId);
+
+        // if (!existingRequest) {
+        //     throw new Error('Request not found');
+        // }
+
+        const command = {
+            action: 'UPDATE_REQUEST_STATUS',
+            data: {
+                requestId: input.requestId,
+                status: input.status,
+                updatedBy: input.updatedBy
+            }
+        };
+
+        return this.invoke(command);
+    }
+
 
     async healthCheck(): Promise<{ service: string; status: string; timestamp: string }> {
         try {
@@ -129,6 +153,8 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
 
         return typeof result.body === 'string' ? JSON.parse(result.body) : (result.body || result);
     }
+
+
 }
 
 export const requestWriteLambdaServiceAWS = new RequestWriteLambdaServiceAWS();
