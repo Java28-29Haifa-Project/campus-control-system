@@ -147,7 +147,7 @@ class RequestController {
             if (!existing) throw new HttpError(404, 'Request not found');
 
             const result = await requestWriteLambdaServiceAWS.updateRequestStatus({
-              action: 'UPDATE_REQUEST_STATUS',
+                requestId,
                 status,
                 updatedBy: req.user.userId
             });
