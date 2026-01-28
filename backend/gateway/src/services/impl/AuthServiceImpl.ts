@@ -3,8 +3,8 @@ import { User, LoginRequest, VerifyTokenRequest, RegisterRequest } from '../../t
 import { IAuthLambdaService } from '../lambda-sdk/interfaces/IAuthLambdaService.js';
 import { authLambdaServiceMock } from '../lambda-sdk/mocks/AuthLambdaServiceMock.js';
 
-import { userRepository } from '../repositories/UserRepositoryDB.js';
-import { HttpError } from '../errors/http-error.js';
+import { userRepository } from '../../repositories/impl/UserRepositoryDB.js';
+import { HttpError } from '../../errors/http-error.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -56,4 +56,4 @@ class AuthServiceImpl implements AuthService {
 
 }
 
-export const authServiceAWSLambda = new AuthServiceImpl();
+export const authServiceImpl = new AuthServiceImpl();

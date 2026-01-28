@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { db } from '../../utils/db.client.js';
 import bcrypt from 'bcrypt';
+import {IUserRepository} from "../IUserRepository.js";
 
 class UserRepositoryDB implements IUserRepository {
     private pool: Pool;

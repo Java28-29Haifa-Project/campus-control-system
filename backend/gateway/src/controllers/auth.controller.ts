@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { JwtUtils } from '../utils/jwt.utils.js';
 import { HttpError } from '../errors/http-error.js';
 import { RegisterRequest } from '../types/auth.js';
+import { authServiceImpl as authService } from '../services/impl/AuthServiceImpl.js';
 
 
 const pool = new Pool({
