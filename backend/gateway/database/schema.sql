@@ -29,6 +29,7 @@ CREATE TABLE requests (
                           support_id VARCHAR(50) REFERENCES users(user_id) ON DELETE SET NULL,
                           category VARCHAR(50) NOT NULL CHECK (category IN ('plumbing', 'electrical', 'general')),
                           subject TEXT NOT NULL,
+                          description TEXT NOT NULL,
                           user_reported_priority VARCHAR(20) NOT NULL CHECK (user_reported_priority IN ('low', 'medium', 'high', 'urgent')),
                           status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'rejected', 'in_service', 'done')),
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

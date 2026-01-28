@@ -56,27 +56,28 @@ export const handler = async (event) => {
 };
 
 async function createRequest(pool, data) {
-    const { requestNumber, category, subject, userReportedPriority, createdBy } = data;
+    const { requestNumber, category, subject, description, userReportedPriority, createdBy } = data;
 
     const query = `
         INSERT INTO requests (
-            request_number, user_id, category, subject,
+            request_number, user_id, category, subject, description,
             user_reported_priority, ai_calculated_priority,
             status, created_by, updated_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING 
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            RETURNING 
             request_id AS "requestId",
             request_number AS "requestNumber",
             user_id AS "userId",
             category, subject,
             user_reported_priority AS "userReportedPriority",
             status,
+            description,
             created_at AS "createdAt",
             updated_at AS "updatedAt"
     `;
 
     const result = await pool.query(query, [
-        requestNumber, createdBy, category, subject,
+        requestNumber, createdBy, category, subject, description ?? null,
         userReportedPriority, userReportedPriority,
         'new', createdBy, createdBy
     ]);
@@ -97,6 +98,7 @@ async function updateRequest(pool, data) {
     const fieldMap = {
         category: 'category',
         subject: 'subject',
+        description: 'description',
         userReportedPriority: 'user_reported_priority',
         status: 'status',
         updatedBy: 'updated_by'
@@ -116,12 +118,13 @@ async function updateRequest(pool, data) {
     fields.push(`updated_at = CURRENT_TIMESTAMP`);
 
     const query = `
-        UPDATE requests 
+        UPDATE requests
         SET ${fields.join(', ')}
         WHERE request_id = $${index}
-        RETURNING 
+            RETURNING 
             request_id AS "requestId",
             request_number AS "requestNumber",
+            description,
             status,
             updated_at AS "updatedAt"
     `;
