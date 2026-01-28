@@ -14,3 +14,9 @@ export type VerifyTokenRequest = {
     userId: string;
 };
 
+export type RegisterRequest = {
+    name: string;
+    email: string;
+    password: string;
+}
+

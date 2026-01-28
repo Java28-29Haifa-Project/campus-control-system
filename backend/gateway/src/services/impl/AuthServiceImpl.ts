@@ -3,7 +3,7 @@ import { User, LoginRequest, VerifyTokenRequest } from '../../types/auth.js';
 import { IAuthLambdaService } from '../lambda-sdk/interfaces/IAuthLambdaService.js';
 import { authLambdaServiceMock } from '../lambda-sdk/mocks/AuthLambdaServiceMock.js';
 
-class AuthServiceImplAWSLambda implements AuthService {
+class AuthServiceImpl implements AuthService {
     private lambdaService: IAuthLambdaService = authLambdaServiceMock;
 
     async login(request: LoginRequest): Promise<User> {
@@ -37,4 +37,4 @@ class AuthServiceImplAWSLambda implements AuthService {
     }
 }
 
-export const authServiceAWSLambda = new AuthServiceImplAWSLambda();
+export const authServiceAWSLambda = new AuthServiceImpl();
