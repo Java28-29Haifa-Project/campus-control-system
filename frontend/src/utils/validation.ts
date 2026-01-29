@@ -4,7 +4,7 @@ export const validateLogin = (data: LoginRequest): string | null => {
     const trimmedEmail = data.email.trim();
     const trimmedPassword = data.password.trim();
 
-    const emailRegex = /^[^\\s+@]+@[^\\s+@]+\.[^\\s+@]+$/;
+    const emailRegex = /^[^\s+@]+@[^\s+@]+\.[^\s+@]+$/;
     const passwordLetterRegex = /[A-Za-z]/;
     const passwordDigitRegex = /\d/;
 
