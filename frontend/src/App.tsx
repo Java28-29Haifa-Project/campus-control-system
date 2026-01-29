@@ -30,7 +30,7 @@ function App() {
             </Route>
 
             <Route element={
-                <>clear
+                <>
                     <AuthVerify/>
                     <RootLayout/>
                 </>

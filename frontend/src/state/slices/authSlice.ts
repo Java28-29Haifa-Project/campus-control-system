@@ -140,11 +140,11 @@ const authSlice = createSlice({
                 state.isVerified = "loading";
                 state.error = null;
             })
-            .addCase(registerThunk.fulfilled, (state, action: PayloadAction<User>) => {
+            .addCase(registerThunk.fulfilled, (state) => {
                 state.isLoading = false;
-                state.isAuthenticated = true;
-                state.isVerified = "succeeded";
-                state.user = action.payload;
+                state.isAuthenticated = false;
+                state.isVerified = "idle";
+                state.user = null;
                 state.error = null;
             })
             .addCase(registerThunk.rejected, (state, action) => {
@@ -192,6 +192,7 @@ const authSlice = createSlice({
                     state.isLoading = false;
                     state.isVerified = "failed";
                     state.error = LOGIN_ERROR_MESSAGES.UNAUTHORIZED;
+                    return;
                 }
                 state.isVerified = "failed";
                 state.isLoading = false;
