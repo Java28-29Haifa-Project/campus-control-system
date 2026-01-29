@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
-import {logout} from "../state/slices/authSlice.ts";
+import {logoutThunk} from "../state/slices/authSlice.ts";
 
 
 const Profile = () => {
@@ -12,7 +12,7 @@ const Profile = () => {
             <h1>Profile page</h1>
             {auth? <p>Hello {auth.email}</p> : <p>Hello guest</p>}
             {isAuthenticated && <button onClick={() => {
-                dispatch(logout());
+                dispatch(logoutThunk());
             }} >Logout</button> }
         </div>
     );
