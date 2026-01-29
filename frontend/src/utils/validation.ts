@@ -4,12 +4,12 @@ export const validateLogin = (data: LoginRequest): string | null => {
     const trimmedEmail = data.email.trim();
     const trimmedPassword = data.password.trim();
 
-    const emailRegex = /^[^s+@]+@[^s+@]+\.[^s+@]+$/;
+    const emailRegex = /^[^\\s+@]+@[^\\s+@]+\.[^\\s+@]+$/;
     const passwordLetterRegex = /[A-Za-z]/;
     const passwordDigitRegex = /\d/;
 
     if(!trimmedEmail) return "Email is required";
-    if(!emailRegex.test(trimmedEmail)) return "Enter a valid email. Email must contain symbol '@'. Example:user@user.com";
+    if(!emailRegex.test(trimmedEmail)) return "Enter a valid email. Email must contain symbol '@'. Example:user@abc.com";
 
     if(!trimmedPassword) return "Password is required";
     if(trimmedPassword.length < 8) return "Password must be at least 8 characters";

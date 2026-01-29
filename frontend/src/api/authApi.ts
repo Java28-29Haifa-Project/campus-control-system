@@ -12,17 +12,24 @@ export function getCurrentUser(): Promise<User> {
     return request<User>("/auth/me", {
         method: "GET",
     })
-}
+};
 
 export function refreshToken(): Promise<VerifyToken> {
     return request<VerifyToken>("/auth/refresh", {
         method: "POST",
     })
-}
+};
 
 export function register(loginData: LoginData): Promise<User> {
     return request<User>("/auth/register", {
         method: "POST",
         body: loginData,
     })
+};
+
+export function logout(): Promise<void>{
+    return request("/auth/logout", {
+        method: "POST",
+    })
 }
+

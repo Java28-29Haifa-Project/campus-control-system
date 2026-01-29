@@ -7,12 +7,12 @@ const AuthVerify = () => {
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const isVerified = useAppSelector(state => state.auth.isVerified);
-    const error = useAppSelector(state => state.auth.error);
+    const { isVerified, error }= useAppSelector(state => state.auth);
 
     useEffect(() => {
+        if (isVerified === "idle")
             dispatch(verifyTokenThunk())
-    }, [dispatch]);
+    }, [dispatch, isVerified]);
 
     useEffect(() => {
         if(isVerified === "failed" && error) {

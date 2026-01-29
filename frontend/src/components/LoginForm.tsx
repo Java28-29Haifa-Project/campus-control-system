@@ -58,6 +58,7 @@ const LoginForm = () => {
                     <div className="input-box">
                         <input
                             type="email"
+                            autoComplete="email"
                             required
                             placeholder='Email'
                             value={email}
@@ -68,6 +69,7 @@ const LoginForm = () => {
                     <div className="input-box">
                         <input
                             type="password"
+                            autoComplete="current-password"
                             placeholder='Password'
                             required
                             value={password}
@@ -93,10 +95,11 @@ const LoginForm = () => {
                         {isLoading ? "Logging in..." : "Login"}
                     </button>
 
-                    <div className="register-link">
+                    {!isAuthenticated && <div className="register-link">
                         <p>Don't have an account?
                             <Link to={Paths.REGISTER}>Register</Link></p>
-                    </div>
+                    </div>}
+
                 </form>
             </div>
         </div>

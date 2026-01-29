@@ -1,6 +1,5 @@
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
-import {logout} from "../state/slices/authSlice.ts";
-
+import {logoutThunk} from "../state/slices/authSlice.ts";
 
 const Header = () => {
     const auth = useAppSelector(state => state.auth.user);
@@ -16,7 +15,7 @@ const Header = () => {
             </div>
             <div className="header-right">
                 {isAuthenticated && <button onClick={() => {
-                    dispatch(logout());
+                    dispatch(logoutThunk());
                 }} className="logout-btn">Logout</button> }
             </div>
         </header>

@@ -1,6 +1,6 @@
 import type {LoginData, LoginRequest, User} from "../../types/authTypes";
 import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
-import {getCurrentUser, login, refreshToken, register} from "../../api/authApi.ts";
+import {getCurrentUser, login, logout, refreshToken, register} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 import {mockLoginUser, mockUser} from "../../mocks/authMocks.ts";
 
@@ -82,6 +82,22 @@ export const loginThunk = createAsyncThunk <
     }
 );
 
+export const logoutThunk = createAsyncThunk<
+    void,
+    void,
+    {rejectValue: string}
+> (
+    "auth/logout",
+    async (_, { rejectWithValue } ) => {
+        try {
+            await logout();
+        } catch (err) {
+            console.log("logout thunk error ", err);
+            return rejectWithValue("Backend is unavailable");
+        }
+    }
+)
+
 export const verifyTokenThunk = createAsyncThunk<
     User,
     void,
@@ -122,17 +138,7 @@ export const verifyTokenThunk = createAsyncThunk<
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {
-        logout: (state) => {
-            Object.assign(state, {
-                user: null,
-                isAuthenticated: false,
-                isVerified: "idle" as AuthStatus,
-                isLoading: false,
-                error: null,
-            });
-        }
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(registerThunk.pending, (state) => {
@@ -154,6 +160,7 @@ const authSlice = createSlice({
                 state.user = null;
                 state.error = action.payload ?? action.error.message ?? "Unexpected error";
             })
+        builder
             .addCase(loginThunk.pending, (state) => {
                 state.isLoading = true;
                 state.isVerified = "loading";
@@ -173,6 +180,26 @@ const authSlice = createSlice({
                 state.user = null;
                 state.error = action.payload ?? action.error.message ?? "Unexpected error";
             })
+        builder
+            .addCase(logoutThunk.fulfilled, (state) => {
+                Object.assign(state, {
+                    user: null,
+                    isAuthenticated: false,
+                    isVerified: "idle" as AuthStatus,
+                    isLoading: false,
+                    error: null,
+                });
+            })
+            .addCase(logoutThunk.rejected, (state) => {
+                Object.assign(state, {
+                    user: null,
+                    isAuthenticated: false,
+                    isVerified: "idle" as AuthStatus,
+                    isLoading: false,
+                    error: null,
+                });
+            })
+        builder
             .addCase(verifyTokenThunk.pending, (state) => {
                 state.isLoading = true;
                 state.isVerified = "loading";
@@ -200,5 +227,5 @@ const authSlice = createSlice({
             })
     }
 })
-export const { logout } = authSlice.actions;
+
 export const authReducer = authSlice.reducer;

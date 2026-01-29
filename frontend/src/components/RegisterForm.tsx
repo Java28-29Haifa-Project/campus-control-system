@@ -2,11 +2,11 @@
 import { FaUser, FaLock} from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import './../styles/forms.css';
-import {useState, type FormEvent} from "react";
+import {useState, type FormEvent, useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {Paths} from "../types/types.ts";
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
-import {loginThunk, registerThunk, verifyTokenThunk} from "../state/slices/authSlice.ts";
+import {loginThunk, registerThunk} from "../state/slices/authSlice.ts";
 import {validateLogin, validateName} from "../utils/validation.ts";
 
 const RegisterForm= () => {
@@ -19,7 +19,7 @@ const RegisterForm= () => {
     const navigate = useNavigate();
 
     const dispatch= useAppDispatch();
-    const {isLoading, error} = useAppSelector(state => state.auth);
+    const {isLoading, error, isAuthenticated} = useAppSelector(state => state.auth);
 
     const onSubmitRegister = async (e: FormEvent ) => {
         e.preventDefault();
@@ -36,16 +36,18 @@ const RegisterForm= () => {
         }
         setErrorValidate(null);
 
-        const registration = dispatch(registerThunk({name, email, password}));
-
-        if(registerThunk.fulfilled.match(registration)){
-            const loginAfterRegistered = await dispatch(loginThunk({email, password}));
-            if(loginThunk.fulfilled.match(loginAfterRegistered)){
-                await dispatch(verifyTokenThunk());
-                navigate("/dashboard", { replace: true });
-            }
+        try{
+            await dispatch(registerThunk({name, email, password})).unwrap();
+            await dispatch(loginThunk({email, password})).unwrap();
+        } catch (e) {
+            console.log(e);
         }
     }
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate("/dashboard", {replace: true});
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
         <div className="auth-page">
@@ -57,6 +59,7 @@ const RegisterForm= () => {
                             <input
                                 type="name"
                                 placeholder='Name'
+                                autoComplete="name"
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -68,6 +71,7 @@ const RegisterForm= () => {
                             <input
                                 type="Email"
                             placeholder='Email'
+                                autoComplete="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -77,6 +81,7 @@ const RegisterForm= () => {
                         <div className="input-box">
                             <input
                                 type="password"
+                                autoComplete="new-password"
                                 placeholder='Password'
                                 required
                             value={password}
