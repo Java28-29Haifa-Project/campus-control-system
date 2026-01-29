@@ -15,7 +15,7 @@ export type VerifyToken = {
 };
 
 export type LoginData = {
-    username: string;
+    name: string;
     email: string;
     password: string;
 }

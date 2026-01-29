@@ -11,7 +11,7 @@ import {validateLogin, validateName} from "../utils/validation.ts";
 
 const RegisterForm= () => {
 
-    const [username, setUsername] = useState<string>('');
+    const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorValidate, setErrorValidate] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const RegisterForm= () => {
     const onSubmitRegister = async (e: FormEvent ) => {
         e.preventDefault();
 
-        const msgName = validateName(username);
+        const msgName = validateName(name);
         const msgError = validateLogin({email, password});
         if(msgName){
             setErrorValidate(msgName);
@@ -36,7 +36,7 @@ const RegisterForm= () => {
         }
         setErrorValidate(null);
 
-        const registration = dispatch(registerThunk({username, email, password}));
+        const registration = dispatch(registerThunk({name, email, password}));
 
         if(registerThunk.fulfilled.match(registration)){
             const loginAfterRegistered = await dispatch(loginThunk({email, password}));
@@ -58,8 +58,8 @@ const RegisterForm= () => {
                                 type="name"
                                 placeholder='Name'
                                 required
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
                             <FaUser className='icon'/>
                         </div>
