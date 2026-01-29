@@ -18,3 +18,10 @@ export const createTicketApi = async (
         body,
     });
 };
+
+export const updateTicketApi = async (id: string, updates: Partial<Ticket>): Promise<Ticket> => {
+    return request<Ticket>(`/requests/${id}`, {
+        method: "PATCH",
+        body: updates,
+    });
+}

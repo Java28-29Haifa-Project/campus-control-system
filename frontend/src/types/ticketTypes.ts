@@ -26,14 +26,14 @@ export interface Ticket {
     description?: string;
     status: TicketStatus;
     category: Category;
-    createdAt: string;
-    updatedAt: string;
     userReportedPriority: UserPriority;
+    createdAt: string;
+    // updatedAt: string;
 }
 
 export interface TicketRequest {
     subject: string;
-    description: string;
+    description?: string;
     category: Category;
     userReportedPriority: UserPriority;
 }

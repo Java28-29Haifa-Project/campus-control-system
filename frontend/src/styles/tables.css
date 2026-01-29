@@ -1,0 +1,118 @@
+/* Подключается вместе с forms.css. Тут только доп. стили для таблицы саппорта */
+
+.support-ticket-table-wrapper {
+    max-width: 1100px;
+}
+
+/* Блок фильтра */
+.support-filter {
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.support-filter-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+}
+
+/* Скролл таблицы */
+.table-scroll {
+    max-height: 420px;
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Таблица */
+.support-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    font-size: 14px;
+}
+
+.support-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    text-align: left;
+    padding: 10px 12px;
+
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.support-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: middle;
+}
+
+.table-row-clickable {
+    cursor: pointer;
+}
+
+.table-row-clickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Кнопки внутри таблицы: компактнее чем обычные secondary-btn */
+.table-btn {
+    height: 36px;
+    margin-top: 0;
+    padding: 0 14px;
+    font-size: 13px;
+    width: auto;
+    white-space: nowrap;
+}
+
+/* Select внутри таблицы: делаем компактным */
+.table-select {
+    height: 36px;
+    margin: 0;
+}
+
+.table-select select {
+    height: 36px;
+    font-size: 13px;
+    padding: 0 12px;
+}
+
+/* "Тикет отклонен" */
+.muted-text {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Адаптив: на узких экранах скрываем длинные колонки */
+@media (max-width: 820px) {
+    .support-table thead th:nth-child(4),
+    .support-table tbody td:nth-child(4) {
+        display: none; /* Description */
+    }
+}
+
+@media (max-width: 640px) {
+    .support-table thead th:nth-child(9),
+    .support-table tbody td:nth-child(9) {
+        display: none; /* Updated by */
+    }
+
+    .support-table thead th:nth-child(10),
+    .support-table tbody td:nth-child(10) {
+        display: none; /* Created at */
+    }
+}

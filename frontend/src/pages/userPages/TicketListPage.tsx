@@ -15,13 +15,13 @@ const TicketListPage: React.FC = () => {
     }, [dispatch]);
 
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = event.target.value as TicketStatus | "ALL";
+        const value = event.target.value as TicketStatus;
         dispatch(setFilterStatus(value));
         setFilterStatus(value);
     };
 
     const filteredTickets = items.filter((ticket) => {
-        if (filterStatus === "ALL") return true;
+        if (filterStatus === TicketStatus.New) return true;
         return ticket.status === filterStatus;
     });
 

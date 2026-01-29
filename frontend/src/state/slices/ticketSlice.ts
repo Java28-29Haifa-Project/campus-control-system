@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, type PayloadAction, } from "@reduxjs/toolkit";
-import type {Ticket, TicketRequest, TicketStatus} from "../../types/ticketTypes.ts";
-import {createTicketApi, getTicketByIdApi, getTicketsApi} from "../../api/ticketApi.ts";
+import {createAsyncThunk, createSlice, type PayloadAction,} from "@reduxjs/toolkit";
+import {type Ticket, type TicketRequest, TicketStatus} from "../../types/ticketTypes.ts";
+import {createTicketApi, getTicketByIdApi, getTicketsApi, updateTicketApi} from "../../api/ticketApi.ts";
 import ApiError, {TICKET_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 
 const mapTicketErrorCodeToMessage = (code?: string | null): string => {
@@ -67,6 +67,23 @@ export const createTicketThunk = createAsyncThunk<
         }
     }
 );
+export const updateTicketThunk = createAsyncThunk<
+    Ticket,
+    {id: string; updates: Partial<Ticket>},
+    { rejectValue: string }
+>(
+    "updateTicket",
+    async ({id, updates}, {rejectWithValue}) => {
+        try {
+            return await updateTicketApi(id, updates);
+        } catch (e) {
+            if (e instanceof ApiError) {
+                return rejectWithValue(e.code || "SERVER_ERROR");
+            }
+            return rejectWithValue("Failed to update ticket");
+        }
+    }
+);
 
 export interface TicketState {
     items: Ticket[];
@@ -75,7 +92,9 @@ export interface TicketState {
     isLoadingCurrent: boolean;
     isCreating: boolean;
     error?: string | null;
-    filterStatus: TicketStatus | "ALL";
+    filterStatus: TicketStatus;
+
+    isUpdating: boolean;
 }
 
 const initialState: TicketState = {
@@ -85,14 +104,16 @@ const initialState: TicketState = {
     isLoadingCurrent: false,
     isCreating: false,
     error: null,
-    filterStatus: "ALL",
+    filterStatus: TicketStatus.New,
+
+    isUpdating: false,
 };
 
 const ticketSlice = createSlice({
     name: "ticket",
     initialState,
     reducers: {
-        setFilterStatus(state, action: PayloadAction<TicketStatus | "ALL">) {
+        setFilterStatus(state, action: PayloadAction<TicketStatus>) {
             state.filterStatus = action.payload;
         },
         clearCurrentTicket(state) {
@@ -114,9 +135,7 @@ const ticketSlice = createSlice({
                 state.error = mapTicketErrorCodeToMessage(
                     action.payload ?? action.error.message
                 );
-            });
-
-        builder
+            })
             .addCase(fetchTicketByIdThunk.pending, (state) => {
                 state.isLoadingCurrent = true;
                 state.error = null;
@@ -130,9 +149,7 @@ const ticketSlice = createSlice({
                 state.error = mapTicketErrorCodeToMessage(
                     action.payload ?? action.error.message
                 );
-            });
-
-        builder
+            })
             .addCase(createTicketThunk.pending, (state) => {
                 state.isCreating = true;
                 state.error = null;
@@ -143,6 +160,31 @@ const ticketSlice = createSlice({
             })
             .addCase(createTicketThunk.rejected, (state, action) => {
                 state.isCreating = false;
+                state.error = mapTicketErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
+            })
+            .addCase(updateTicketThunk.pending, (state) => {
+                state.isUpdating = true;
+                state.error = null;
+            })
+            .addCase(updateTicketThunk.fulfilled, (state, action) => {
+                state.isUpdating = false;
+                const updated = action.payload;
+
+                const index = state.items.findIndex(
+                    (t) => t.requestId === action.payload.requestId
+                );
+                if(index !== -1) {
+                    state.items[index] = updated;
+                }
+
+                if(state.current && (state.current.requestId === updated.requestId)) {
+                    state.current = updated;
+                }
+            })
+            .addCase(updateTicketThunk.rejected, (state, action) => {
+                state.isUpdating = false;
                 state.error = mapTicketErrorCodeToMessage(
                     action.payload ?? action.error.message
                 );

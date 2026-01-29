@@ -12,9 +12,8 @@
 .ticket-form-wrapper,
 .ticket-details-wrapper,
 .ticket-table-wrapper {
-    /*width: 100%;*/
-    width: 290px;
-    /*max-width: 400px;*/
+    width: 100%;
+    max-width: 400px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, .2);
     box-shadow: 0 0 10px rgba(0, 0, 0, .2);
@@ -25,6 +24,10 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
+}
+.login-wrapper,
+.ticket-form-wrapper{
+    width: 290px;
 }
 
 .login-wrapper h1 {
