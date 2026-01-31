@@ -251,22 +251,24 @@ Support cannot set status back to `new`
 ### Get All Incidents
 ```
 GET /incidents
-GET /incidents?status=OPEN
+GET /incidents?status=new&priority=1&category=network
 ```
+**Requires:** Authentication (SUPPORT, ENGINEER, or ADMIN)
 
 **Response (200):**
 ```json
 [
   {
-    "incidentId": "inc0",
-    "incidentNumber": "INC-0",
-    "priority": "P1",
-    "status": "OPEN",
-    "impact": "high",
-    "urgency": "critical",
-    "category": "Network",
-    "createdBy": "support0",
-    "createdAt": "2025-01-01T13:00:00Z"
+    "incidentId": "inc-001",
+    "ticketIds": ["req-001", "req-002"],
+    "priority": 1,
+    "status": "assigned",
+    "category": "network",
+    "description": "Multiple wi-fi complaints",
+    "assignedBy": "engineer_001",
+    "createdBy": "support_001",
+    "createdAt": "2026-01-31T10:00:00Z",
+    "updatedAt": "2026-01-31T10:30:00Z"
   }
 ]
 ```
@@ -277,20 +279,25 @@ GET /incidents?status=OPEN
 ```
 GET /incidents/:id
 ```
+**Requires:** Authentication (SUPPORT+)
 
+**Access Control:**
+- **SUPPORT**: Cannot see system category incidents
+- **ENGINEER/ADMIN**: Can see all incidents
+- 
 **Response (200):**
 ```json
 {
-  "incidentId": "inc0",
-  "incidentNumber": "INC-0",
-  "priority": "P1",
-  "status": "OPEN",
-  "impact": "high",
-  "urgency": "critical",
-  "category": "Network",
-  "description": "Network outage",
-  "createdBy": "support0",
-  "createdAt": "2025-01-01T13:00:00Z"
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "assigned",
+  "category": "network",
+  "description": "Multiple wi-fi complaints",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:30:00Z"
 }
 ```
 
@@ -300,27 +307,40 @@ GET /incidents/:id
 ```
 POST /incidents
 ```
+**Requires:** Authentication (SUPPORT+)
 
 **Request Body:**
 ```json
 {
-  "ticketIds": ["req0", "req1"],
+  "ticketIds": ["req-001", "req-002"],
   "impact": "high",
-  "urgency": "critical",
-  "category": "Network",
-  "description": "Network outage in building A",
-  "createdBy": "support_001"
+  "urgency": "high",
+  "category": "network",
+  "description": "Multiple wi-fi access points down"
 }
 ```
+**Validation Rules:**
+- `ticketIds`: Required, array of at least 1 ticket ID
+- `impact`: Required, must be `low`, `medium`, `high`, or `critical`
+- `urgency`: Required, must be `low`, `medium`, or `high`
+- `category`: Required, must be `plumbing`, `electrical`, `hvac`, `gas`, `fire_safety`, `elevators`, `access`, `network`, `infrastructure`, `other`, `system`
+- **system category**: Only notification MS can use 
+- `description`: Optional, max 2000 characters
+- `createdBy`: Automatically extracted from authentication cookie
+
 
 **Response (201):**
 ```json
 {
-  "incidentId": "inc2",
-  "incidentNumber": "INC-2",
-  "priority": "P1",
-  "status": "OPEN",
-  "createdAt": "2025-01-10T12:00:00Z"
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "new",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:00:00Z"
 }
 ```
 
