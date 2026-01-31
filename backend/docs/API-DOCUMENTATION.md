@@ -346,7 +346,7 @@ POST /incidents
 
 ---
 
-## Engineer Endpoints (New)
+## Engineer Endpoints
 
 ### Assign Incident to Self
 ```http
@@ -468,7 +468,7 @@ PATCH /incidents/:id/priority
 
 ---
 
-## Monitoring Endpoints
+## Monitoring Endpoints //TODO
 
 **Requires:** ADMIN role only
 
