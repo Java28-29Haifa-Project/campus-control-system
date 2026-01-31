@@ -1,8 +1,16 @@
 export enum IncidentStatus {
-    Open = 'OPEN',
-    InProgress = 'IN_PROGRESS',
-    Resolved = 'RESOLVED',
-    Closed = 'CLOSED'
+    New = 'new',
+    Assigned = 'assigned',
+    InProgress = 'in_progress',
+    Resolved = 'resolved',
+    Closed = 'closed'
+}
+
+export enum Impact {
+    Low = 'low',
+    Medium = 'medium',
+    High = 'high',
+    Critical = 'critical'
 }
 
 export enum IncidentPriority {
