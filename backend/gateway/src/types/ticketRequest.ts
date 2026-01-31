@@ -1,7 +1,15 @@
 export enum TicketRequestCategory {
     Plumbing = 'plumbing',
     Electrical = 'electrical',
-    General = 'general'
+    HVAC = 'hvac',
+    Gas = 'gas',
+    FireSafety = 'fire_safety',
+    Elevators = 'elevators',
+    Access = 'access',
+    Network = 'network',
+    Infrastructure = 'infrastructure',
+    Other = 'other',
+    System = 'system'
 }
 
 export enum TicketRequestPriority {
