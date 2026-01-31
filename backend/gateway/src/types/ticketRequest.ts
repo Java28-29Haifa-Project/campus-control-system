@@ -35,13 +35,13 @@ export type TicketRequest = {
     userReportedPriority: TicketRequestPriority;
     status: TicketRequestStatus;
     createdAt: string;
-    description: string;
+    description?: string;
 };
 
 export interface CreateRequestInput {
     category: TicketRequestCategory;
     subject: string;
-    description: string;
+    description?: string;
     userReportedPriority: TicketRequestPriority;
     createdBy: string;
 }
@@ -50,7 +50,7 @@ export type UpdateRequestInput = {
     requestId: string;
     category?: TicketRequestCategory;
     subject?: string;
-    description: string;
+    description?: string;
     userReportedPriority?: TicketRequestPriority;
     status?: TicketRequestStatus;
     updatedBy: string;
