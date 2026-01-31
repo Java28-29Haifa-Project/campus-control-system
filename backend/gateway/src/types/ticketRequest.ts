@@ -1,7 +1,15 @@
 export enum TicketRequestCategory {
     Plumbing = 'plumbing',
     Electrical = 'electrical',
-    General = 'general'
+    HVAC = 'hvac',
+    Gas = 'gas',
+    FireSafety = 'fire_safety',
+    Elevators = 'elevators',
+    Access = 'access',
+    Network = 'network',
+    Infrastructure = 'infrastructure',
+    Other = 'other',
+    System = 'system'
 }
 
 export enum TicketRequestPriority {
@@ -27,13 +35,13 @@ export type TicketRequest = {
     userReportedPriority: TicketRequestPriority;
     status: TicketRequestStatus;
     createdAt: string;
-    description: string;
+    description?: string;
 };
 
 export interface CreateRequestInput {
     category: TicketRequestCategory;
     subject: string;
-    description: string;
+    description?: string;
     userReportedPriority: TicketRequestPriority;
     createdBy: string;
 }
@@ -42,7 +50,7 @@ export type UpdateRequestInput = {
     requestId: string;
     category?: TicketRequestCategory;
     subject?: string;
-    description: string;
+    description?: string;
     userReportedPriority?: TicketRequestPriority;
     status?: TicketRequestStatus;
     updatedBy: string;
