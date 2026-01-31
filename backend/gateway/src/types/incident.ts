@@ -13,12 +13,13 @@ export enum Impact {
     Critical = 'critical'
 }
 
-export enum IncidentPriority {
-    P1 = 'P1',
-    P2 = 'P2',
-    P3 = 'P3',
-    P4 = 'P4'
+export enum Urgency {
+    Low = 'low',
+    Medium = 'medium',
+    High = 'high'
 }
+
+export type IncidentPriority = 1 | 2 | 3 | 4;
 
 export type Incident = {
     incidentId: string;
