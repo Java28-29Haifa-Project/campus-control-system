@@ -346,19 +346,33 @@ POST /incidents
 
 ---
 
-### Update Incident
-```
-PATCH /incidents/:id
+## Engineer Endpoints (New)
+
+### Assign Incident to Self
+```http
+PATCH /incidents/:id/assign
 ```
 
-**Request Body:**
+**Requires:** Authentication (ENGINEER+)
+
+**Request Body:** None (engineer ID extracted from auth cookie)
+
+**Response (200):**
 ```json
 {
-  "status": "RESOLVED",
-  "urgency": "high",
-  "updatedBy": "engineer_001"
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "assigned",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:30:00Z"
 }
 ```
+
 
 ---
 
