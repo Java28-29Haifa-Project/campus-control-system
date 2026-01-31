@@ -49,9 +49,9 @@ POST /auth/login
 
 **Test Users:**
 - **USER**: `user@test.org` / `password123`
-- **SUPPORT**: `support@test.org` / `support123`
-- **ENGINEER**: `engineer@test.org` / `engineer123`
-- **ADMIN**: `admin@test.org` / `admin123`
+- **SUPPORT**: `support@test.org` / `password123`
+- **ENGINEER**: `engineer@test.org` / `password123`
+- **ADMIN**: `admin@test.org` / `password123`
 
 ---
 
