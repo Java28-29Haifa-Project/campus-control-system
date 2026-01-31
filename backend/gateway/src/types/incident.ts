@@ -92,22 +92,24 @@ export type Incident = IncidentOutputDTO;
 //     updatedAt: string;
 // };
 
-// export type CreateIncidentRequest = {
-//     ticketIds: string[];
-//     impact: string;
-//     urgency: string;
-//     category: string;
-//     description: string;
-//     createdBy: string;
-// };
-//
-// export type UpdateIncidentRequest = {
-//     incidentId: string;
-//     status?: IncidentStatus;
-//     urgency?: string;
-//     category?: string;
-//     updatedBy: string;
-// };
+//TODO for backward compatibility, refactor and delete
+export type CreateIncidentRequest = {
+    ticketIds: string[];
+    impact: string;
+    urgency: string;
+    category: string;
+    description: string;
+    createdBy: string;
+};
+
+//TODO for backward compatibility, refactor and delete
+export type UpdateIncidentRequest = {
+    incidentId: string;
+    status?: IncidentStatus;
+    urgency?: string;
+    category?: string;
+    updatedBy: string;
+};
 
 export interface CreateIncidentApiGatewayRequest {
     ticketIds: string[];
