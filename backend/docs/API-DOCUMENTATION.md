@@ -419,6 +419,53 @@ new → assigned → in_progress → resolved
 }
 ```
 
+### Raise Incident Priority
+```http
+PATCH /incidents/:id/priority
+```
+
+**Requires:** Authentication (ENGINEER or ADMIN)
+
+**Request Body:**
+```json
+{
+  "priority": 1,
+  "comment": "Escalating to P1 - affecting all users"
+}
+```
+
+**Valid Priority Changes:**
+```
+4 → 3 → 2 → 1
+```
+
+**Can only raise priority (lower number = higher priority)**
+- Can change from 4 to 3, 3 to 2, 2 to 1
+- CANNOT change from 1 to 2, 2 to 3, etc.
+
+**Response (200):**
+```json
+{
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "in_progress",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T11:30:00Z"
+}
+```
+
+**Response (400) - Invalid priority change:**
+```json
+{
+  "error": "Cannot lower priority from 1 to 2"
+}
+```
+
 ---
 
 ## Monitoring Endpoints
