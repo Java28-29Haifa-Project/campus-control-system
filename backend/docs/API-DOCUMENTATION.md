@@ -373,6 +373,51 @@ PATCH /incidents/:id/assign
 }
 ```
 
+### Update Incident Status
+```http
+PATCH /incidents/:id/status
+```
+
+**Requires:** Authentication (ENGINEER or ADMIN)
+
+**Request Body:**
+```json
+{
+  "status": "in_progress",
+  "comment": "Working on fixing wi-fi access points"
+}
+```
+
+**Valid Status Transitions:**
+```
+new → assigned → in_progress → resolved
+```
+
+- Cannot change from `in_progress` to `assigned`
+- Cannot change from `resolved` to `in_progress` or `assigned`
+
+**Response (200):**
+```json
+{
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "in_progress",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T11:00:00Z"
+}
+```
+
+**Response (400) - Invalid transition:**
+```json
+{
+  "error": "Invalid status transition"
+}
+```
 
 ---
 
