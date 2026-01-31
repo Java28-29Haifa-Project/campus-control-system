@@ -55,6 +55,22 @@ POST /auth/login
 
 ---
 
+### Logout
+```http
+POST /auth/logout
+```
+
+**Requires:** Authentication
+
+**Response (200):**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+---
+
 ### Get Current User
 ```
 GET /auth/me
@@ -110,7 +126,7 @@ POST /auth/logout
 ### Get All Requests
 ```
 GET /requests
-GET /requests?status=new
+GET /requests?status=new&category=network&priority=high
 ```
 **Requires:** Authentication
 
@@ -122,24 +138,18 @@ GET /requests?status=new
 ```json
 [
   {
-    "requestId": "req0",
-    "requestNumber": "REQ-0",
-    "category": "electrical",
-    "subject": "subject0",
-    "userReportedPriority": "urgent",
+    "requestId": "abc-123",
+    "requestNumber": "REQ-20260131-0001",
+    "userId": "user_001",
+    "category": "network",
+    "subject": "Wi-Fi not working in office",
+    "description": "Cannot connect to wi-fi access point",
+    "userReportedPriority": "high",
     "status": "new",
-    "createdAt": "2025-01-01T10:25:00Z"
+    "createdAt": "2026-01-31T10:00:00Z"
   }
 ]
 ```
-
-**Query Parameters:**
-- `status`: `new`, `rejected`, `in_service`, `done`
-
-**Validation Rules:**
-- `category`: Must be `plumbing`, `electrical`, or `general` (lowercase)
-- `subject`: Minimum 10 characters, maximum 500 characters
-- `userReportedPriority`: Must be `low`, `medium`, `high`, or `urgent` (lowercase)
 
 ---
 
@@ -149,16 +159,21 @@ GET /requests/:id
 ```
 **Requires:** Authentication
 
+**Access Control:**
+- **USER**: Can only access own requests
+- **SUPPORT+**: Can access all requests
+- 
 **Response (200):**
 ```json
 {
-  "requestId": "req0",
-  "requestNumber": "REQ-0",
-  "category": "electrical",
-  "subject": "subject0",
-  "userReportedPriority": "urgent",
+  "requestId": "abc-123",
+  "userId": "user_001",
+  "category": "network",
+  "subject": "Wi-Fi not working in office",
+  "description": "Cannot connect to wi-fi access point",
+  "userReportedPriority": "high",
   "status": "new",
-  "createdAt": "2025-01-01T10:25:00Z"
+  "createdAt": "2026-01-31T10:00:00Z"
 }
 ```
 
@@ -181,7 +196,6 @@ POST /requests
 ```
 
 **Validation:**
-- `category`: Required, must be `plumbing`, `electrical`, or `general`
 - `subject`: Required, 10-500 characters
 - `description`: Optional
 - `userReportedPriority`: Required, must be `low`, `medium`, `high`, or `urgent`
@@ -189,17 +203,17 @@ POST /requests
 **Response (201):**
 ```json
 {
-  "requestId": "abc123ef-4567-89ab-cdef-0123456789ab",
-  "requestNumber": "REQ-20260126-0001",
+  "requestId": "abc-123",
   "userId": "user_001",
-  "category": "plumbing",
-  "subject": "Leaking pipe in kitchen area",
+  "category": "network",
+  "subject": "Wi-Fi not working in office",
+  "description": "Cannot connect to wi-fi access point",
+  "userReportedPriority": "high",
   "status": "new",
-  "createdAt": "2025-01-10T12:00:00Z"
+  "createdAt": "2026-01-31T10:00:00Z"
 }
 ```
 
-**Note:** Request creation uses Lambda for write operations (see Architecture section below).
 
 ---
 
@@ -209,24 +223,22 @@ PATCH /requests/:id
 ```
 **Requires:** Authentication
 
-**Permissions:**
-- **USER**: Can update their own requests (subject, description, category, priority only)
-- **SUPPORT+**: Can update any request (including status, assignment)
-
 **Request Body:**
 ```json
 {
   "status": "in_service",
-  "comment": "Working on it"
 }
 ```
+
+Support cannot set status back to `new`
+
 
 **Response (200):**
 ```json
 {
-  "requestId": "req0",
+  "requestId": "abc-123",
   "status": "in_service",
-  "updatedAt": "2025-01-10T12:30:00Z"
+  "updatedAt": "2026-01-31T11:00:00Z"
 }
 ```
 
