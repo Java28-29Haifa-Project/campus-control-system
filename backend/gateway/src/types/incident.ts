@@ -21,6 +21,22 @@ export enum Urgency {
 
 export type IncidentPriority = 1 | 2 | 3 | 4;
 
+export enum IncidentCategory {
+    Plumbing = 'plumbing',
+    Electrical = 'electrical',
+    HVAC = 'hvac',
+    Gas = 'gas',
+    FireSafety = 'fire_safety',
+    Elevators = 'elevators',
+    Access = 'access',
+    Network = 'network',
+    Infrastructure = 'infrastructure',
+    Other = 'other',
+    System = 'system'
+}
+
+
+
 export type Incident = {
     incidentId: string;
     incidentNumber: string;
