@@ -16,28 +16,12 @@ GET /health
 **Response:**
 ```json
 {
-  "status": "ok"
-}
-```
-
-### Lambda Health Checks
-```
-GET /health/lambdas/auth
-GET /health/lambdas/request
-GET /health/lambdas/incident
-GET /health/lambdas/monitoring
-GET /health/lambdas/audit
-```
-**Response:**
-```json
-{
-  "service": "auth-lambda",
   "status": "ok",
-  "timestamp": "2026-01-10T12:00:00Z"
+  "timestamp": "2026-01-31T12:00:00Z",
+  "service": "express-gateway",
+  "environment": "production"
 }
 ```
-
----
 
 ## Authentication Endpoints
 
