@@ -92,19 +92,42 @@ export type Incident = IncidentOutputDTO;
 //     updatedAt: string;
 // };
 
-export type CreateIncidentRequest = {
-    ticketIds: string[];
-    impact: string;
-    urgency: string;
-    category: string;
-    description: string;
-    createdBy: string;
-};
+// export type CreateIncidentRequest = {
+//     ticketIds: string[];
+//     impact: string;
+//     urgency: string;
+//     category: string;
+//     description: string;
+//     createdBy: string;
+// };
+//
+// export type UpdateIncidentRequest = {
+//     incidentId: string;
+//     status?: IncidentStatus;
+//     urgency?: string;
+//     category?: string;
+//     updatedBy: string;
+// };
 
-export type UpdateIncidentRequest = {
+export interface CreateIncidentApiGatewayRequest {
+    ticketIds: string[];
+    impact: Impact;
+    urgency: Urgency;
+    category: IncidentCategory;
+    description?: string;
+    createdBy: string;
+}
+
+export interface UpdateIncidentStatusApiGatewayRequest {
     incidentId: string;
-    status?: IncidentStatus;
-    urgency?: string;
-    category?: string;
+    status: IncidentStatus;
     updatedBy: string;
-};
+    comment?: string;
+}
+
+export interface UpdateIncidentPriorityApiGatewayRequest {
+    incidentId: string;
+    priority: IncidentPriority;
+    updatedBy: string;
+    comment?: string;
+}
