@@ -35,6 +35,28 @@ export enum IncidentCategory {
     System = 'system'
 }
 
+export interface IncidentCreateInputDTO {
+    ticketIds: string[];
+    impact: Impact;
+    urgency: Urgency;
+    category: IncidentCategory;
+    description?: string;
+    // createdBy: string;
+}
+
+export interface IncidentStatusUpdateDTO {
+    status: IncidentStatus;
+    comment?: string;
+    // updatedBy: string;
+}
+
+export interface IncidentPriorityUpdateDTO {
+    priority: IncidentPriority;  // Engineer can only raise (1<-2<-3<-4)
+    comment?: string;
+    // updatedBy: string;
+}
+
+
 
 
 export type Incident = {
