@@ -11,7 +11,7 @@ export const requestRoutes = express.Router();
 
 requestRoutes.get(
     '/',
-    validate(QueryValidationSchemas.requestStatus, 'query'),
+    validate(QueryValidationSchemas.requestFilters, 'query'),
     requestController.getAllRequests
 );
 
@@ -20,14 +20,9 @@ requestRoutes.get(
     requestController.getRequestById
 );
 
-// requestRoutes.get(
-//     '/user/:userId/stats',
-//     requestController.getUserStats
-// );
-
 requestRoutes.post(
     '/',
-    requireRole('USER'), // Only users can create requests
+    requireRole('USER'), // Only users can create requests for current release
     validate(RequestValidationSchemas.createRequest, 'body'),
     requestController.createRequest
 );
