@@ -35,6 +35,9 @@ export enum IncidentCategory {
     System = 'system'
 }
 
+// input dto
+//TODO think about created / updated By field
+
 export interface IncidentCreateInputDTO {
     ticketIds: string[];
     impact: Impact;
@@ -56,22 +59,38 @@ export interface IncidentPriorityUpdateDTO {
     // updatedBy: string;
 }
 
-
-
-
-export type Incident = {
+//output dto
+export interface IncidentOutputDTO {
     incidentId: string;
-    incidentNumber: string;
+    ticketIds: string[];
     priority: IncidentPriority;
     status: IncidentStatus;
-    impact: string;
-    urgency: string;
-    category: string;
+    category: IncidentCategory;
     description?: string;
+    assignedBy?: string;
+    resolvedBy?: string;
     createdBy: string;
-    createdAt: string;
-    updatedAt: string;
-};
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+//TODO delete
+//for backward compatibility
+export type Incident = IncidentOutputDTO;
+
+// export type Incident = {
+//     incidentId: string;
+//     incidentNumber: string;
+//     priority: IncidentPriority;
+//     status: IncidentStatus;
+//     impact: string;//-
+//     urgency: string;//-
+//     category: string;
+//     description?: string;
+//     createdBy: string;
+//     createdAt: string;
+//     updatedAt: string;
+// };
 
 export type CreateIncidentRequest = {
     ticketIds: string[];
