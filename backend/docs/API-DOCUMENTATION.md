@@ -545,6 +545,59 @@ POST /audit
   "success": true
 }
 ```
+## Data Models
+
+### Categories
+
+All categories are **lowercase** and used for both tickets and incidents:
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| `plumbing` | Water-related issues | Leaks, clogs, pipe issues |
+| `electrical` | Electrical systems | Power outages, faulty outlets |
+| `hvac` | Heating, Ventilation, A/C | Temperature issues, air quality |
+| `gas` | Gas systems | Gas leaks, heating |
+| `fire_safety` | Fire safety equipment | Alarms, extinguishers, sprinklers |
+| `elevators` | Elevator systems | Stuck elevator, maintenance |
+| `access` | Access control | Locks, doors, emergency exits |
+| `network` | Network infrastructure | Internet, cabling, wi-fi, phones, intercom |
+| `infrastructure` | Building infrastructure | Parking, gates, roof, facade damage |
+| `other` | Miscellaneous | Inspections, noise complaints |
+| `system` | **Auto-generated only** | Only notification MS can use |
+
+**Note:** Users and Support CANNOT use `system` category when creating tickets/incidents. This category is reserved for auto-generated incidents from the Notification Microservice.
+
+
+### Ticket Status Flow
+
+```
+new → in_service → done
+  ↓
+rejected
+```
+
+- **new**: Just created, not yet being worked on
+- **rejected**: Request rejected by support
+- **in_service**: Being worked on
+- **done**: Completed
+
+---
+
+### Incident Status Flow
+
+```
+new → assigned → in_progress → resolved → closed
+```
+
+- **new**: Created, not yet assigned
+- **assigned**: Engineer assigned himself
+- **in_progress**: Engineer working on it
+- **resolved**: Engineer marked as resolved
+- **closed**: Admin closed
+
+**Cannot go backward in status flow!**
+
+--
 
 ---
 
@@ -623,6 +676,32 @@ or
   "path": "/requests"
 }
 ```
+
+
+---
+
+## Fields enums
+
+**Ticket Categories:**
+`plumbing`, `electrical`, `hvac`, `gas`, `fire_safety`, `elevators`, `access`, `network`, `infrastructure`, `other`, `system`
+
+**Ticket Statuses:**
+`new`, `rejected`, `in_service`, `done`
+
+**Incident Statuses:**
+`new`, `assigned`, `in_progress`, `resolved`, `closed`
+
+**Priorities:**
+`1` (highest), `2`, `3`, `4` (lowest)
+
+**Impacts:**
+`low`, `medium`, `high`, `critical`
+
+**Urgencies:**
+`low`, `medium`, `high`
+
+**User Priorities:**
+`low`, `medium`, `high`, `urgent`
 
 ---
 
