@@ -16,28 +16,12 @@ GET /health
 **Response:**
 ```json
 {
-  "status": "ok"
-}
-```
-
-### Lambda Health Checks
-```
-GET /health/lambdas/auth
-GET /health/lambdas/request
-GET /health/lambdas/incident
-GET /health/lambdas/monitoring
-GET /health/lambdas/audit
-```
-**Response:**
-```json
-{
-  "service": "auth-lambda",
   "status": "ok",
-  "timestamp": "2026-01-10T12:00:00Z"
+  "timestamp": "2026-01-31T12:00:00Z",
+  "service": "express-gateway",
+  "environment": "production"
 }
 ```
-
----
 
 ## Authentication Endpoints
 
@@ -65,9 +49,25 @@ POST /auth/login
 
 **Test Users:**
 - **USER**: `user@test.org` / `password123`
-- **SUPPORT**: `support@test.org` / `support123`
-- **ENGINEER**: `engineer@test.org` / `engineer123`
-- **ADMIN**: `admin@test.org` / `admin123`
+- **SUPPORT**: `support@test.org` / `password123`
+- **ENGINEER**: `engineer@test.org` / `password123`
+- **ADMIN**: `admin@test.org` / `password123`
+
+---
+
+### Logout
+```http
+POST /auth/logout
+```
+
+**Requires:** Authentication
+
+**Response (200):**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
 
 ---
 
@@ -126,7 +126,7 @@ POST /auth/logout
 ### Get All Requests
 ```
 GET /requests
-GET /requests?status=new
+GET /requests?status=new&category=network&priority=high
 ```
 **Requires:** Authentication
 
@@ -138,24 +138,18 @@ GET /requests?status=new
 ```json
 [
   {
-    "requestId": "req0",
-    "requestNumber": "REQ-0",
-    "category": "electrical",
-    "subject": "subject0",
-    "userReportedPriority": "urgent",
+    "requestId": "abc-123",
+    "requestNumber": "REQ-20260131-0001",
+    "userId": "user_001",
+    "category": "network",
+    "subject": "Wi-Fi not working in office",
+    "description": "Cannot connect to wi-fi access point",
+    "userReportedPriority": "high",
     "status": "new",
-    "createdAt": "2025-01-01T10:25:00Z"
+    "createdAt": "2026-01-31T10:00:00Z"
   }
 ]
 ```
-
-**Query Parameters:**
-- `status`: `new`, `rejected`, `in_service`, `done`
-
-**Validation Rules:**
-- `category`: Must be `plumbing`, `electrical`, or `general` (lowercase)
-- `subject`: Minimum 10 characters, maximum 500 characters
-- `userReportedPriority`: Must be `low`, `medium`, `high`, or `urgent` (lowercase)
 
 ---
 
@@ -165,16 +159,21 @@ GET /requests/:id
 ```
 **Requires:** Authentication
 
+**Access Control:**
+- **USER**: Can only access own requests
+- **SUPPORT+**: Can access all requests
+- 
 **Response (200):**
 ```json
 {
-  "requestId": "req0",
-  "requestNumber": "REQ-0",
-  "category": "electrical",
-  "subject": "subject0",
-  "userReportedPriority": "urgent",
+  "requestId": "abc-123",
+  "userId": "user_001",
+  "category": "network",
+  "subject": "Wi-Fi not working in office",
+  "description": "Cannot connect to wi-fi access point",
+  "userReportedPriority": "high",
   "status": "new",
-  "createdAt": "2025-01-01T10:25:00Z"
+  "createdAt": "2026-01-31T10:00:00Z"
 }
 ```
 
@@ -197,7 +196,6 @@ POST /requests
 ```
 
 **Validation:**
-- `category`: Required, must be `plumbing`, `electrical`, or `general`
 - `subject`: Required, 10-500 characters
 - `description`: Optional
 - `userReportedPriority`: Required, must be `low`, `medium`, `high`, or `urgent`
@@ -205,17 +203,17 @@ POST /requests
 **Response (201):**
 ```json
 {
-  "requestId": "abc123ef-4567-89ab-cdef-0123456789ab",
-  "requestNumber": "REQ-20260126-0001",
+  "requestId": "abc-123",
   "userId": "user_001",
-  "category": "plumbing",
-  "subject": "Leaking pipe in kitchen area",
+  "category": "network",
+  "subject": "Wi-Fi not working in office",
+  "description": "Cannot connect to wi-fi access point",
+  "userReportedPriority": "high",
   "status": "new",
-  "createdAt": "2025-01-10T12:00:00Z"
+  "createdAt": "2026-01-31T10:00:00Z"
 }
 ```
 
-**Note:** Request creation uses Lambda for write operations (see Architecture section below).
 
 ---
 
@@ -225,24 +223,22 @@ PATCH /requests/:id
 ```
 **Requires:** Authentication
 
-**Permissions:**
-- **USER**: Can update their own requests (subject, description, category, priority only)
-- **SUPPORT+**: Can update any request (including status, assignment)
-
 **Request Body:**
 ```json
 {
   "status": "in_service",
-  "comment": "Working on it"
 }
 ```
+
+Support cannot set status back to `new`
+
 
 **Response (200):**
 ```json
 {
-  "requestId": "req0",
+  "requestId": "abc-123",
   "status": "in_service",
-  "updatedAt": "2025-01-10T12:30:00Z"
+  "updatedAt": "2026-01-31T11:00:00Z"
 }
 ```
 
@@ -255,22 +251,24 @@ PATCH /requests/:id
 ### Get All Incidents
 ```
 GET /incidents
-GET /incidents?status=OPEN
+GET /incidents?status=new&priority=1&category=network
 ```
+**Requires:** Authentication (SUPPORT, ENGINEER, or ADMIN)
 
 **Response (200):**
 ```json
 [
   {
-    "incidentId": "inc0",
-    "incidentNumber": "INC-0",
-    "priority": "P1",
-    "status": "OPEN",
-    "impact": "high",
-    "urgency": "critical",
-    "category": "Network",
-    "createdBy": "support0",
-    "createdAt": "2025-01-01T13:00:00Z"
+    "incidentId": "inc-001",
+    "ticketIds": ["req-001", "req-002"],
+    "priority": 1,
+    "status": "assigned",
+    "category": "network",
+    "description": "Multiple wi-fi complaints",
+    "assignedBy": "engineer_001",
+    "createdBy": "support_001",
+    "createdAt": "2026-01-31T10:00:00Z",
+    "updatedAt": "2026-01-31T10:30:00Z"
   }
 ]
 ```
@@ -281,20 +279,25 @@ GET /incidents?status=OPEN
 ```
 GET /incidents/:id
 ```
+**Requires:** Authentication (SUPPORT+)
 
+**Access Control:**
+- **SUPPORT**: Cannot see system category incidents
+- **ENGINEER/ADMIN**: Can see all incidents
+- 
 **Response (200):**
 ```json
 {
-  "incidentId": "inc0",
-  "incidentNumber": "INC-0",
-  "priority": "P1",
-  "status": "OPEN",
-  "impact": "high",
-  "urgency": "critical",
-  "category": "Network",
-  "description": "Network outage",
-  "createdBy": "support0",
-  "createdAt": "2025-01-01T13:00:00Z"
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "assigned",
+  "category": "network",
+  "description": "Multiple wi-fi complaints",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:30:00Z"
 }
 ```
 
@@ -304,43 +307,162 @@ GET /incidents/:id
 ```
 POST /incidents
 ```
+**Requires:** Authentication (SUPPORT+)
 
 **Request Body:**
 ```json
 {
-  "ticketIds": ["req0", "req1"],
+  "ticketIds": ["req-001", "req-002"],
   "impact": "high",
-  "urgency": "critical",
-  "category": "Network",
-  "description": "Network outage in building A",
-  "createdBy": "support_001"
+  "urgency": "high",
+  "category": "network",
+  "description": "Multiple wi-fi access points down"
 }
 ```
+**Validation Rules:**
+- `ticketIds`: Required, array of at least 1 ticket ID
+- `impact`: Required, must be `low`, `medium`, `high`, or `critical`
+- `urgency`: Required, must be `low`, `medium`, or `high`
+- `category`: Required, must be `plumbing`, `electrical`, `hvac`, `gas`, `fire_safety`, `elevators`, `access`, `network`, `infrastructure`, `other`, `system`
+- **system category**: Only notification MS can use 
+- `description`: Optional, max 2000 characters
+- `createdBy`: Automatically extracted from authentication cookie
+
 
 **Response (201):**
 ```json
 {
-  "incidentId": "inc2",
-  "incidentNumber": "INC-2",
-  "priority": "P1",
-  "status": "OPEN",
-  "createdAt": "2025-01-10T12:00:00Z"
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "new",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:00:00Z"
 }
 ```
 
 ---
 
-### Update Incident
+## Engineer Endpoints (New)
+
+### Assign Incident to Self
+```http
+PATCH /incidents/:id/assign
 ```
-PATCH /incidents/:id
+
+**Requires:** Authentication (ENGINEER+)
+
+**Request Body:** None (engineer ID extracted from auth cookie)
+
+**Response (200):**
+```json
+{
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "assigned",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T10:30:00Z"
+}
 ```
+
+### Update Incident Status
+```http
+PATCH /incidents/:id/status
+```
+
+**Requires:** Authentication (ENGINEER or ADMIN)
 
 **Request Body:**
 ```json
 {
-  "status": "RESOLVED",
-  "urgency": "high",
-  "updatedBy": "engineer_001"
+  "status": "in_progress",
+  "comment": "Working on fixing wi-fi access points"
+}
+```
+
+**Valid Status Transitions:**
+```
+new → assigned → in_progress → resolved
+```
+
+- Cannot change from `in_progress` to `assigned`
+- Cannot change from `resolved` to `in_progress` or `assigned`
+
+**Response (200):**
+```json
+{
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "in_progress",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T11:00:00Z"
+}
+```
+
+**Response (400) - Invalid transition:**
+```json
+{
+  "error": "Invalid status transition"
+}
+```
+
+### Raise Incident Priority
+```http
+PATCH /incidents/:id/priority
+```
+
+**Requires:** Authentication (ENGINEER or ADMIN)
+
+**Request Body:**
+```json
+{
+  "priority": 1,
+  "comment": "Escalating to P1 - affecting all users"
+}
+```
+
+**Valid Priority Changes:**
+```
+4 → 3 → 2 → 1
+```
+
+**Can only raise priority (lower number = higher priority)**
+- Can change from 4 to 3, 3 to 2, 2 to 1
+- CANNOT change from 1 to 2, 2 to 3, etc.
+
+**Response (200):**
+```json
+{
+  "incidentId": "inc-001",
+  "ticketIds": ["req-001", "req-002"],
+  "priority": 1,
+  "status": "in_progress",
+  "category": "network",
+  "description": "Multiple wi-fi access points down",
+  "assignedBy": "engineer_001",
+  "createdBy": "support_001",
+  "createdAt": "2026-01-31T10:00:00Z",
+  "updatedAt": "2026-01-31T11:30:00Z"
+}
+```
+
+**Response (400) - Invalid priority change:**
+```json
+{
+  "error": "Cannot lower priority from 1 to 2"
 }
 ```
 
@@ -423,6 +545,59 @@ POST /audit
   "success": true
 }
 ```
+## Data Models
+
+### Categories
+
+All categories are **lowercase** and used for both tickets and incidents:
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| `plumbing` | Water-related issues | Leaks, clogs, pipe issues |
+| `electrical` | Electrical systems | Power outages, faulty outlets |
+| `hvac` | Heating, Ventilation, A/C | Temperature issues, air quality |
+| `gas` | Gas systems | Gas leaks, heating |
+| `fire_safety` | Fire safety equipment | Alarms, extinguishers, sprinklers |
+| `elevators` | Elevator systems | Stuck elevator, maintenance |
+| `access` | Access control | Locks, doors, emergency exits |
+| `network` | Network infrastructure | Internet, cabling, wi-fi, phones, intercom |
+| `infrastructure` | Building infrastructure | Parking, gates, roof, facade damage |
+| `other` | Miscellaneous | Inspections, noise complaints |
+| `system` | **Auto-generated only** | Only notification MS can use |
+
+**Note:** Users and Support CANNOT use `system` category when creating tickets/incidents. This category is reserved for auto-generated incidents from the Notification Microservice.
+
+
+### Ticket Status Flow
+
+```
+new → in_service → done
+  ↓
+rejected
+```
+
+- **new**: Just created, not yet being worked on
+- **rejected**: Request rejected by support
+- **in_service**: Being worked on
+- **done**: Completed
+
+---
+
+### Incident Status Flow
+
+```
+new → assigned → in_progress → resolved → closed
+```
+
+- **new**: Created, not yet assigned
+- **assigned**: Engineer assigned himself
+- **in_progress**: Engineer working on it
+- **resolved**: Engineer marked as resolved
+- **closed**: Admin closed
+
+**Cannot go backward in status flow!**
+
+--
 
 ---
 
@@ -501,6 +676,32 @@ or
   "path": "/requests"
 }
 ```
+
+
+---
+
+## Fields enums
+
+**Ticket Categories:**
+`plumbing`, `electrical`, `hvac`, `gas`, `fire_safety`, `elevators`, `access`, `network`, `infrastructure`, `other`, `system`
+
+**Ticket Statuses:**
+`new`, `rejected`, `in_service`, `done`
+
+**Incident Statuses:**
+`new`, `assigned`, `in_progress`, `resolved`, `closed`
+
+**Priorities:**
+`1` (highest), `2`, `3`, `4` (lowest)
+
+**Impacts:**
+`low`, `medium`, `high`, `critical`
+
+**Urgencies:**
+`low`, `medium`, `high`
+
+**User Priorities:**
+`low`, `medium`, `high`, `urgent`
 
 ---
 
