@@ -25,7 +25,7 @@ import {
     errorHandler,
     notFoundHandler,
     handleUnhandledRejection,
-    handleUncaughtException
+    handleUncaughtException, requestIdMiddleware
 } from './errors/error-handler.js';
 
 import Logger, { requestLoggerMiddleware } from './utils/logger.js';
@@ -37,6 +37,10 @@ export const launchServer = () => {
     handleUnhandledRejection();
     handleUncaughtException();
 
+
+
+
+    app.use(requestIdMiddleware);
     // ==================== Security Middleware ====================
 
     app.use(helmet({
