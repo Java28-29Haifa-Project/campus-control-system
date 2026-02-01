@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-// ==================== Request (Ticket) Validation Schemas ====================
+// ==================== Ticket Validation Schemas ====================
 
 export const RequestValidationSchemas = {
     createRequest: z.object({
@@ -16,7 +16,7 @@ export const RequestValidationSchemas = {
             'network',
             'infrastructure',
             'other'
-            // 'system' NOT allowed - only notification MS can use
+            // 'system' NOT allowed for users - only notification MS
         ]),
         subject: z.string().min(10).max(500),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']),
@@ -66,7 +66,7 @@ export const IncidentValidationSchemas = {
             'network',
             'infrastructure',
             'other',
-            'system'
+            'system'  // Allowed for incident creation (notification MS can use)
         ]),
         description: z.string().max(2000).optional()
         // createdBy will be extracted from req.user in controller
@@ -86,6 +86,15 @@ export const IncidentValidationSchemas = {
 };
 
 // ==================== Query Validation Schemas ====================
+
+const isoDateString = z.string().refine(
+    (date) => {
+        if (!date) return true;  // Optional
+        const parsed = new Date(date);
+        return !isNaN(parsed.getTime());
+    },
+    { message: 'Invalid date format. Use ISO 8601 (YYYY-MM-DD)' }
+).optional();
 
 export const QueryValidationSchemas = {
     requestStatus: z.object({
@@ -108,13 +117,14 @@ export const QueryValidationSchemas = {
             'system'
         ]).optional(),
         priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
+        userId: z.string().optional(),
+        dateFrom: isoDateString,
+        dateTo: isoDateString
     }),
 
     incidentFilters: z.object({
         status: z.enum(['new', 'assigned', 'in_progress', 'resolved', 'closed']).optional(),
-        priority: z.number().int().min(1).max(4).optional(),
+        priority: z.coerce.number().int().min(1).max(4).optional(),  // Coerce string to number
         category: z.enum([
             'plumbing',
             'electrical',
@@ -128,9 +138,9 @@ export const QueryValidationSchemas = {
             'other',
             'system'
         ]).optional(),
-        assignedTo: z.string().optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
+        assignedBy: z.string().optional(),  // Engineer ID
+        dateFrom: isoDateString,
+        dateTo: isoDateString
     })
 };
 
@@ -164,15 +174,40 @@ export function validate(schema: z.ZodSchema, source: 'body' | 'params' | 'query
         } catch (error: any) {
             res.status(400).json({
                 error: 'Validation failed',
+                statusCode: 400,
+                timestamp: new Date().toISOString(),
+                path: req.path,
                 details: error.issues || error.message
             });
         }
     };
 }
 
-// ==================== Request Sanitization ====================
 
+//TODO : remove potentially dangerous chars, custom XSS protection, SQL injection prevention etc
 export function sanitizeRequest(req: Request, res: Response, next: NextFunction) {
-    //TODO expand logic ?~
     next();
 }
+
+export function parseDateFilters(query: any): { dateFrom?: Date; dateTo?: Date } {
+    const result: { dateFrom?: Date; dateTo?: Date } = {};
+
+    if (query.dateFrom) {
+        const parsed = new Date(query.dateFrom);
+        if (!isNaN(parsed.getTime())) {
+            result.dateFrom = parsed;
+        }
+    }
+
+    if (query.dateTo) {
+        const parsed = new Date(query.dateTo);
+        if (!isNaN(parsed.getTime())) {
+            // Set to end of day
+            parsed.setHours(23, 59, 59, 999);
+            result.dateTo = parsed;
+        }
+    }
+
+    return result;
+}
+
