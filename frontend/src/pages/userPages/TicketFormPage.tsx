@@ -91,11 +91,11 @@ const TicketFormPage: React.FC = () => {
 
     return (
         <div className="auth-page">
-            <div className="login-wrapper ticket-form-wrapper">
+            <div className="ticket-form-wrapper">
                 <h1>Create ticket</h1>
 
                 <form onSubmit={onSubmit}>
-                    <div className="input-box">
+                    <div className=" title">
                         <input
                             type="text"
                             placeholder="Title"
@@ -105,7 +105,7 @@ const TicketFormPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="input-box textarea-box">
+                    <div className="textarea-box">
                         <textarea
                             placeholder="Describe your issue..."
                             value={description}
@@ -113,7 +113,7 @@ const TicketFormPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="input-box select-box">
+                    <div className=" select-box">
                         <select
                             value={category}
                             onChange={(e) =>
@@ -129,7 +129,7 @@ const TicketFormPage: React.FC = () => {
                         </select>
                     </div>
 
-                    <div className="input-box select-box">
+                    <div className="select-box">
                         <select
                             value={priority}
                             onChange={(e) =>
@@ -168,7 +168,7 @@ const TicketFormPage: React.FC = () => {
                             Cancel
                         </button>
 
-                        <button type="submit" disabled={isCreating}>
+                        <button className="secondary-btn" style={{"background":"#797537"}} type="submit" disabled={isCreating}>
                             {isCreating ? "Creating..." : "Create ticket"}
                         </button>
                     </div>

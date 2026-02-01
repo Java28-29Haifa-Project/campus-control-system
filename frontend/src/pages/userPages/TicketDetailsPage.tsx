@@ -64,48 +64,48 @@ const TicketDetailsPage: React.FC = () => {
                     ← Back to list
                 </button>
 
-                <h1>Ticket #{current.requestNumber}</h1>
+                <h1 style={{"fontFamily": "inherit"}}>Ticket #{current.requestId}</h1>
 
                 <div className="ticket-details-meta">
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Subject</span>
-                        <span className="ticket-details-value">
+                        <p className="ticket-details-value">
                             {current.subject}
-                        </span>
+                        </p>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Category</span>
-                        <span className="ticket-details-value">
+                        <p className="ticket-details-value">
                             {current.category}
-                        </span>
+                        </p>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Priority</span>
-                        <span className="ticket-details-value">
+                        <p className="ticket-details-value">
                             {current.userReportedPriority}
-                        </span>
+                        </p>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Status</span>
-                        <span className="ticket-details-value">
+                        <p className="ticket-details-value">
                             {current.status}
-                        </span>
+                        </p>
                     </div>
 
                     <div className="ticket-details-row">
                         <span className="ticket-details-label">Created at</span>
-                        <span className="ticket-details-value">
+                        <p className="ticket-details-value">
                             {new Date(
                                 current.createdAt
                             ).toLocaleString()}
-                        </span>
+                        </p>
                     </div>
                 </div>
 
-                <div className="ticket-details-description">
+                <div className="ticket-details-row">
                     <span className="ticket-details-label">
                         Description
                     </span>

@@ -72,6 +72,20 @@ const TicketSupportMocksTable: React.FC = () => {
                 cell: (info) => info.getValue<TicketStatus>(),
             },
             {
+                header: "Created at",
+                accessorKey: "createdAt",
+                size:180,
+                cell: (info) =>
+                    new Date(info.getValue<string>()).toLocaleString(),
+            },
+            {
+                header: "Updated at",
+                accessorKey: "updatedAt",
+                size:180,
+                cell: (info) =>
+                    new Date(info.getValue<string>()).toLocaleString(),
+            },
+            {
                 header: "Incident",
                 id: "incident",
                 size:160,
@@ -90,17 +104,10 @@ const TicketSupportMocksTable: React.FC = () => {
                                 navigate(`/incidents/new?ticketId=${encodeURIComponent(ticket.requestId)}`);
                             }}
                         >
-                            Create incident
+                            Create
                         </button>
                     );
                 },
-            },
-            {
-                header: "Created at",
-                accessorKey: "createdAt",
-                size:180,
-                cell: (info) =>
-                    new Date(info.getValue<string>()).toLocaleString(),
             },
         ],
         [navigate]

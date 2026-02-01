@@ -9,6 +9,7 @@ export type MockTicket = {
     status: TicketStatus;
     userReportedPriority: UserPriority;
     createdAt: string;
+    updatedAt: string;
 };
 export const mockTickets: MockTicket[] = [
     {
@@ -19,6 +20,7 @@ export const mockTickets: MockTicket[] = [
         status: TicketStatus.New,
         userReportedPriority: UserPriority.High,
         createdAt: "2025-01-01T10:25:00Z",
+        updatedAt: "2025-02-01T10:25:00Z",
     },
     {
         requestId: "req-2",
@@ -28,6 +30,7 @@ export const mockTickets: MockTicket[] = [
         status: TicketStatus.InService,
         userReportedPriority: UserPriority.Medium,
         createdAt: "2025-01-02T09:10:00Z",
+        updatedAt: "2025-01-10T09:10:00Z"
     },
     {
         requestId: "req-3",
@@ -37,6 +40,7 @@ export const mockTickets: MockTicket[] = [
         status: TicketStatus.Done,
         userReportedPriority: UserPriority.Low,
         createdAt: "2025-01-03T12:45:00Z",
+        updatedAt:"2025-01-03T12:45:00Z"
     },
     {
         requestId: "req-4",
@@ -46,5 +50,6 @@ export const mockTickets: MockTicket[] = [
         status: TicketStatus.Rejected,
         userReportedPriority: UserPriority.Urgent,
         createdAt: "2025-01-03T12:45:00Z",
+        updatedAt:"2025-01-10T09:10:00Z",
     },
 ];

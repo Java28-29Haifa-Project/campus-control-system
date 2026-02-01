@@ -31,26 +31,12 @@ const TicketListMocksPage: React.FC = () => {
     return (
         <div className="auth-page">
             <div className="ticket-table-wrapper">
-                <h1>My tickets</h1>
+                <h2>My tickets</h2>
 
-                <div className="ticket-list-toolbar">
                     <button type="button" onClick={handleCreateClick} className="secondary-btn">
                         Create Ticket
                     </button>
 
-            <div className="ticket-list-filter">
-                <label className="ticket-list-filter-label">Filter by status</label>
-
-                <div className="select-box">
-                    <select value={filterStatus} onChange={handleFilterChange}>
-                            <option value="ALL">All</option>
-                            <option value={TicketStatus.New}>New</option>
-                            <option value={TicketStatus.InService}>In service</option>
-                            <option value={TicketStatus.Rejected}>Rejected</option>
-                            <option value={TicketStatus.Done}>Done</option>
-                        </select>
-                    </div>
-                </div>
 
             {filteredTickets.length === 0 ? (
                 <p className="ticket-list-empty">No tickets yet</p>
@@ -59,19 +45,28 @@ const TicketListMocksPage: React.FC = () => {
                     <table className="ticket-list-table">
                             <thead>
                             <tr>
-                                <th style={{ textAlign: "left" }}>Title</th>
-                                <th style={{ textAlign: "left" }}>Description</th>
+                                <th>Title</th>
+                                <th>Description</th>
                                 <th>Category</th>
-                                <th>Status</th>
+                                <th className="ticket-list-filter">
+                                        <select className="ticket-list-filter-label" value={filterStatus} onChange={handleFilterChange}>
+                                    <option value="ALL" >Status</option>
+                                    <option value={TicketStatus.New}>New</option>
+                                    <option value={TicketStatus.InService}>In service</option>
+                                    <option value={TicketStatus.Rejected}>Rejected</option>
+                                    <option value={TicketStatus.Done}>Done</option>
+                                </select>
+                                    <div/>
+                                        <div/>
+                                    </th>
                                 <th>Date</th>
+                                <th>Open</th>
                             </tr>
                             </thead>
                             <tbody>
                             {filteredTickets.map((ticket) => (
                                 <tr
                                     key={ticket.requestId}
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => handleRowClick(ticket.requestId)}
                                 >
                                     <td>{ticket.subject}</td>
                                     <td>{ticket.description}</td>
@@ -86,6 +81,13 @@ const TicketListMocksPage: React.FC = () => {
                                             minute: "2-digit",
                                         })}
                                     </td>
+                                    <td>
+                                        <button className="secondary-btn" style={{ cursor: "pointer" }}
+                                            onClick={() => handleRowClick(ticket.requestId)}
+                                        >
+                                            Open
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
@@ -94,7 +96,7 @@ const TicketListMocksPage: React.FC = () => {
                 )}
             </div>
             </div>
-            </div>
+
     );
 };
 

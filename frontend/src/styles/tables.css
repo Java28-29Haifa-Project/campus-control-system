@@ -9,7 +9,6 @@
     --grid-border: rgba(255, 255, 255, 0.10);
     --row-hover: rgba(255, 255, 255, 0.06);
     --text-muted: rgba(255, 255, 255, 0.70);
-    background: #797537 no-repeat bottom center;
 }
 /*body {*/
 /*    background: #797537 no-repeat bottom center;*/
@@ -20,10 +19,11 @@
 .support-table-page {
     position: fixed;
     top: var(--header-h);
-    left: var(--sidebar-w);
-    right: 0;
+    left: var(--sidebar-w) ;
     bottom: 0;
+    right: 0;
 
+    margin: 10px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -32,9 +32,11 @@
     box-sizing: border-box;
 
     /* glass card */
-    background: #747945;
+    background: rgba(64, 67, 37, 0.91) no-repeat bottom center;
     border: 2px solid rgba(255, 255, 255, 0.20);
+    border-radius: 15px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(10px);
 
     color: #fff;
     font-family: inherit;
@@ -73,7 +75,7 @@
 .support-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* 🔥 ключ: колонки распределяются по ширине */
+    table-layout: fixed; /*  ключ: колонки распределяются по ширине */
     color: #fff;
 }
 
@@ -165,10 +167,13 @@
 .support-table td:nth-child(7) { width: 8%; }   /* Status */
 
 .support-table th:nth-child(8),
-.support-table td:nth-child(8) { width: 15%; }  /* Incident */
+.support-table td:nth-child(8) { width: 11%; }   /* Created at */
 
 .support-table th:nth-child(9),
-.support-table td:nth-child(9) { width: 10%; }  /* Created at */
+.support-table td:nth-child(9) { width: 11%; }  /* Updated at */
+
+.support-table th:nth-child(10),
+.support-table td:nth-child(10) { width: 10%; }  /* Incident */
 
 /* Чуть улучшим читабельность на больших экранах */
 @media (min-width: 1200px) {
