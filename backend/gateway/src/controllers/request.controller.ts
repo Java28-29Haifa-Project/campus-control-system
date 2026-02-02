@@ -3,6 +3,8 @@ import { requestQueryRepository } from '../repositories/impl/RequestQueryReposit
 import { requestWriteLambdaServiceAWS } from '../services/lambda-sdk/services/RequestWriteLambdaServiceAWS.js';
 import { HttpError } from '../errors/http-error.js';
 import {TicketRequestStatus} from "../types/ticketRequest.js";
+import { parseDateFilters } from '../middleware/validation.middleware.js';
+
 
 class RequestController {
 
@@ -20,7 +22,15 @@ class RequestController {
                 role: req.user.role
             };
 
-            const requests = await requestQueryRepository.getAllRequests(status, user);
+            const { dateFrom, dateTo } = parseDateFilters(req.query);
+            const filters = {
+                category: req.query.category as string,
+                priority: req.query.priority as string,
+                dateFrom,
+                dateTo
+            }
+
+            const requests = await requestQueryRepository.getAllRequests(status, user, filters);
             res.status(200).json(requests);
 
         } catch (error: any) {

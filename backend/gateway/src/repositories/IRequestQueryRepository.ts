@@ -3,8 +3,15 @@ import { TicketRequest, TicketRequestStatus } from '../types/ticketRequest.js';
 export interface IRequestQueryRepository {
     getAllRequests(
         status?: TicketRequestStatus,
-        user?: { userId: string; role: string }
+        user?: { userId: string; role: string },
+        filters?: {
+            category?: string;
+            priority?: string;
+            dateFrom?: Date;
+            dateTo?: Date;
+        }
     ): Promise<TicketRequest[]>;
+
     getRequestById(requestId: string): Promise<TicketRequest | null>;
 
     getRequestsByUser(
@@ -19,6 +26,6 @@ export interface IRequestQueryRepository {
         done: number;
         rejected: number;
     }>;
-    getRequestCountToday(): Promise<number>;
 
+    getRequestCountToday(): Promise<number>;
 }
