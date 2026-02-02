@@ -103,7 +103,19 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
 
 
     private validateCreateInput(input: CreateRequestInputLambda) {
-        const validCategories = ['plumbing', 'electrical', 'general'];
+        const validCategories = [
+            'plumbing',
+            'electrical',
+            'hvac',
+            'gas',
+            'fire_safety',
+            'elevators',
+            'access',
+            'network',
+            'infrastructure',
+            'other'
+            // 'system' not allowed for users
+        ];
         const validPriorities = ['low', 'medium', 'high', 'urgent'];
 
         if (!input.category || !validCategories.includes(input.category)) {
