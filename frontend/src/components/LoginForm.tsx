@@ -97,6 +97,7 @@ const LoginForm = () => {
 
                     {!isAuthenticated && <div className="register-link">
                         <p>Don't have an account?
+
                             <Link to={Paths.REGISTER}>Register</Link></p>
                     </div>}
 

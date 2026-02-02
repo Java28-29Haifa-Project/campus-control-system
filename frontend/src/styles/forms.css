@@ -22,12 +22,13 @@
     color: #fff;
     font-family: inherit;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     margin: 0 auto;
 }
 .login-wrapper,
 .ticket-form-wrapper{
-    width: 290px;
+    /*width: 290px;*/
 }
 
 .login-wrapper h1 {
@@ -46,7 +47,7 @@
 
 .input-box {
     position: relative;
-    width: 100%;
+    width: 290px;
     height: 50px;
     margin: 10px 0;
 }

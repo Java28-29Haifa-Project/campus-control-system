@@ -71,7 +71,7 @@ const TicketSupportMocksTable: React.FC = () => {
                     const ticket = row.original;
 
                     if (ticket.status === TicketStatus.Rejected) {
-                        return <span className="muted-text">Тикет отклонен</span>;
+                        return <span className="muted-text">Ticket rejected</span>;
                     }
 
                     return (
