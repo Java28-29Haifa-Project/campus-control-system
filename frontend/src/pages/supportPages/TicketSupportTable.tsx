@@ -44,13 +44,12 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "requestId",
-                size:140,
             },
             {
                 header: "Description",
                 accessorKey: "description",
                 cell: ({ getValue }) => {
-                    const value = getValue<string>();
+                    const value = (getValue() ?? "") as string;
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
                 },
             },
@@ -103,10 +102,11 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "Updated at",
                 accessorKey: "updatedAt",
-                cell: ({getValue}) => {
-                    const value = getValue<string | undefined>();
-                    return value ? new Date(value).toLocaleString() : "—";
-                }
+                cell: () => "",
+                // cell: ({getValue}) => {
+                //     const value = getValue<string | undefined>();
+                //     return value ? new Date(value).toLocaleString() : "—";
+                // }
             },
             {
                 header: "Open",
