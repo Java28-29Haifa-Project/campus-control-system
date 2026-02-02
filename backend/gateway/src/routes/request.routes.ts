@@ -29,6 +29,7 @@ requestRoutes.post(
 
 requestRoutes.patch(
     '/:id',
+    requireRole('SUPPORT', 'ENGINEER', 'ADMIN'),
     validate(RequestValidationSchemas.updateStatusBySupport, 'body'),
     requestController.updateRequestStatus
 );
