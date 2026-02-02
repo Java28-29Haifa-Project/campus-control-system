@@ -9,6 +9,7 @@ import {
 } from '../types/incident.js';
 import { HttpError } from '../errors/http-error.js';
 import { randomUUID } from 'crypto';
+import {parseDateFilters} from "../middleware/validation.middleware.js";
 
 class IncidentController {
 
@@ -16,12 +17,15 @@ class IncidentController {
         try {
             if (!req.user) throw new HttpError(401, 'Authentication required');
 
-            const { status, priority, category,
-                // assignedTo, dateFrom, dateTo
-            } = req.query;
+            const { status, priority, category, assignedBy, dateFrom, dateTo } = req.query;
+            const { dateFrom: parsedDateFrom, dateTo: parsedDateTo } = parseDateFilters(req.query);
 
-            // TODO: Replace mock with actual repo call
+
             let incidents = incidentApiGatewayMock.getAllIncidents();
+            // TODO: Replace mock with actual repo call
+            // let incidents = await incidentApiGateway.getIncidents({
+            //     status, priority, category, assignedBy, dateFrom, dateTo
+            // });
 
             if (req.user.role === 'SUPPORT') {
                 incidents = incidents.filter(inc => inc.category !== IncidentCategory.System);
@@ -36,10 +40,16 @@ class IncidentController {
             if (category) {
                 incidents = incidents.filter(inc => inc.category === category);
             }
-            // if (assignedTo) {
-            //     incidents = incidents.filter(inc => inc.assignedBy === assignedTo);
-            // }
-            // TODO: dateFrom/dateTo filtering ?
+            if (assignedBy) {  // ← Uncommented
+                incidents = incidents.filter(inc => inc.assignedBy === assignedBy);
+            }
+
+            if (parsedDateFrom) {
+                incidents = incidents.filter(inc => new Date(inc.createdAt) >= parsedDateFrom);
+            }
+            if (parsedDateTo) {
+                incidents = incidents.filter(inc => new Date(inc.createdAt) <= parsedDateTo);
+            }
 
             res.status(200).json(incidents);
         } catch (error) {
