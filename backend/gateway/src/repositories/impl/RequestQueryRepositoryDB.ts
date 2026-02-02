@@ -20,53 +20,62 @@ class RequestQueryRepositoryDB implements IRequestQueryRepository {
             dateTo?: Date;
         }
     ): Promise<TicketRequest[]> {
-        try {
-            let query = `
-                SELECT
-                    request_id AS "requestId",
-                    request_number AS "requestNumber",
-                    user_id AS "userId",
-                    support_id AS "supportId",
-                    category,
-                    subject,
-                    description,
-                    user_reported_priority AS "userReportedPriority",
-                    status,
-                    created_at AS "createdAt",
-                    updated_at AS "updatedAt",
-                    created_by AS "createdBy",
-                    updated_by AS "updatedBy"
-                FROM requests
-                WHERE 1=1
-            `;
+        let query = `
+        SELECT 
+            request_id AS "requestId",
+            request_number AS "requestNumber",
+            user_id AS "userId",
+            support_id AS "supportId",
+            category,
+            subject,
+            description,
+            user_reported_priority AS "userReportedPriority",
+            status,
+            created_at AS "createdAt",
+            updated_at AS "updatedAt",
+            created_by AS "createdBy",
+            updated_by AS "updatedBy"
+        FROM requests
+        WHERE 1=1
+    `;
 
-            const params: any[] = [];
-            let paramIndex = 1;
+        const params: any[] = [];
+        let paramIndex = 1;
 
-            if (user?.role === 'USER') {
-                query += ` AND user_id = $${paramIndex++}`;
-                params.push(user.userId);
-            }
-
-            if (status) {
-                query += ` AND status = $${paramIndex++}`;
-                params.push(status);
-            }
-
-
-            if (conditions.length > 0) {
-                query += ' WHERE ' + conditions.join(' AND ');
-            }
-
-            query += ' ORDER BY created_at DESC';
-
-            const result: QueryResult = await this.pool.query(query, params);
-
-            return result.rows as TicketRequest[];
-        } catch (error) {
-            console.error('[RequestQueryRepositoryDB] Error in getAllRequests:', error);
-            throw new Error('Failed to fetch requests from database');
+        if (user?.role === 'USER') {
+            query += ` AND user_id = $${paramIndex++}`;
+            params.push(user.userId);
         }
+
+        if (status) {
+            query += ` AND status = $${paramIndex++}`;
+            params.push(status);
+        }
+
+        if (filters?.category) {
+            query += ` AND category = $${paramIndex++}`;
+            params.push(filters.category);
+        }
+
+        if (filters?.priority) {
+            query += ` AND user_reported_priority = $${paramIndex++}`;
+            params.push(filters.priority);
+        }
+
+        if (filters?.dateFrom) {
+            query += ` AND created_at >= $${paramIndex++}`;
+            params.push(filters.dateFrom);
+        }
+
+        if (filters?.dateTo) {
+            query += ` AND created_at <= $${paramIndex++}`;
+            params.push(filters.dateTo);
+        }
+
+        query += ` ORDER BY created_at DESC`;
+
+        const result = await this.pool.query(query, params);
+        return result.rows;
     }
 
     async getRequestById(requestId: string): Promise<TicketRequest | null> {
