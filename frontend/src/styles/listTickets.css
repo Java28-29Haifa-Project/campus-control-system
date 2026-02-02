@@ -1,0 +1,194 @@
+/* ticketListTable.css */
+/* Таблица "My tickets" в стиле tables.css: glass, sticky header, аккуратный скролл */
+
+:root {
+    --glass-bg: rgba(0, 0, 0, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --grid-border: rgba(255, 255, 255, 0.10);
+    --row-hover: rgba(255, 255, 255, 0.06);
+    --text-muted: rgba(255, 255, 255, 0.70);
+}
+.ticket-table-wrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    padding: 16px;
+    box-sizing: border-box;
+
+    /* glass card */
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.20);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(30px);
+
+    color: #fff;
+    font-family: inherit;
+    font-size: 20px;
+
+    /* важно для вложенных overflow во flex */
+    min-width: 0;
+    min-height: 0;
+}
+.secondary-btn {
+    width: 100%;
+    height: 45px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: transparent;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease,
+    filter 0.15s ease, background 0.15s ease;
+}
+
+
+/* === Блок фильтра (замена инлайн стилям) === */
+
+.ticket-list-filter {
+    margin-top: 12px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.ticket-list-filter-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+}
+
+.ticket-list-empty {
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: left;
+}
+
+/* === Контейнер таблицы ===
+   Важно: в твоей верстке ticket-table-wrapper — карточка.
+   Поэтому тут делаем внутренний scroll-контейнер с max-height. */
+
+.ticket-list-table-container {
+    margin-top: 8px;
+
+    max-height: 320px; /* как у тебя было, но уже в css */
+    overflow: auto;
+
+    border-radius: 14px;
+    border: 1px solid var(--grid-border);
+    background: var(--glass-bg);
+
+}
+
+/* === Таблица === */
+
+.ticket-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* стабильная ширина колонок */
+    color: #fff;
+    font-size: 20px;
+}
+
+/* Sticky header */
+.ticket-list-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    text-align: left;
+    padding: 10px 12px;
+
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--grid-border);
+
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.85);
+
+    /* заголовки могут переноситься */
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.ticket-list-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: top;
+
+    /* НЕ обрезаем текст */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+/* Кликабельные строки */
+.ticket-list-row {
+    cursor: pointer;
+}
+
+.ticket-list-row:hover {
+    background: var(--row-hover);
+}
+
+/* Description обычно длиннее — чуть уменьшим шрифт, чтобы читалось лучше */
+.ticket-list-desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+/* === Распределение ширин (5 колонок) ===
+   1 Title, 2 Description, 3 Category, 4 Status, 5 Date
+   Сумма 100% */
+
+.ticket-list-table th:nth-child(1),
+.ticket-list-table td:nth-child(1) {
+    width: 18%;
+}
+
+.ticket-list-table th:nth-child(2),
+.ticket-list-table td:nth-child(2) {
+    width: 42%;
+}
+
+.ticket-list-table th:nth-child(3),
+.ticket-list-table td:nth-child(3) {
+    width: 14%;
+}
+
+.ticket-list-table th:nth-child(4),
+.ticket-list-table td:nth-child(4) {
+    width: 12%;
+}
+
+.ticket-list-table th:nth-child(5),
+.ticket-list-table td:nth-child(5) {
+    width: 14%;
+}
+
+/* Чуть компактнее на небольших экранах */
+@media (max-width: 640px) {
+    .ticket-list-table {
+        font-size: 13px;
+    }
+
+    .ticket-list-table thead th,
+    .ticket-list-table tbody td {
+        padding: 8px 10px;
+    }
+
+    /* Можно дать больше места Description */
+    .ticket-list-table th:nth-child(2),
+    .ticket-list-table td:nth-child(2) {
+        width: 48%;
+    }
+}

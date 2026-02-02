@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import '../../../styles/forms.css';
+import '../../../styles/listTickets.css';
 import { useNavigate } from "react-router-dom";
 import {TicketStatus} from "../../../types/ticketTypes.ts";
 import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
@@ -33,33 +33,16 @@ const TicketListMocksPage: React.FC = () => {
             <div className="ticket-table-wrapper">
                 <h1>My tickets</h1>
 
-                <div className="ticket-form-actions">
-                    <button type="button" onClick={handleCreateClick}
-                            className="secondary-btn" >
+                <div className="ticket-list-toolbar">
+                    <button type="button" onClick={handleCreateClick} className="secondary-btn">
                         Create Ticket
                     </button>
-                    {/*<button*/}
-                    {/*    type="button"*/}
-                    {/*    className="secondary-btn"*/}
-                    {/*    onClick={() => setFilterStatus("ALL")}*/}
-                    {/*>*/}
-                    {/*    Reset filter*/}
-                    {/*</button>*/}
-                </div>
 
-                <div style={{ marginTop: 12, marginBottom: 16 }}>
-                    <label
-                        style={{
-                            fontSize: 12,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.08em",
-                            color: "rgba(255,255,255,0.7)",
-                        }}
-                    >
-                        Filter by status
-                    </label>
-                    <div className="select-box">
-                        <select value={filterStatus} onChange={handleFilterChange}>
+            <div className="ticket-list-filter">
+                <label className="ticket-list-filter-label">Filter by status</label>
+
+                <div className="select-box">
+                    <select value={filterStatus} onChange={handleFilterChange}>
                             <option value="ALL">All</option>
                             <option value={TicketStatus.New}>New</option>
                             <option value={TicketStatus.InService}>In service</option>
@@ -69,22 +52,11 @@ const TicketListMocksPage: React.FC = () => {
                     </div>
                 </div>
 
-                {filteredTickets.length === 0 ? (
-                    <p style={{ marginTop: 8 }}>No tickets yet</p>
-                ) : (
-                    <div style={{ maxHeight: 320, overflowY: "auto" }}>
-                        <table
-                            border={1}
-                            cellPadding={8}
-                            cellSpacing={0}
-                            style={{
-                                width: "100%",
-                                borderCollapse: "collapse",
-                                background: "rgba(0,0,0,0.35)",
-                                color: "#fff",
-                                fontSize: 14,
-                            }}
-                        >
+            {filteredTickets.length === 0 ? (
+                <p className="ticket-list-empty">No tickets yet</p>
+            ) : (
+                <div className="ticket-list-table-container">
+                    <table className="ticket-list-table">
                             <thead>
                             <tr>
                                 <th style={{ textAlign: "left" }}>Title</th>
@@ -121,7 +93,8 @@ const TicketListMocksPage: React.FC = () => {
                     </div>
                 )}
             </div>
-        </div>
+            </div>
+            </div>
     );
 };
 

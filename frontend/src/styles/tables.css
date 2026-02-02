@@ -1,63 +1,114 @@
-/* Подключается вместе с forms.css. Тут только доп. стили для таблицы саппорта */
+/* tables.css */
+/* Таблица саппорта: full screen (под header и справа от sidebar), без горизонтального скролла,
+   текст НЕ обрезаем, а переносим */
 
-.support-ticket-table-wrapper {
-    max-width: 1100px;
+:root {
+    --header-h: 60px;
+    --glass-bg: rgba(0, 0, 0, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --grid-border: rgba(255, 255, 255, 0.10);
+    --row-hover: rgba(255, 255, 255, 0.06);
+    --text-muted: rgba(255, 255, 255, 0.70);
+    background: #797537 no-repeat bottom center;
+}
+/*body {*/
+/*    background: #797537 no-repeat bottom center;*/
+/*}*/
+
+/* Страница таблицы занимает весь видимый экран:
+   фиксируем относительно viewport, чтобы не мешали #root max-width/padding */
+.support-table-page {
+    position: fixed;
+    top: var(--header-h);
+    left: var(--sidebar-w);
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    padding: 16px;
+    box-sizing: border-box;
+
+    /* glass card */
+    background: #747945;
+    border: 2px solid rgba(255, 255, 255, 0.20);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.20);
+
+    color: #fff;
+    font-family: inherit;
+
+    /* важно для вложенных overflow во flex */
+    min-width: 0;
+    min-height: 0;
 }
 
-/* Блок фильтра */
-.support-filter {
-    margin-top: 12px;
-    margin-bottom: 16px;
-}
-
-.support-filter-label {
-    display: block;
-    font-size: 12px;
+/* Заголовок — фиксированный, не скроллится */
+.support-table-title {
+    flex-shrink: 0;
+    margin: 0;
+    font-size: 27px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 6px;
 }
 
-/* Скролл таблицы */
-.table-scroll {
-    max-height: 420px;
-    overflow: auto;
+/* Контейнер таблицы занимает всё оставшееся место
+   и даёт вертикальный скролл при большом числе строк */
+.support-table-container {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden; /* 🔥 запрещаем горизонтальный скролл */
+
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--grid-border);
+    background: var(--glass-bg);
 }
 
-/* Таблица */
+/* Таблица: фиксированная раскладка, чтобы всё влезало по ширине */
 .support-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* 🔥 ключ: колонки распределяются по ширине */
     color: #fff;
-    font-size: 14px;
 }
 
+/* Sticky header */
 .support-table thead th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
 
     text-align: left;
     padding: 10px 12px;
 
     background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid var(--grid-border);
 
-    font-size: 12px;
+    font-size: 15px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
+
+    /* чтобы длинные заголовки тоже переносились, а не вылазили */
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .support-table tbody td {
     padding: 10px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    vertical-align: middle;
+    vertical-align: top;
+
+    white-space: normal;
+    /*overflow-wrap: anywhere;*/
+    /*word-break: break-word;*/
+    line-height: 1.35;
 }
 
 .table-row-clickable {
@@ -65,54 +116,100 @@
 }
 
 .table-row-clickable:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--row-hover);
 }
 
-/* Кнопки внутри таблицы: компактнее чем обычные secondary-btn */
+/* Кнопки внутри таблицы */
 .table-btn {
-    height: 36px;
-    margin-top: 0;
-    padding: 0 14px;
+    height: 34px;
+    padding: 0 12px;
     font-size: 13px;
+    line-height: 34px;
     width: auto;
     white-space: nowrap;
-}
-
-/* Select внутри таблицы: делаем компактным */
-.table-select {
-    height: 36px;
     margin: 0;
+
+    border-radius: 999px;
 }
 
-.table-select select {
-    height: 36px;
-    font-size: 13px;
-    padding: 0 12px;
-}
-
-/* "Тикет отклонен" */
+/* “Ticket rejected” */
 .muted-text {
-    color: rgba(255, 255, 255, 0.65);
+    color: var(--text-muted);
     font-size: 13px;
-    white-space: nowrap;
+    white-space: normal;
 }
 
-/* Адаптив: на узких экранах скрываем длинные колонки */
+/* ====== РАСПРЕДЕЛЕНИЕ ШИРИН КОЛОНОК (чтобы ВСЕ были видны) ======
+   У тебя 9 колонок в таком порядке:
+   1 Open, 2 ID, 3 Title, 4 Description, 5 Category, 6 Priority, 7 Status, 8 Incident, 9 Created at
+   Сумма 100% */
+.support-table th:nth-child(1),
+.support-table td:nth-child(1) { width: 6%; }   /* Open */
+
+.support-table th:nth-child(2),
+.support-table td:nth-child(2) { width: 6%; }  /* ID */
+
+.support-table th:nth-child(3),
+.support-table td:nth-child(3) { width: 10%; }  /* Title */
+
+.support-table th:nth-child(4),
+.support-table td:nth-child(4) { width: 28%; }  /* Description (самая широкая) */
+
+.support-table th:nth-child(5),
+.support-table td:nth-child(5) { width: 10%; }  /* Category */
+
+.support-table th:nth-child(6),
+.support-table td:nth-child(6) { width: 9%; }   /* Priority */
+
+.support-table th:nth-child(7),
+.support-table td:nth-child(7) { width: 8%; }   /* Status */
+
+.support-table th:nth-child(8),
+.support-table td:nth-child(8) { width: 15%; }  /* Incident */
+
+.support-table th:nth-child(9),
+.support-table td:nth-child(9) { width: 10%; }  /* Created at */
+
+/* Чуть улучшим читабельность на больших экранах */
+@media (min-width: 1200px) {
+    .support-table {
+        font-size: 20px;
+    }
+    .support-table thead th {
+        font-size: 18px;
+    }
+}
+
+/* На средних экранах уменьшай шрифт и паддинги, но НЕ скрывай колонки */
+@media (max-width: 1024px) {
+    .support-table-page {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .support-table {
+        font-size: 10px;
+    }
+
+    .support-table thead th,
+    .support-table tbody td {
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+
+    .table-btn {
+        height: 32px;
+        line-height: 32px;
+        padding: 0 10px;
+        font-size: 8px;
+    }
+}
+
+/* Если sidebar станет уже на мобилке — можно адаптировать:
+   (если у тебя реально будет мобильная версия navbar) */
 @media (max-width: 820px) {
-    .support-table thead th:nth-child(4),
-    .support-table tbody td:nth-child(4) {
-        display: none; /* Description */
+    .support-table-page {
+        left: var(--sidebar-w);
     }
 }
 
-@media (max-width: 640px) {
-    .support-table thead th:nth-child(9),
-    .support-table tbody td:nth-child(9) {
-        display: none; /* Updated by */
-    }
-
-    .support-table thead th:nth-child(10),
-    .support-table tbody td:nth-child(10) {
-        display: none; /* Created at */
-    }
-}

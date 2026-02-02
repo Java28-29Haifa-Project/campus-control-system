@@ -23,6 +23,7 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "Open",
                 id: "open",
+                size:80,
                 cell: ({ row }) => (
                     <button
                         className="secondary-btn table-btn"
@@ -38,14 +39,17 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "requestId",
+                size:140,
             },
             {
                 header: "Title",
                 accessorKey: "subject",
+                size:200,
             },
             {
                 header: "Description",
                 accessorKey: "description",
+                size:1,
                 cell: (info) => {
                     const value = info.getValue<string>();
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
@@ -54,19 +58,23 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "Category",
                 accessorKey: "category",
+                size:120,
             },
             {
                 header: "Priority",
                 accessorKey: "userReportedPriority",
+                size:120,
             },
             {
                 header: "Status",
                 accessorKey: "status",
+                size:120,
                 cell: (info) => info.getValue<TicketStatus>(),
             },
             {
                 header: "Incident",
                 id: "incident",
+                size:160,
                 cell: ({ row }) => {
                     const ticket = row.original;
 
@@ -90,6 +98,7 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "Created at",
                 accessorKey: "createdAt",
+                size:180,
                 cell: (info) =>
                     new Date(info.getValue<string>()).toLocaleString(),
             },
@@ -104,12 +113,11 @@ const TicketSupportMocksTable: React.FC = () => {
     });
 
     return (
-        <div className="auth-page">
-            <div className="ticket-table-wrapper support-ticket-table-wrapper">
-                <h1>All tickets (Mock)</h1>
+        <div className="support-table-page">
+            <h1 className="support-table-title">All tickets (Mock)</h1>
 
-                <div className="table-scroll">
-                    <table className="support-table">
+            <div className="support-table-container">
+                <table className="support-table">
                         <thead>
                         {table.getHeaderGroups().map((hg) => (
                             <tr key={hg.id}>
@@ -145,7 +153,6 @@ const TicketSupportMocksTable: React.FC = () => {
                     </table>
                 </div>
             </div>
-        </div>
     );
 };
 

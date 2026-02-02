@@ -10,8 +10,7 @@
 
 .login-wrapper,
 .ticket-form-wrapper,
-.ticket-details-wrapper,
-.ticket-table-wrapper {
+.ticket-details-wrapper{
     width: 100%;
     max-width: 400px;
     background: transparent;
@@ -25,10 +24,6 @@
     justify-content: center;
     flex-direction: column;
     margin: 0 auto;
-}
-.login-wrapper,
-.ticket-form-wrapper{
-    /*width: 290px;*/
 }
 
 .login-wrapper h1 {
@@ -91,6 +86,10 @@
     transform: translateY(-50%);
     font-size: 18px;
     color: rgba(255, 255, 255, 0.7);
+}
+
+.ticket-form-wrapper form{
+    margin: 0 auto;
 }
 
 .error-message {
@@ -373,8 +372,7 @@
     margin-top: 16px;
 }
 
-.ticket-table-wrapper {
-}
+
 
 
 
