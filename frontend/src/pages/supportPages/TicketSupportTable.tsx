@@ -68,13 +68,11 @@ const TicketSupportTable:React.FC = () => {
                     const ticket = row.original;
                     const current = getValue<TicketStatus>();
 
-                    const isDisabled = ticket.status === TicketStatus.New;
-
                     return (
                         <select
                             className="table-select"
                             value={current}
-                            disabled={isDisabled}
+                            onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                                 const nextStatus = e.target.value as TicketStatus;
 
@@ -115,7 +113,9 @@ const TicketSupportTable:React.FC = () => {
                     <button
                         className="secondary-btn table-btn"
                         onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
+                            console.log("OPEN CLICK", row.original.requestId);
                             navigate(`/support/ticket/${row.original.requestId}`);
                         }}
                     >
@@ -143,8 +143,9 @@ const TicketSupportTable:React.FC = () => {
                         <button
                             className="table-btn incident"
                             onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
-                                navigate(`/incident/new`);
+                                navigate(`/incident/new/${ticket.requestId}`);
                             }}
                         >
                             <FaPlus className="icon"/>

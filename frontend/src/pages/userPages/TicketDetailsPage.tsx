@@ -56,6 +56,7 @@ const TicketDetailsPage: React.FC = () => {
     return (
         <div className="auth-page">
             <div className="login-wrapper ticket-details-wrapper">
+                <h1>Ticket details</h1>
                 <button
                     type="button"
                     className="secondary-btn back-btn"
