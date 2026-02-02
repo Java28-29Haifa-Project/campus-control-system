@@ -124,7 +124,13 @@ export const QueryValidationSchemas = {
 
     incidentFilters: z.object({
         status: z.enum(['new', 'assigned', 'in_progress', 'resolved', 'closed']).optional(),
-        priority: z.coerce.number().int().min(1).max(4).optional(),  // Coerce string to number
+        priority: z.string()
+            .optional()
+            .refine((val) => {
+                if (!val) return true;
+                const num = parseInt(val);
+                return !isNaN(num) && num >= 1 && num <= 4;
+            }, { message: 'Priority must be 1, 2, 3, or 4' }),
         category: z.enum([
             'plumbing',
             'electrical',
@@ -138,7 +144,7 @@ export const QueryValidationSchemas = {
             'other',
             'system'
         ]).optional(),
-        assignedBy: z.string().optional(),  // Engineer ID
+        assignedBy: z.string().optional(),
         dateFrom: isoDateString,
         dateTo: isoDateString
     })
