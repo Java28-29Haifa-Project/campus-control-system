@@ -165,7 +165,7 @@ const TicketSupportTable:React.FC = () => {
 
     return (
         <div className="support-table-page">
-            <h1 className="support-table-title">All tickets (Mock)</h1>
+            <h1 className="support-table-title">All tickets</h1>
             <div className="support-table-container">
                 <table className="support-table">
                     <thead>

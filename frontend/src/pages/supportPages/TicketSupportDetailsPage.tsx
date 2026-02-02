@@ -5,7 +5,6 @@ import {clearCurrentTicket, fetchTicketByIdThunk, updateTicketThunk} from "../..
 import {type Ticket, TicketStatus} from "../../types/ticketTypes.ts";
 
 const STATUS_OPTIONS: TicketStatus[] = [
-    TicketStatus.New,
     TicketStatus.InService,
     TicketStatus.Rejected,
 ];
@@ -29,6 +28,12 @@ const TicketSupportDetailsPage: React.FC = () => {
 
     const handleStatusChangeDetails = useCallback(
         async (ticket: Ticket, newStatus: TicketStatus) => {
+            if (ticket.status !== TicketStatus.New) return;
+            if (
+                newStatus !== TicketStatus.InService &&
+                newStatus !== TicketStatus.Rejected
+            ) return;
+
         try {
             await dispatch(
                 updateTicketThunk({
@@ -84,12 +89,12 @@ const TicketSupportDetailsPage: React.FC = () => {
             </div>
         );
     }
-    const isDisabled = current.status === TicketStatus.New;
+    const canChangeStatus = current.status === TicketStatus.New;
 
     return (
         <div className="auth-page">
             <div className="support-form-page details">
-                <h1>Create incident</h1>
+                <h1>Ticket details</h1>
 
                 <div className="mini-details">
                     <div><b>Ticket ID:</b> {current.requestId}</div>
@@ -98,34 +103,25 @@ const TicketSupportDetailsPage: React.FC = () => {
                     <div><b>Category:</b> {current.category}</div>
                     <div><b>Description:</b> {current.description}</div>
 
-                    {current.status === TicketStatus.InService ?
-                        <div><b>Status:</b> {current.status}
-                            <div className="ticket-form-actions">
-                                <button
-                                    className="secondary-btn back-btn"
-                                    onClick={() => {
-                                        navigate(`/incident/new`, {state: {current}});
-                                    }}
-                                >
-                                    Create Incident
-                                </button>
-                            </div>
-                        </div> :
 
-                        <div><b>Status:</b>
+                    <div>
+                        <b>Status:</b>{" "}
+                        {canChangeStatus ? (
                             <div className="select-box">
                                 <select
                                     className="table-select"
                                     value={current.status}
-                                    disabled={isDisabled}
-                                    onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => {
                                         const nextStatus = e.target.value as TicketStatus;
 
                                         if (nextStatus === current.status) return;
+
                                         handleStatusChangeDetails(current, nextStatus);
                                     }}
                                 >
+                                    <option value={TicketStatus.New} disabled>
+                                        {TicketStatus.New}
+                                    </option>
                                     {STATUS_OPTIONS.map((s) => (
                                         <option key={s} value={s}>
                                             {s}
@@ -133,8 +129,22 @@ const TicketSupportDetailsPage: React.FC = () => {
                                     ))}
                                 </select>
                             </div>
+                        ) : (
+                            <span>{current.status}</span>
+                        )}
+                    </div>
+
+                    {current.status === TicketStatus.InService && (
+                        <div className="ticket-form-actions">
+                            <button
+                                className="secondary-btn back-btn"
+                                onClick={() => navigate(`/incident/new`, { state: { current } })}
+                            >
+                                Create Incident
+                            </button>
                         </div>
-                    }
+                    )}
+
                     <div className="ticket-form-actions">
                         <button
                             type="button"

@@ -78,12 +78,10 @@ const TicketFormPage: React.FC = () => {
                         >
                             Create another
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate("/ticket")}
-                        >
+                        <button type="button" onClick={() => navigate("/ticket", { replace: true })}>
                             Go to tickets
                         </button>
+
                     </div>
                 </div>
             </div>

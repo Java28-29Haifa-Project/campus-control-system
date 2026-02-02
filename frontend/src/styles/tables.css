@@ -173,7 +173,7 @@
 
 
 .support-table th:nth-child(1),
-.support-table td:nth-child(1) { width: 6%; }  /* ID */
+.support-table td:nth-child(1) { width: 11%; }  /* ID */
 
 /*.support-table th:nth-child(2),*/
 /*.support-table td:nth-child(2) { width: 11%; }  !* Title *!*/
