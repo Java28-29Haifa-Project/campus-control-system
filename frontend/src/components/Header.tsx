@@ -1,5 +1,6 @@
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
-import {logout} from "../state/slices/authSlice.ts";
+import {logoutThunk} from "../state/slices/authSlice.ts";
+import React from "react";
 
 type HeaderProps = {
     onToggleSidebar: () => void;
@@ -20,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             </div>
             <div className="header-right">
                 {isAuthenticated && <button onClick={() => {
-                    dispatch(logout());
+                    dispatch(logoutThunk());
                 }} className="logout-btn">Logout</button> }
             </div>
         </header>
