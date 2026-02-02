@@ -1,12 +1,36 @@
-import {useAppSelector} from "../../state/hooks.ts";
-import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
-import {useMemo} from "react";
-import {TicketStatus} from "../../types/ticketTypes.ts";
+import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
+import {type ColumnDef, flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
+import React, {useCallback, useEffect, useMemo} from "react";
+import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
+import {useNavigate} from "react-router-dom";
+import {FaPlus} from "react-icons/fa";
+import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 
 
-const TicketSupportTable = () => {
+const STATUS_OPTIONS: TicketStatus[] = [
+    TicketStatus.New,
+    TicketStatus.InService,
+    TicketStatus.Rejected,
+];
 
-    const {items,filterStatus} = useAppSelector((state) => state.ticket);
+const TicketSupportTable:React.FC = () => {
+
+    const { items, filterStatus} = useAppSelector((state) => state.ticket);
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(fetchTicketsThunk());
+    }, [dispatch]);
+
+    const handleStatusChange = useCallback((ticket: Ticket, newStatus: TicketStatus) => {
+        dispatch(
+            updateTicketThunk({
+                id: ticket.requestId,
+                updates: { status: newStatus },
+            })
+        );
+    }, [dispatch]);
 
     const filteredData = useMemo(() =>
         items.filter((item) => {
@@ -15,69 +39,122 @@ const TicketSupportTable = () => {
         })
     , [items, filterStatus]);
 
-    const columns = useMemo(()=>[
-        {
-            header: "Open",
-            accessor: "open",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "ID",
-            accessor: "requestId",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Title",
-            accessor: "subject",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Description",
-            accessor: "description",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Category",
-            accessor: "category",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Status",
-            accessor: "status",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Priority",
-            accessor: "userReportedPriority",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "CreatedAt",
-            accessor: "createdAt",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "User ID",
-            accessor: "userId",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "UpdatedBy",
-            accessor: "updatedBy",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Status",
-            accessor: "status",
-            // cell: (info) => info.getValue(),
-        },
-        {
-            header: "Incident",
-            accessor: "incident",
-            // cell: (info) => info.getValue(),
-        },
+    const columns = useMemo<ColumnDef<Ticket>[]>(
+        () => [
+            {
+                header: "ID",
+                accessorKey: "requestId",
+                size:140,
+            },
+            {
+                header: "Description",
+                accessorKey: "description",
+                cell: ({ getValue }) => {
+                    const value = getValue<string>();
+                    return value.length > 80 ? value.slice(0, 80) + "…" : value;
+                },
+            },
+            {
+                header: "Category",
+                accessorKey: "category",
+            },
+            {
+                header: "Priority",
+                accessorKey: "userReportedPriority",
+            },
+            {
+                header: "Status",
+                accessorKey: "status",
+                cell: ({ row, getValue }) => {
+                    const ticket = row.original;
+                    const current = getValue<TicketStatus>();
 
-    ], [])
+                    const isDisabled = ticket.status === TicketStatus.New;
+
+                    return (
+                        <select
+                            className="table-select"
+                            value={current}
+                            disabled={isDisabled}
+                            onChange={(e) => {
+                                const nextStatus = e.target.value as TicketStatus;
+
+                                if (nextStatus === ticket.status) return;
+                                handleStatusChange(ticket, nextStatus);
+                            }}
+                        >
+                            {STATUS_OPTIONS.map((s) => (
+                                <option key={s} value={s}>
+                                    {s}
+                                </option>
+                            ))}
+                        </select>
+                    );
+                },
+            },
+            {
+                header: "Created at",
+                accessorKey: "createdAt",
+                cell: ({ getValue }) => {
+                    const value = getValue<string | undefined>();
+                    return value ? new Date(value).toLocaleString() : "—";
+                }
+            },
+            {
+                header: "Updated at",
+                accessorKey: "updatedAt",
+                cell: ({getValue}) => {
+                    const value = getValue<string | undefined>();
+                    return value ? new Date(value).toLocaleString() : "—";
+                }
+            },
+            {
+                header: "Open",
+                id: "open",
+                cell: ({ row }) => (
+                    <button
+                        className="secondary-btn table-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/support/ticket/${row.original.requestId}`);
+                        }}
+                    >
+                        Open
+                    </button>
+                ),
+            },
+            {
+                header: "Incident",
+                id: "incident",
+                cell: ({ row }) => {
+                    const ticket = row.original;
+
+                    if (ticket.status === TicketStatus.New) {
+                        return <span className="muted-text">Need change status</span>;
+                    }
+                    if (ticket.status === TicketStatus.Rejected) {
+                        return <span className="muted-text">Ticket rejected</span>;
+                    }
+                    if (ticket.status === TicketStatus.Done) {
+                        return <span className="muted-text">Ticket done</span>;
+                    }
+
+                    return (
+                        <button
+                            className="table-btn incident"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/incident/new`);
+                            }}
+                        >
+                            <FaPlus className="icon"/>
+                        </button>
+                    );
+                },
+            },
+        ],
+        [navigate, handleStatusChange]
+    );
 
     const table = useReactTable({
         data: filteredData,
@@ -86,9 +163,10 @@ const TicketSupportTable = () => {
     })
 
     return (
-        <div>
-            <div>
-                <table>
+        <div className="support-table-page">
+            <h1 className="support-table-title">All tickets (Mock)</h1>
+            <div className="support-table-container">
+                <table className="support-table">
                     <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
@@ -106,7 +184,9 @@ const TicketSupportTable = () => {
 
                     <tbody>
                     {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
+                        <tr
+                            key={row.id}
+                            className="table-row-clickable">
                             {row.getVisibleCells().map((cell) => (
                                 <td key={cell.id}>
                                     {flexRender(

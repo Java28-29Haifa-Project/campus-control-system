@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import '../../../styles/forms.css';
 import '../../../styles/tables.css';
 import { useNavigate } from "react-router-dom";
+import { FaPlus } from "react-icons/fa";
 import {
     useReactTable,
     getCoreRowModel,
@@ -21,35 +22,18 @@ const TicketSupportMocksTable: React.FC = () => {
     const columns = useMemo<ColumnDef<MockTicket>[]>(
         () => [
             {
-                header: "Open",
-                id: "open",
-                size:80,
-                cell: ({ row }) => (
-                    <button
-                        className="secondary-btn table-btn"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/ticket/${row.original.requestId}`);
-                        }}
-                    >
-                        Open
-                    </button>
-                ),
-            },
-            {
                 header: "ID",
                 accessorKey: "requestId",
                 size:140,
             },
-            {
-                header: "Title",
-                accessorKey: "subject",
-                size:200,
-            },
+            // {
+            //     header: "Title",
+            //     accessorKey: "subject",
+            //     size:200,
+            // },
             {
                 header: "Description",
                 accessorKey: "description",
-                size:1,
                 cell: (info) => {
                     const value = info.getValue<string>();
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
@@ -58,53 +42,68 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "Category",
                 accessorKey: "category",
-                size:120,
             },
             {
                 header: "Priority",
                 accessorKey: "userReportedPriority",
-                size:120,
             },
             {
                 header: "Status",
                 accessorKey: "status",
-                size:120,
                 cell: (info) => info.getValue<TicketStatus>(),
             },
             {
                 header: "Created at",
                 accessorKey: "createdAt",
-                size:180,
                 cell: (info) =>
                     new Date(info.getValue<string>()).toLocaleString(),
             },
             {
                 header: "Updated at",
                 accessorKey: "updatedAt",
-                size:180,
                 cell: (info) =>
                     new Date(info.getValue<string>()).toLocaleString(),
             },
             {
+                header: "Open",
+                id: "open",
+                cell: ({ row }) => (
+                    <button
+                        className="secondary-btn table-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/support/ticket/${row.original.requestId}`);
+                        }}
+                    >
+                        Open
+                    </button>
+                ),
+            },
+            {
                 header: "Incident",
                 id: "incident",
-                size:160,
                 cell: ({ row }) => {
                     const ticket = row.original;
 
+                    if (ticket.status === TicketStatus.New) {
+                        return <span className="muted-text">Need change status</span>;
+                    }
                     if (ticket.status === TicketStatus.Rejected) {
                         return <span className="muted-text">Ticket rejected</span>;
+                    }
+                    if (ticket.status === TicketStatus.Done) {
+                        return <span className="muted-text">Ticket done</span>;
                     }
 
                     return (
                         <button
-                            className="secondary-btn table-btn"
+                            className="table-btn incident"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/incidents/new?ticketId=${encodeURIComponent(ticket.requestId)}`);
+                                navigate(`/incident/new/${row.original.requestId}`);
                             }}
                         >
-                            Create
+                            <FaPlus className="icon"/>
                         </button>
                     );
                 },

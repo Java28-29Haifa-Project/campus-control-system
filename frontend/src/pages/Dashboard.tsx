@@ -29,7 +29,6 @@ const Dashboard = () => {
                     <p>You can work with support tickets here:</p>
                     <ul>
                         <li><Link to={Paths.TICKET_SUPPORT}>Support Tickets</Link></li>
-                        <li><Link to={Paths.INCIDENT_NEW}>Create Incident</Link></li>
                     </ul>
                 </>
             )}

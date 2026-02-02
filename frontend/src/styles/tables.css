@@ -85,7 +85,7 @@
     top: 0;
     z-index: 2;
 
-    text-align: left;
+    text-align: center;
     padding: 10px 12px;
 
     background: rgba(0, 0, 0, 0.55);
@@ -125,13 +125,21 @@
 .table-btn {
     height: 34px;
     padding: 0 12px;
-    font-size: 13px;
+    font-size: 20px;
     line-height: 34px;
     width: auto;
     white-space: nowrap;
     margin: 0;
 
     border-radius: 999px;
+}
+.incident{
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    line-height: 0;
+}
+.icon{
+    align-self: center;
 }
 
 /* “Ticket rejected” */
@@ -141,41 +149,59 @@
     white-space: normal;
 }
 
+.table-select {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.25);
+    color: inherit;
+    outline: none;
+    cursor: pointer;
+}
+
+.table-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
 /* ====== РАСПРЕДЕЛЕНИЕ ШИРИН КОЛОНОК (чтобы ВСЕ были видны) ======
    У тебя 9 колонок в таком порядке:
    1 Open, 2 ID, 3 Title, 4 Description, 5 Category, 6 Priority, 7 Status, 8 Incident, 9 Created at
    Сумма 100% */
+
+
 .support-table th:nth-child(1),
-.support-table td:nth-child(1) { width: 6%; }   /* Open */
+.support-table td:nth-child(1) { width: 6%; }  /* ID */
+
+/*.support-table th:nth-child(2),*/
+/*.support-table td:nth-child(2) { width: 11%; }  !* Title *!*/
 
 .support-table th:nth-child(2),
-.support-table td:nth-child(2) { width: 6%; }  /* ID */
+.support-table td:nth-child(2) { width: 20%; }  /* Description (самая широкая) */
 
 .support-table th:nth-child(3),
-.support-table td:nth-child(3) { width: 10%; }  /* Title */
+.support-table td:nth-child(3) { width: 10%; }  /* Category */
 
 .support-table th:nth-child(4),
-.support-table td:nth-child(4) { width: 28%; }  /* Description (самая широкая) */
+.support-table td:nth-child(4) { width: 9%; }   /* Priority */
 
 .support-table th:nth-child(5),
-.support-table td:nth-child(5) { width: 10%; }  /* Category */
+.support-table td:nth-child(5) { width: 8%; }   /* Status */
 
 .support-table th:nth-child(6),
-.support-table td:nth-child(6) { width: 9%; }   /* Priority */
+.support-table td:nth-child(6) { width: 11%; }   /* Created at */
 
 .support-table th:nth-child(7),
-.support-table td:nth-child(7) { width: 8%; }   /* Status */
+.support-table td:nth-child(7) { width: 11%; }  /* Updated at */
 
 .support-table th:nth-child(8),
-.support-table td:nth-child(8) { width: 11%; }   /* Created at */
+.support-table td:nth-child(8) { width: 10%; }   /* Open */
 
 .support-table th:nth-child(9),
-.support-table td:nth-child(9) { width: 11%; }  /* Updated at */
+.support-table td:nth-child(9) { width: 7%; }  /* Incident */
 
-.support-table th:nth-child(10),
-.support-table td:nth-child(10) { width: 10%; }  /* Incident */
-
-/* Чуть улучшим читабельность на больших экранах */
 @media (min-width: 1200px) {
     .support-table {
         font-size: 20px;
@@ -185,36 +211,128 @@
     }
 }
 
-/* На средних экранах уменьшай шрифт и паддинги, но НЕ скрывай колонки */
 @media (max-width: 1024px) {
     .support-table-page {
         padding: 12px;
         gap: 10px;
     }
 
-    .support-table {
-        font-size: 10px;
-    }
-
     .support-table thead th,
     .support-table tbody td {
         padding: 8px 10px;
-        font-size: 10px;
+        font-size: 14px;
     }
 
     .table-btn {
         height: 32px;
         line-height: 32px;
         padding: 0 10px;
-        font-size: 8px;
+        font-size: 14px;
+    }
+    .incident{
+        line-height: 0;
     }
 }
 
-/* Если sidebar станет уже на мобилке — можно адаптировать:
-   (если у тебя реально будет мобильная версия navbar) */
 @media (max-width: 820px) {
     .support-table-page {
         left: var(--sidebar-w);
     }
+    .support-table thead th,
+    .support-table tbody td {
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+    .table-btn {
+        height: 20px;
+        line-height: 15px;
+        padding: 0 10px;
+        font-size: 8px;
+    }
+    .incident{
+        line-height: 0;
+    }
+}
+
+.support-form-page {
+    position: fixed;
+    width: 50%;
+
+    /* glass card */
+    background: rgba(64, 67, 37, 0.91) no-repeat bottom center;
+    border: 2px solid rgba(255, 255, 255, 0.20);
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(10px);
+
+    color: #fff;
+    font-family: inherit;
+
+    /* важно для вложенных overflow во flex */
+    min-width: 0;
+    min-height: 0;
+}
+
+.details{
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
+    /*box-sizing: border-box;*/
+    padding: 16px;
+    font-family: inherit;
+    font-size: inherit;
+    /* glass card */
+    background: rgba(64, 67, 37, 0.91) no-repeat bottom center;
+    border: 2px solid rgba(255, 255, 255, 0.20);
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(10px);
+
+    color: #fff;
+}
+.mini-details div{
+    padding: 5px;
+}
+.details-table .tables {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 20px;
+}
+
+.details-table .tables th,
+.details-table .tables td {
+    padding: 12px 14px;
+    vertical-align: top;
+}
+
+.details-label {
+    opacity: 0.85;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.details-value {
+    word-break: break-word;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+}
+
+/* если хочешь разные статусы — можно сделать мягко через классы */
+.status-new {}
+.status-inservice {}
+.status-rejected {}
+.status-done {}
+
+.description-block {
+    margin-top: 14px;
+}
+.ticket-details-description {
+    margin-top: 6px;
+    line-height: 1.5;
 }
 

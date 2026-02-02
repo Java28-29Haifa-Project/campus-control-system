@@ -73,6 +73,7 @@ const TicketFormPage: React.FC = () => {
                             className="secondary-btn"
                             onClick={() => {
                                 setIsSubmitted(false);
+                                navigate("/ticket/new")
                             }}
                         >
                             Create another
