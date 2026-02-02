@@ -1,7 +1,7 @@
 
 .auth-page {
     min-height: calc(100vh - 60px);  /* - высота header */
-    padding: 0px 16px 24px;         /* отступ сверху, чтобы не попадать под header */
+    padding: 0 16px 24px;         /* отступ сверху, чтобы не попадать под header */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -373,7 +373,6 @@
 }
 
 .ticket-table-wrapper {
-    width: 100%;
 }
 
 
