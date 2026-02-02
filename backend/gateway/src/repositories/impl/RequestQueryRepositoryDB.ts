@@ -41,17 +41,18 @@ class RequestQueryRepositoryDB implements IRequestQueryRepository {
             `;
 
             const params: any[] = [];
-            const conditions: string[] = [];
+            let paramIndex = 1;
 
             if (user?.role === 'USER') {
-                conditions.push(`user_id = $${params.length + 1}`);
+                query += ` AND user_id = $${paramIndex++}`;
                 params.push(user.userId);
             }
 
             if (status) {
-                conditions.push(`status = $${params.length + 1}`);
+                query += ` AND status = $${paramIndex++}`;
                 params.push(status);
             }
+
 
             if (conditions.length > 0) {
                 query += ' WHERE ' + conditions.join(' AND ');
