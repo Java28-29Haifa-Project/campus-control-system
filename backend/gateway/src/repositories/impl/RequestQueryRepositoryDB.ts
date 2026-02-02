@@ -12,7 +12,13 @@ class RequestQueryRepositoryDB implements IRequestQueryRepository {
 
     async getAllRequests(
         status?: TicketRequestStatus,
-        user?: { userId: string; role: string }
+        user?: { userId: string; role: string },
+        filters?: {
+            category?: string;
+            priority?: string;
+            dateFrom?: Date;
+            dateTo?: Date;
+        }
     ): Promise<TicketRequest[]> {
         try {
             let query = `
@@ -31,6 +37,7 @@ class RequestQueryRepositoryDB implements IRequestQueryRepository {
                     created_by AS "createdBy",
                     updated_by AS "updatedBy"
                 FROM requests
+                WHERE 1=1
             `;
 
             const params: any[] = [];
