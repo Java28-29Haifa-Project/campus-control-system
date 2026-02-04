@@ -18,7 +18,7 @@ export const RequestValidationSchemas = {
             'other'
             // 'system' NOT allowed for users - only notification MS
         ]),
-        subject: z.string().min(10).max(500),
+        subject: z.string().min(5).max(500),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']),
         description: z.string().max(2000).optional()
     }),
@@ -36,7 +36,7 @@ export const RequestValidationSchemas = {
             'infrastructure',
             'other'
         ]).optional(),
-        subject: z.string().min(10).max(500).optional(),
+        subject: z.string().min(5).max(500).optional(),
         description: z.string().max(2000).optional(),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
         status: z.enum(['new', 'rejected', 'in_service', 'done']).optional()
