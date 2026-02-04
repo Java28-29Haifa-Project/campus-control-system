@@ -14,12 +14,12 @@ export const requireRole = (...allowedRoles: string[]) => {
         }
 
         if (!allowedRoles.includes(req.user.role)) {
-
             Logger.warn('Authorization denied', {
                 userId: req.user.userId,
                 userRole: req.user.role,
                 requiredRoles: allowedRoles,
-                path: req.path
+                path: req.path,
+                ip: req.ip
             });
 
             const refreshToken = req.cookies?.refreshToken;
