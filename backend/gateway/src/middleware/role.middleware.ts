@@ -21,7 +21,7 @@ export const requireRole = (...allowedRoles: string[]) => {
                 requiredRoles: allowedRoles,
                 path: req.path
             });
-            g
+
             const refreshToken = req.cookies?.refreshToken;
             if (refreshToken) {
                 try {

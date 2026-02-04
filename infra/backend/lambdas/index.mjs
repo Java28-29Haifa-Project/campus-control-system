@@ -131,54 +131,70 @@ async function createRequest(pool, data) {
 }
 
 async function updateRequest(pool, data) {
-    const { requestId, updates } = data;
+    try {
+        const { requestId, updates } = data;
+        const fields = [];
+        const values = [];
+        let index = 1;
 
-    const fields = [];
-    const values = [];
-    let index = 1;
+        const fieldMap = {
+            category: 'category',
+            subject: 'subject',
+            description: 'description',
+            userReportedPriority: 'user_reported_priority',
+            status: 'status',
+            updatedBy: 'updated_by'
+        };
 
-    const fieldMap = {
-        category: 'category',
-        subject: 'subject',
-        description: 'description',
-        userReportedPriority: 'user_reported_priority',
-        status: 'status',
-        updatedBy: 'updated_by'
-    };
-
-    for (const [key, value] of Object.entries(updates)) {
-        if (value !== undefined && fieldMap[key]) {
-            fields.push(`${fieldMap[key]} = $${index++}`);
-            values.push(value);
+        for (const [key, value] of Object.entries(updates)) {
+            if (value !== undefined && fieldMap[key]) {
+                fields.push(`${fieldMap[key]} = $${index++}`);
+                values.push(value);
+            }
         }
-    }
 
-    if (fields.length === 0) {
-        return { statusCode: 400, body: { error: 'No fields to update' } };
-    }
+        if (fields.length === 0) {
+            return { statusCode: 400, body: { error: 'No fields to update' } };
+        }
 
-    fields.push(`updated_at = CURRENT_TIMESTAMP`);
+        fields.push(`updated_at = CURRENT_TIMESTAMP`);
 
-    const query = `
-        UPDATE requests
-        SET ${fields.join(', ')}
-        WHERE request_id = $${index}
+        const query = `
+            UPDATE requests
+            SET ${fields.join(', ')}
+            WHERE request_id = $${index}
             RETURNING 
-            request_id AS "requestId",
-            request_number AS "requestNumber",
-            description,
-            status,
-            updated_at AS "updatedAt"
-    `;
+                request_id AS "requestId",
+                request_number AS "requestNumber",
+                description,
+                status,
+                updated_at AS "updatedAt"
+        `;
 
-    values.push(requestId);
-    const result = await pool.query(query, values);
+        values.push(requestId);
+        const result = await pool.query(query, values);
 
-    if (result.rows.length === 0) {
-        return { statusCode: 404, body: { error: 'Request not found' } };
+        if (result.rows.length === 0) {
+            return { statusCode: 404, body: { error: 'Request not found' } };
+        }
+
+        return { statusCode: 200, body: result.rows[0] };
+
+    } catch (error) {
+        console.error('Database error:', error);
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+            return {
+                statusCode: 503,
+                body: { error: 'Database unavailable', code: ERROR_CODES.DB_CONNECTION }
+            };
+        }
+
+        return {
+            statusCode: 500,
+            body: { error: 'Database operation failed', code: ERROR_CODES.DB_QUERY }
+        };
     }
-
-    return { statusCode: 200, body: result.rows[0] };
 }
 
 async function updateRequestStatus(pool, data) {
