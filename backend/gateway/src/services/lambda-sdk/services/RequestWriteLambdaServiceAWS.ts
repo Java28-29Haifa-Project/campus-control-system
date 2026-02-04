@@ -1,10 +1,15 @@
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
-import { IRequestWriteLambdaService } from '../interfaces/IRequestWriteLambdaService.js';
-import { CreateRequestInputLambda, UpdateRequestInputLambda, RequestLambdaResponse } from '../interfaces/IRequestLambdaService.js';
-import { requestQueryRepository } from '../../../repositories/impl/RequestQueryRepositoryDB.js';
+import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
+import {IRequestWriteLambdaService} from '../interfaces/IRequestWriteLambdaService.js';
+import {
+    CreateRequestInputLambda,
+    UpdateRequestInputLambda,
+    RequestLambdaResponse
+} from '../interfaces/IRequestLambdaService.js';
+import {requestQueryRepository} from '../../../repositories/impl/RequestQueryRepositoryDB.js';
 import {UpdateRequestStatusInputLambda} from "../../../types/ticketRequest.js";
+import Logger from "../../../utils/logger.js";
 
-const lambda = new LambdaClient({ region: process.env.AWS_REGION });
+const lambda = new LambdaClient({region: process.env.AWS_REGION});
 
 class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
     private functionName = process.env.REQUESTS_LAMBDA_NAME!;
@@ -145,28 +150,64 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
     }
 
     private async invoke(payload: any): Promise<any> {
-        const command = new InvokeCommand({
-            FunctionName: this.functionName,
-            Payload: Buffer.from(JSON.stringify(payload))
-        });
+        try {
+            const command = new InvokeCommand({
+                FunctionName: this.functionName,
+                Payload: Buffer.from(JSON.stringify(payload))
+            });
 
-        const response = await lambda.send(command);
+            const response = await lambda.send(command);
 
-        if (!response.Payload) {
-            throw new Error('Lambda returned empty payload');
+            if (!response.Payload) {
+                Logger.error('Lambda returned empty payload', {
+                    functionName: this.functionName,
+                    action: payload.action
+                });
+                throw new Error('Lambda returned empty payload');
+            }
+
+            const result = JSON.parse(Buffer.from(response.Payload).toString());
+
+            if (result.statusCode && result.statusCode >= 400) {
+                const errorBody = typeof result.body === 'string'
+                    ? JSON.parse(result.body)
+                    : result.body;
+
+                if (result.statusCode >= 500) {
+                    Logger.error('Lambda execution failed', {
+                        functionName: this.functionName,
+                        action: payload.action,
+                        statusCode: result.statusCode,
+                        error: errorBody.error,
+                        errorCode: errorBody.code
+                    });
+                } else {
+                    Logger.warn('Lambda returned client error', {
+                        functionName: this.functionName,
+                        action: payload.action,
+                        statusCode: result.statusCode,
+                        error: errorBody.error
+                    });
+                }
+                throw new Error(errorBody?.error || 'Lambda execution failed');
+            }
+
+
+            return typeof result.body === 'string'
+                ? JSON.parse(result.body)
+                : (result.body || result);
+
+        } catch (error: any) {
+            Logger.error('Lambda invocation error', {
+                functionName: this.functionName,
+                action: payload.action,
+                error: error.message,
+                stack: error.stack
+            });
+            throw error;
         }
-
-        const result = JSON.parse(Buffer.from(response.Payload).toString());
-
-        if (result.statusCode && result.statusCode >= 400) {
-            const errorBody = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
-            throw new Error(errorBody?.error || 'Lambda execution failed');
-        }
-
-        return typeof result.body === 'string' ? JSON.parse(result.body) : (result.body || result);
     }
-
-
 }
+
 
 export const requestWriteLambdaServiceAWS = new RequestWriteLambdaServiceAWS();

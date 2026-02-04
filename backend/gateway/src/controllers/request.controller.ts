@@ -4,6 +4,7 @@ import { requestWriteLambdaServiceAWS } from '../services/lambda-sdk/services/Re
 import { HttpError } from '../errors/http-error.js';
 import {TicketRequestStatus} from "../types/ticketRequest.js";
 import { parseDateFilters } from '../middleware/validation.middleware.js';
+import Logger from "../utils/logger.js";
 
 
 class RequestController {
@@ -95,6 +96,11 @@ class RequestController {
             if (!req.user) throw new HttpError(401, 'Authentication required');
             if (req.user.role !== 'USER') throw new HttpError(403, 'Only users can create requests');
 
+            Logger.info('Request creation started', {
+                userId: req.user!.userId,
+                category: req.body.category
+            });
+
             const { category, subject, description, userReportedPriority } = req.body;
             const result = await requestWriteLambdaServiceAWS.createRequest({
                 action: 'CREATE_REQUEST',
@@ -102,12 +108,21 @@ class RequestController {
                 subject,
                 description,
                 userReportedPriority,
-                createdBy: req.user.userId
+                createdBy: req.user!.userId
+            });
+
+            Logger.info('Request created successfully', {
+                userId: req.user!.userId,
+                requestId: result.requestId
             });
 
             res.status(201).json(result);
-
         } catch (error: any) {
+            Logger.error('Request creation failed', {
+                userId: req.user?.userId,
+                error: error.message,
+                stack: error.stack
+            });
             next(new HttpError(error.statusCode || 500, error.message));
         }
     }
