@@ -198,44 +198,54 @@ async function updateRequest(pool, data) {
 }
 
 async function updateRequestStatus(pool, data) {
-    const { requestId, status, updatedBy } = data;
+    try {
+        const { requestId, status, updatedBy } = data;
 
-    if (!requestId || !status || !updatedBy) {
+        if (!requestId || !status || !updatedBy) {
+            return {
+                statusCode: 400,
+                body: { error: 'requestId, status and updatedBy are required' }
+            };
+        }
+
+        const query = `
+            UPDATE requests
+            SET status = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+            WHERE request_id = $3
+            RETURNING
+                request_id AS "requestId",
+                request_number AS "requestNumber",
+                status,
+                updated_at AS "updatedAt"
+        `;
+
+        const result = await pool.query(query, [status, updatedBy, requestId]);
+
+        if (result.rows.length === 0) {
+            return {
+                statusCode: 404,
+                body: { error: 'Request not found' }
+            };
+        }
+
         return {
-            statusCode: 400,
-            body: { error: 'requestId, status and updatedBy are required' }
+            statusCode: 200,
+            body: result.rows[0]
+        };
+
+    } catch (error) {
+        console.error('Database error:', error);
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+            return {
+                statusCode: 503,
+                body: { error: 'Database unavailable', code: ERROR_CODES.DB_CONNECTION }
+            };
+        }
+
+        return {
+            statusCode: 500,
+            body: { error: 'Database operation failed', code: ERROR_CODES.DB_QUERY }
         };
     }
-
-    const query = `
-        UPDATE requests
-        SET
-            status = $1,
-            updated_by = $2,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE request_id = $3
-        RETURNING
-            request_id AS "requestId",
-            request_number AS "requestNumber",
-            status,
-            updated_at AS "updatedAt"
-    `;
-
-    const result = await pool.query(query, [
-        status,
-        updatedBy,
-        requestId
-    ]);
-
-    if (result.rows.length === 0) {
-        return {
-            statusCode: 404,
-            body: { error: 'Request not found' }
-        };
-    }
-
-    return {
-        statusCode: 200,
-        body: result.rows[0]
-    };
 }
