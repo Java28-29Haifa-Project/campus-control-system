@@ -97,7 +97,7 @@ class RequestController {
             if (req.user.role !== 'USER') throw new HttpError(403, 'Only users can create requests');
 
             Logger.info('Request creation started', {
-                userId: req.user.userId,
+                userId: req.user!.userId,
                 category: req.body.category
             });
 
@@ -108,18 +108,18 @@ class RequestController {
                 subject,
                 description,
                 userReportedPriority,
-                createdBy: req.user.userId
+                createdBy: req.user!.userId
             });
 
             Logger.info('Request created successfully', {
-                userId: req.user.userId,
+                userId: req.user!.userId,
                 requestId: result.requestId
             });
 
             res.status(201).json(result);
         } catch (error: any) {
             Logger.error('Request creation failed', {
-                userId: req.user.userId,
+                userId: req.user?.userId,
                 error: error.message,
                 stack: error.stack
             });
