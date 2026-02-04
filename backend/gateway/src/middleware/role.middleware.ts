@@ -1,19 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../errors/http-error.js';
 import { JwtUtils } from '../utils/jwt.utils.js';
+import Logger from "../utils/logger.js";
 
 export const requireRole = (...allowedRoles: string[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         if (!req.user) {
+            Logger.error('Authorization check failed - no user', {
+                path: req.path,
+                requiredRoles: allowedRoles
+            });
             return next(new HttpError(401, 'Authentication required'));
         }
 
         if (!allowedRoles.includes(req.user.role)) {
 
-            console.warn(`[SECURITY] 403 Attempt - User ${req.user.userId} (${req.user.role}) tried to access endpoint requiring roles: ${allowedRoles.join(', ')}`);
-            console.warn(`[SECURITY] Request: ${req.method} ${req.originalUrl}`);
-            console.warn(`[SECURITY] IP: ${req.ip}, User-Agent: ${req.get('user-agent')}`);
-
+            Logger.warn('Authorization denied', {
+                userId: req.user.userId,
+                userRole: req.user.role,
+                requiredRoles: allowedRoles,
+                path: req.path
+            });
+            g
             const refreshToken = req.cookies?.refreshToken;
             if (refreshToken) {
                 try {
