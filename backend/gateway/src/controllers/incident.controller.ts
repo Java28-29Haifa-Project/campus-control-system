@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { incidentApiGatewayMock } from '../services/api-gateway/mocks/IncidentApiGatewayMock.js';
+import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 import {
     IncidentStatus,
     IncidentCreateInputDTO,
@@ -21,7 +21,7 @@ class IncidentController {
             const { dateFrom: parsedDateFrom, dateTo: parsedDateTo } = parseDateFilters(req.query);
 
 
-            let incidents = incidentApiGatewayMock.getAllIncidents();
+            let incidents = incidentLambdaServiceMock.getAllIncidents();
             // TODO: Replace mock with actual repo call
             // let incidents = await incidentApiGateway.getIncidents({
             //     status, priority, category, assignedBy, dateFrom, dateTo
@@ -65,7 +65,7 @@ class IncidentController {
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
             // TODO: Replace mock with actual repo call
-            const incident = incidentApiGatewayMock.getIncident(incidentId);
+            const incident = incidentLambdaServiceMock.getIncident(incidentId);
 
             if (!incident) {
                 throw new HttpError(404, 'Incident not found');
@@ -89,7 +89,7 @@ class IncidentController {
 
             const incidentId = randomUUID();
 
-            const incident = await incidentApiGatewayMock.createIncident(incidentId, {
+            const incident = await incidentLambdaServiceMock.createIncident(incidentId, {
                 ticketIds,
                 impact: impact as Impact,
                 urgency: urgency as Urgency,
@@ -115,7 +115,7 @@ class IncidentController {
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { status, comment } = req.body;
 
-            const incident = await incidentApiGatewayMock.updateIncidentStatus({
+            const incident = await incidentLambdaServiceMock.updateIncidentStatus({
                 incidentId,
                 status: status as IncidentStatus,
                 updatedBy: req.user.userId,
@@ -138,7 +138,7 @@ class IncidentController {
 
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-            const incident = await incidentApiGatewayMock.updateIncidentStatus({
+            const incident = await incidentLambdaServiceMock.updateIncidentStatus({
                 incidentId,
                 status: IncidentStatus.Assigned,
                 updatedBy: req.user.userId
@@ -161,7 +161,7 @@ class IncidentController {
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { priority, comment } = req.body;
 
-            const incident = await incidentApiGatewayMock.raiseIncidentPriority({
+            const incident = await incidentLambdaServiceMock.raiseIncidentPriority({
                 incidentId,
                 priority,
                 updatedBy: req.user.userId,
