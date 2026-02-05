@@ -86,11 +86,8 @@ export const launchServer = () => {
 
     // ==================== Protected Routes ====================
 
-    // Requests/Tickets routes
-    // - GET requests: read rate limiter
-    // - POST/PATCH requests: write rate limiter
     app.use('/requests',
-        authMiddleware, // Require authentication
+        authMiddleware,
         (req, res, next) => {
             if (req.method === 'GET') {
                 return readRateLimiter(req, res, next);
@@ -101,7 +98,6 @@ export const launchServer = () => {
         requestRoutes
     );
 
-    // Incidents routes (SUPPORT, ENGINEER, ADMIN only)
     app.use('/incidents',
         authMiddleware,
         requireRole('SUPPORT', 'ENGINEER', 'ADMIN'),
@@ -115,7 +111,6 @@ export const launchServer = () => {
         incidentRoutes
     );
 
-    // Monitoring routes (ADMIN only)
     app.use('/monitoring',
         authMiddleware,
         requireRole('ADMIN'),
@@ -123,7 +118,6 @@ export const launchServer = () => {
         monitoringRoutes
     );
 
-    // Audit routes (ADMIN only)
     app.use('/audit',
         authMiddleware,
         requireRole('ADMIN'),
@@ -155,13 +149,11 @@ export const launchServer = () => {
 
             // Close database connections
             // Close Redis connections
-            // etc.
 
             Logger.info('Graceful shutdown completed');
             process.exit(0);
         });
 
-        // Force shutdown after 10 seconds
         setTimeout(() => {
             Logger.error('Forced shutdown after timeout');
             process.exit(1);
