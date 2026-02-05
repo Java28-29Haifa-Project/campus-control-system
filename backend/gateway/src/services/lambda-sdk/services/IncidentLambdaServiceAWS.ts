@@ -104,7 +104,6 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
                     ? JSON.parse(result.body)
                     : result.body;
 
-                // Log based on error type
                 if (result.statusCode >= 500) {
                     Logger.error('Incident Lambda execution failed', {
                         functionName: this.functionName,
