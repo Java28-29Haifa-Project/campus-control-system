@@ -18,7 +18,6 @@ class IncidentController {
             const { status, priority, category, assignedBy } = req.query;
             const { dateFrom, dateTo } = parseDateFilters(req.query);
 
-            // Call Lambda service with filters
             const incidents = await incidentLambdaServiceAWS.getIncidents({
                 filters: {
                     status: status as string,
@@ -30,7 +29,6 @@ class IncidentController {
                 }
             });
 
-            // Filter out system incidents for SUPPORT role
             const filteredIncidents = req.user.role === 'SUPPORT'
                 ? incidents.filter(inc => inc.category !== IncidentCategory.System)
                 : incidents;
@@ -52,7 +50,6 @@ class IncidentController {
 
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-            // Call Lambda service
             const incident = await incidentLambdaServiceAWS.getIncidentById({
                 incidentId
             });
@@ -61,7 +58,6 @@ class IncidentController {
                 throw new HttpError(404, 'Incident not found');
             }
 
-            // Check access for SUPPORT role
             if (req.user.role === 'SUPPORT' && incident.category === IncidentCategory.System) {
                 Logger.warn('SUPPORT user attempted to access system incident', {
                     userId: req.user.userId,
@@ -94,7 +90,6 @@ class IncidentController {
 
             const { ticketIds, impact, urgency, category, description } = req.body;
 
-            // Call Lambda service (it will generate incidentId)
             const incident = await incidentLambdaServiceAWS.createIncident({
                 ticketIds,
                 impact: impact as Impact,
@@ -136,7 +131,6 @@ class IncidentController {
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { status, comment } = req.body;
 
-            // Call Lambda service
             const incident = await incidentLambdaServiceAWS.updateIncidentStatus({
                 incidentId,
                 status: status as IncidentStatus,
@@ -176,7 +170,6 @@ class IncidentController {
 
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-            // Call Lambda service
             const incident = await incidentLambdaServiceAWS.assignIncident({
                 incidentId,
                 assignedBy: req.user.userId
@@ -214,7 +207,6 @@ class IncidentController {
             const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { priority, comment } = req.body;
 
-            // Call Lambda service
             const incident = await incidentLambdaServiceAWS.updateIncidentPriority({
                 incidentId,
                 priority,
