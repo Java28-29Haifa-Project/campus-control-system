@@ -9,8 +9,10 @@ import {
 } from "@tanstack/react-table";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
+import "../../styles/tables.css";
 import {useNavigate} from "react-router-dom";
 import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
+import {TicketTableFilters} from "./TicketTableFilters.tsx";
 
 
 const STATUS_OPTIONS: TicketStatus[] = [
@@ -22,7 +24,9 @@ const STATUS_OPTIONS: TicketStatus[] = [
 const TicketSupportTable:React.FC = () => {
 
     const { items} = useAppSelector((state) => state.ticket);
+
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -149,7 +153,7 @@ const TicketSupportTable:React.FC = () => {
                 accessorKey: "updatedAt",
                 cell: ({row}) => {
                     const ticket = row.original;
-                    return ticket ? new Date(ticket.updatedAt).toLocaleString() : "—";
+                    return ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleString() : "—";
                 }
             },
             {
@@ -199,7 +203,16 @@ const TicketSupportTable:React.FC = () => {
 
     return (
         <div className="support-table-page">
-            <h1 className="support-table-title">All tickets</h1>
+
+            <div className="support-table-header">
+                <h1 className="support-table-title">All tickets</h1>
+
+                <TicketTableFilters
+                    table={table}
+                    statusOptions={STATUS_OPTIONS}
+                />
+            </div>
+
             <div className="support-table-container">
                 <table className="support-table">
                     <thead>

@@ -92,7 +92,7 @@ export interface TicketState {
     isLoadingCurrent: boolean;
     isCreating: boolean;
     error?: string | null;
-    filterStatus: TicketStatus;
+    filterStatus: TicketStatus  | "ALL";
 
     isUpdating: boolean;
 }

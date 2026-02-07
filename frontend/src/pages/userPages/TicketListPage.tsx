@@ -1,5 +1,6 @@
 import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
+import "../../styles/tables.css";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
 import {TicketStatus} from "../../types/ticketTypes.ts";
@@ -21,7 +22,7 @@ const TicketListPage: React.FC = () => {
     };
 
     const filteredTickets = items.filter((ticket) => {
-        if (filterStatus === TicketStatus.New) return true;
+        if (filterStatus === "ALL") return true;
         return ticket.status === filterStatus;
     });
 
@@ -50,10 +51,6 @@ const TicketListPage: React.FC = () => {
                     Create Ticket
                 </button>
 
-
-                {filteredTickets.length === 0 ? (
-                    <p className="ticket-list-empty">No tickets yet</p>
-                ) : (
                     <div className="ticket-list-table-container">
                         <table className="ticket-list-table">
                             <thead>
@@ -77,7 +74,14 @@ const TicketListPage: React.FC = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredTickets.map((ticket) => (
+                            {filteredTickets.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="ticket-list-empty">
+                                            No tickets with this status
+                                        </td>
+                                    </tr>
+                                ) :
+                                (filteredTickets.map((ticket) => (
                                 <tr
                                     key={ticket.requestId}
                                 >
@@ -102,11 +106,10 @@ const TicketListPage: React.FC = () => {
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
+                            )))}
                             </tbody>
                         </table>
                     </div>
-                )}
             </div>
         </div>
 

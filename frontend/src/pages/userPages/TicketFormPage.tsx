@@ -91,7 +91,11 @@ const TicketFormPage: React.FC = () => {
                         >
                             Create another
                         </button>
-                        <button type="button" onClick={() => navigate("/ticket", { replace: true })}>
+                        <button type="button" onClick={() => {
+                            setIsSubmitted(false);
+                            console.log("CLICK GO TICKETS");
+                            navigate("/ticket", { replace: true })
+                        }}>
                             Go to tickets
                         </button>
 

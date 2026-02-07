@@ -4,6 +4,8 @@ import React, {type FormEvent, useEffect, useState} from "react";
 import {IncidentImpact, IncidentUrgencies} from "../../types/incidentTypes.ts";
 import {createIncidentThunk} from "../../state/slices/incidentSlice.ts";
 import {clearCurrentTicket, fetchTicketByIdThunk} from "../../state/slices/ticketSlice.ts";
+import "../../styles/tables.css";
+import "../../styles/forms.css";
 
 const CreateFormIncident:React.FC = () => {
         const { ticketId } = useParams<{ ticketId: string }>();
@@ -66,7 +68,7 @@ const CreateFormIncident:React.FC = () => {
                         className="secondary-btn"
                         onClick={() => navigate("/support/ticket")}
                     >
-                        ← Back to list
+                        ← Back to tickets
                     </button>
                 </div>
             </div>
@@ -108,21 +110,19 @@ const CreateFormIncident:React.FC = () => {
                         <h2>Incident created</h2>
                         <p>Incident has been successfully submitted!</p>
 
-                        <div className="ticket-form-actions">
-                            <button type="button" onClick={() => navigate("/incident")}>
-                                Go to incidents
-                            </button>
-
                             <button
                                 type="button"
                                 className="secondary-btn"
-                                onClick={() => navigate("/support/ticket")}
+                                onClick={() => {
+                                    setIsSubmitted(false);
+                                    console.log("CLICK GO TICKETS");
+                                    navigate("/support/ticket", { replace: true })
+                                }}
                             >
                                 Back to tickets
                             </button>
                         </div>
                     </div>
-                </div>
             );
         }
 
