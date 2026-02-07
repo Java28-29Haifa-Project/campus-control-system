@@ -1,9 +1,15 @@
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {type ColumnDef, flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
-import React, {useCallback, useEffect, useMemo} from "react";
+import {
+    type ColumnDef,
+    type ColumnFiltersState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    useReactTable
+} from "@tanstack/react-table";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
 import {useNavigate} from "react-router-dom";
-import {FaPlus} from "react-icons/fa";
 import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 
 
@@ -15,7 +21,8 @@ const STATUS_OPTIONS: TicketStatus[] = [
 
 const TicketSupportTable:React.FC = () => {
 
-    const { items, filterStatus} = useAppSelector((state) => state.ticket);
+    const { items} = useAppSelector((state) => state.ticket);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -32,12 +39,15 @@ const TicketSupportTable:React.FC = () => {
         );
     }, [dispatch]);
 
-    const filteredData = useMemo(() =>
-        items.filter((item) => {
-            if(filterStatus === TicketStatus.New) return true;
-            return item.status === filterStatus;
-        })
-    , [items, filterStatus]);
+    const openTicket = useCallback(
+        (ticketId: string) => {
+            navigate(`/support/ticket/${ticketId}`);
+        },
+        [navigate]
+    );
+
+
+    const data = useMemo(() => items, [items]);
 
     const columns = useMemo<ColumnDef<Ticket>[]>(
         () => [
@@ -54,7 +64,7 @@ const TicketSupportTable:React.FC = () => {
                 accessorKey: "subject",
                 cell: ({getValue}) => {
                     const value = (getValue() ?? "") as string;
-                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+                    return value;
                 }
             },
             {
@@ -75,8 +85,32 @@ const TicketSupportTable:React.FC = () => {
                 accessorKey: "userReportedPriority",
             },
             {
-                header: "Status",
+                id: "Status",
                 accessorKey: "status",
+                minSize: 400,
+                filterFn: (row, columnId, filterValue) => {
+                    if(!filterValue || filterValue === "ALL") return true;
+                    return row.getValue(columnId) === filterValue;
+                },
+                header: ({ column }) => (
+                    <div className="th-status">
+                        <span>Status</span>
+
+                        <select
+                            className="th-status__filter"
+                            value={(column.getFilterValue() as string) ?? "ALL"}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => column.setFilterValue(e.target.value)}
+                        >
+                            <option value="ALL">All</option>
+                            {STATUS_OPTIONS.map((s) => (
+                                <option key={s} value={s}>
+                                    {s.replace("_", " ")}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                ),
                 cell: ({ row, getValue }) => {
                     const ticket = row.original;
                     const current = getValue<TicketStatus>();
@@ -87,8 +121,8 @@ const TicketSupportTable:React.FC = () => {
                             value={current}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
+                                e.stopPropagation();
                                 const nextStatus = e.target.value as TicketStatus;
-
                                 if (nextStatus === ticket.status) return;
                                 handleStatusChange(ticket, nextStatus);
                             }}
@@ -113,28 +147,10 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "Updated at",
                 accessorKey: "updatedAt",
-                // cell: () => "",
-                cell: ({getValue}) => {
-                    const value = getValue<string | undefined>();
-                    return value ? new Date(value).toLocaleString() : "—";
+                cell: ({row}) => {
+                    const ticket = row.original;
+                    return ticket ? new Date(ticket.updatedAt).toLocaleString() : "—";
                 }
-            },
-            {
-                header: "Open",
-                id: "open",
-                cell: ({ row }) => (
-                    <button
-                        className="secondary-btn table-btn"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log("OPEN CLICK", row.original.requestId);
-                            navigate(`/support/ticket/${row.original.requestId}`);
-                        }}
-                    >
-                        Open
-                    </button>
-                ),
             },
             {
                 header: "Incident",
@@ -155,14 +171,14 @@ const TicketSupportTable:React.FC = () => {
 
                     return (
                         <button
-                            className="table-btn incident"
+                            className="secondary-btn table-btn"
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 navigate(`/incident/new/${ticket.requestId}`);
                             }}
                         >
-                            <FaPlus className="icon"/>
+                            Create incident
                         </button>
                     );
                 },
@@ -172,9 +188,12 @@ const TicketSupportTable:React.FC = () => {
     );
 
     const table = useReactTable({
-        data: filteredData,
+        data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        state: { columnFilters },
+        onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
     })
 
@@ -209,7 +228,32 @@ const TicketSupportTable:React.FC = () => {
                     {table.getRowModel().rows.map((row) => (
                         <tr
                             key={row.id}
-                            className="table-row-clickable">
+                            className={`table-row-clickable ${
+                                row.original.status === TicketStatus.Rejected
+                                    ? "row-disabled"
+                                    : ""
+                            }`}
+                            onClick={() => {
+                            const ticket = row.original;
+
+                            if (ticket.status === TicketStatus.Rejected) return;
+
+                            openTicket(ticket.requestId);
+                        }}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                const ticket = row.original;
+
+                                if (ticket.status === TicketStatus.Rejected) return;
+
+                                if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    openTicket(ticket.requestId);
+                                }
+                            }}
+
+                        >
                             {row.getVisibleCells().map((cell) => (
                                 <td key={cell.id} style={{width:cell.column.getSize()}}>
                                     {flexRender(
