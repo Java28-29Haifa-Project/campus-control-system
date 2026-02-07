@@ -5,6 +5,7 @@ import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {createTicketThunk} from "../../state/slices/ticketSlice.ts";
 import {Category, UserPriority} from "../../types/ticketTypes.ts";
 import {validateTicketForm} from "../../utils/validation.ts";
+import {Paths} from "../../types/types.ts";
 
 const TICKET_CATEGORY:Category[] = [
     Category.Plumbing,
@@ -91,10 +92,13 @@ const TicketFormPage: React.FC = () => {
                         >
                             Create another
                         </button>
-                        <button type="button" onClick={() => {
+                        <button
+                            type="button"
+                            className="secondary-btn"
+                            onClick={() => {
                             setIsSubmitted(false);
                             console.log("CLICK GO TICKETS");
-                            navigate("/ticket", { replace: true })
+                            navigate(Paths.TICKET, { replace: true })
                         }}>
                             Go to tickets
                         </button>
@@ -158,7 +162,7 @@ const TicketFormPage: React.FC = () => {
                             <option value={UserPriority.Low}>Low</option>
                             <option value={UserPriority.Medium}>Medium</option>
                             <option value={UserPriority.High}>High</option>
-                            <option value={UserPriority.Urgent}>Urgent</option>
+                            {/*<option value={UserPriority.Urgent}>Urgent</option>*/}
                         </select>
                     </div>
 

@@ -118,6 +118,16 @@ const ticketSlice = createSlice({
         },
         clearCurrentTicket(state) {
             state.current = null;
+        },
+        attachIncidentToTicket: (state, action: PayloadAction<{ ticketId: string; incidentId: string }>) => {
+            const { ticketId, incidentId } = action.payload;
+
+            const t = state.items.find((x) => x.requestId === ticketId);
+            if (t) t.incidentId = incidentId;
+
+            if (state.current?.requestId === ticketId) {
+                state.current.incidentId = incidentId;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -198,5 +208,5 @@ const ticketSlice = createSlice({
     }
 });
 
-export const { setFilterStatus, clearCurrentTicket } = ticketSlice.actions;
+export const { setFilterStatus, clearCurrentTicket, attachIncidentToTicket } = ticketSlice.actions;
 export const ticketReducer = ticketSlice.reducer;

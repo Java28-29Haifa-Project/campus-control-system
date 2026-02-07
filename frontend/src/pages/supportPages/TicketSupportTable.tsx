@@ -23,7 +23,7 @@ const STATUS_OPTIONS: TicketStatus[] = [
 
 const TicketSupportTable:React.FC = () => {
 
-    const { items} = useAppSelector((state) => state.ticket);
+    const { items } = useAppSelector((state) => state.ticket);
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -89,7 +89,7 @@ const TicketSupportTable:React.FC = () => {
                 accessorKey: "userReportedPriority",
             },
             {
-                id: "Status",
+                id: "status",
                 accessorKey: "status",
                 minSize: 400,
                 filterFn: (row, columnId, filterValue) => {
@@ -119,13 +119,19 @@ const TicketSupportTable:React.FC = () => {
                     const ticket = row.original;
                     const current = getValue<TicketStatus>();
 
+                    const lockedByIncident = Boolean(ticket.incidentId);
+
                     return (
                         <select
                             className="table-select"
                             value={current}
+                            disabled={lockedByIncident}
+                            title={lockedByIncident ? "Status locked: incident already created" : undefined}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                                 e.stopPropagation();
+                                if (lockedByIncident) return;
+
                                 const nextStatus = e.target.value as TicketStatus;
                                 if (nextStatus === ticket.status) return;
                                 handleStatusChange(ticket, nextStatus);
@@ -141,27 +147,15 @@ const TicketSupportTable:React.FC = () => {
                 },
             },
             {
-                header: "Created at",
-                accessorKey: "createdAt",
-                cell: ({ getValue }) => {
-                    const value = getValue<string | undefined>();
-                    return value ? new Date(value).toLocaleString() : "—";
-                }
-            },
-            {
-                header: "Updated at",
-                accessorKey: "updatedAt",
-                cell: ({row}) => {
-                    const ticket = row.original;
-                    return ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleString() : "—";
-                }
-            },
-            {
                 header: "Incident",
                 id: "incident",
                 size:150,
                 cell: ({ row }) => {
                     const ticket = row.original;
+
+                    if (ticket.incidentId) {
+                        return <span className="muted-text" style={{color:"#BF863C"}}>Incident {ticket.incidentId} created</span>;
+                    }
 
                     if (ticket.status === TicketStatus.New) {
                         return <span className="muted-text">Need change status</span>;
@@ -185,6 +179,26 @@ const TicketSupportTable:React.FC = () => {
                             Create incident
                         </button>
                     );
+                },
+            },
+            {
+                header: "Created at",
+                accessorKey: "createdAt",
+                cell: ({ getValue }) => {
+                    const value = getValue<string | undefined>();
+                    return value ? new Date(value).toLocaleString() : "—";
+                }
+            },
+            {
+                header: "Updated at",
+                accessorKey: "updatedAt",
+                cell: ({ row }) => {
+                    const t = row.original;
+
+                    if (!t.updatedAt) return "—";
+                    if (t.createdAt && t.updatedAt === t.createdAt) return "—";
+
+                    return new Date(t.updatedAt).toLocaleString();
                 },
             },
         ],

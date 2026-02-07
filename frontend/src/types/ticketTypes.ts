@@ -22,7 +22,7 @@ export const enum UserPriority {
     Low = 'low',
     Medium = 'medium',
     High = 'high',
-    Urgent = 'urgent'
+    // Urgent = 'urgent'
 };
 
 export interface Ticket {
@@ -35,7 +35,9 @@ export interface Ticket {
     category: Category;
     userReportedPriority: UserPriority;
     createdAt: string;
-    updatedAt: string;
+    updatedAt?: string;
+
+    incidentId?: string | null;
 }
 
 export interface TicketRequest {

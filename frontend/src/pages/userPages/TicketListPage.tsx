@@ -60,7 +60,7 @@ const TicketListPage: React.FC = () => {
                                 <th>Category</th>
                                 <th className="ticket-list-filter">
                                     <select className="ticket-list-filter-label" value={filterStatus} onChange={handleFilterChange}>
-                                        <option value="ALL" >Status</option>
+                                        <option value="ALL" >All</option>
                                         <option value={TicketStatus.New}>New</option>
                                         <option value={TicketStatus.InService}>In service</option>
                                         <option value={TicketStatus.Rejected}>Rejected</option>

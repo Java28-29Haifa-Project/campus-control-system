@@ -175,6 +175,8 @@
     background: rgba(0,0,0,0.25);
     color: inherit;
     outline: none;
+    font-family: inherit;
+    font-size: 18px;
 }
 
 .table-select:disabled {
@@ -269,6 +271,9 @@
     }
     .incident{
         line-height: 0;
+    }
+    .table-select {
+        font-size: 11px;
     }
 }
 

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { Table } from "@tanstack/react-table";
+import {useEffect, useMemo, useState} from "react";
+import type {Table} from "@tanstack/react-table";
 import "../../styles/tables.css";
 
 type Props<TData> = {
@@ -11,12 +11,20 @@ export function TicketTableFilters<TData>({
                                               table,
                                               statusOptions,
                                           }: Props<TData>) {
+
     const [open, setOpen] = useState(false);
 
     const statusCol = table.getColumn("status");
-    const statusValue = (statusCol?.getFilterValue() as string) ?? "ALL";
+    const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
 
-    const isActive = useMemo(() => statusValue !== "ALL", [statusValue]);
+    const [draftStatus, setDraftStatus] = useState(appliedStatus);
+    const isActive = useMemo(() => appliedStatus !== "ALL", [appliedStatus]);
+
+    useEffect(() => {
+        if (open) setDraftStatus(appliedStatus);
+    }, [open, appliedStatus]);
+
+
 
     return (
         <div className="support-table-actions" onClick={(e) => e.stopPropagation()}>
@@ -35,7 +43,7 @@ export function TicketTableFilters<TData>({
 
                         <select
                             className="filter-select"
-                            value={statusValue}
+                            value={appliedStatus}
                             onChange={(e) => statusCol?.setFilterValue(e.target.value)}
                         >
                             <option value="ALL">All</option>
@@ -50,8 +58,9 @@ export function TicketTableFilters<TData>({
                     <div className="filter-actions">
                         <button
                             type="button"
-                            className="secondary-btn table-btn"
+                            className="table-btn"
                             onClick={() => {
+                                setDraftStatus("ALL");
                                 statusCol?.setFilterValue("ALL");
                                 setOpen(false);
                             }}
@@ -61,8 +70,11 @@ export function TicketTableFilters<TData>({
 
                         <button
                             type="button"
-                            className="table-btn incident"
-                            onClick={() => setOpen(false)}
+                            className="secondary-btn table-btn"
+                            onClick={() => {
+                                statusCol?.setFilterValue(draftStatus);
+                                setOpen(false);
+                            }}
                         >
                             Apply
                         </button>

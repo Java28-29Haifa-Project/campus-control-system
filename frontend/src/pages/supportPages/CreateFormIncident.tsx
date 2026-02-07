@@ -3,7 +3,12 @@ import {useNavigate, useParams} from "react-router-dom";
 import React, {type FormEvent, useEffect, useState} from "react";
 import {IncidentImpact, IncidentUrgencies} from "../../types/incidentTypes.ts";
 import {createIncidentThunk} from "../../state/slices/incidentSlice.ts";
-import {clearCurrentTicket, fetchTicketByIdThunk} from "../../state/slices/ticketSlice.ts";
+import {
+    attachIncidentToTicket,
+    clearCurrentTicket,
+    fetchTicketByIdThunk,
+    fetchTicketsThunk
+} from "../../state/slices/ticketSlice.ts";
 import "../../styles/tables.css";
 import "../../styles/forms.css";
 
@@ -66,10 +71,35 @@ const CreateFormIncident:React.FC = () => {
                     <button
                         type="button"
                         className="secondary-btn"
-                        onClick={() => navigate("/support/ticket")}
+                        onClick={async () => {
+                            setIsSubmitted(false);
+                            await dispatch(fetchTicketsThunk());
+                            navigate("/support/ticket", { replace: true });
+                        }}
                     >
                         ← Back to tickets
                     </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (current.incidentId) {
+        return (
+            <div className="auth-page">
+                <div className="ticket-form-wrapper">
+                    <h2>Incident already exists</h2>
+                    <p>Incident: {current.incidentId}</p>
+
+                    <div className="ticket-form-actions">
+                        <button
+                            type="button"
+                            className="secondary-btn"
+                            onClick={() => navigate("/support/ticket")}
+                        >
+                            ← Back to tickets
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -97,6 +127,12 @@ const CreateFormIncident:React.FC = () => {
             );
 
             if (createIncidentThunk.fulfilled.match(resultAction)) {
+                const createdIncident = resultAction.payload;
+                const incidentId = createdIncident?.incidentId;
+
+                if (incidentId) {
+                    dispatch(attachIncidentToTicket({ ticketId: current.requestId, incidentId }));
+                }
                 setIsSubmitted(true);
                 resetForm();
             }
