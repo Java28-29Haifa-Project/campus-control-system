@@ -1,0 +1,10 @@
+{
+  "action": "GET_INCIDENTS",
+  "data": {
+    "filters": {
+      "status": "in_progress",
+      "priority": 1,
+      "category": "network"
+    }
+  }
+}
