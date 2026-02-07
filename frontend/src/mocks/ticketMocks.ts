@@ -48,7 +48,7 @@ export const mockTickets: MockTicket[] = [
         description: "In room C310 the AC is set too low, students are freezing during the exams.",
         category: "general",
         status: TicketStatus.Rejected,
-        userReportedPriority: UserPriority.Urgent,
+        userReportedPriority: UserPriority.Low,
         createdAt: "2025-01-03T12:45:00Z",
         updatedAt:"2025-01-10T09:10:00Z",
     },
