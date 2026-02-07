@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Incident Management Service Lambda
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: PostgreSQL connection string (Neon)
+    NoEcho: true
+  
+  Environment:
+    Type: String
+    Description: Environment name
+    Default: production
+    AllowedValues:
+      - development
+      - production
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+    MemorySize: 512
+    Environment:
+      Variables:
+        DATABASE_URL: !Ref DatabaseUrl
+        NODE_ENV: !Ref Environment
+
+Resources:
+  # Lambda Function
+  IncidentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: incident-service-lambda
+      CodeUri: ./
+      Handler: dist/index.handler
+      Description: Handles incident creation, assignment, status updates
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: '*'
+      Tags:
+        Service: incident-service
+        ManagedBy: SAM
+
+  # CloudWatch Log Group
+  IncidentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${IncidentFunction}'
+      RetentionInDays: 14
+
+  # CloudWatch Alarms
+  IncidentErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: incident-lambda-errors
+      AlarmDescription: Alert when incident lambda has errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 2
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref IncidentFunction
+      TreatMissingData: notBreaching
+
+  IncidentThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: incident-lambda-throttle
+      AlarmDescription: Alert when incident lambda is throttled
+      MetricName: Throttles
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref IncidentFunction
+      TreatMissingData: notBreaching
+
+Outputs:
+  IncidentFunctionArn:
+    Description: Incident Lambda Function ARN
+    Value: !GetAtt IncidentFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-FunctionArn'
+  
+  IncidentFunctionName:
+    Description: Incident Lambda Function Name
+    Value: !Ref IncidentFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-FunctionName'
+  
+  IncidentLogGroupName:
+    Description: CloudWatch Log Group Name
+    Value: !Ref IncidentFunctionLogGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-LogGroup'
