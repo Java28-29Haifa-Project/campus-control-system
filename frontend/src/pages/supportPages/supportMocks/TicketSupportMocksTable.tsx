@@ -24,16 +24,17 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "requestId",
-                size:140,
+                // size:140,
             },
-            // {
-            //     header: "Title",
-            //     accessorKey: "subject",
-            //     size:200,
-            // },
+            {
+                header: "Title",
+                accessorKey: "subject",
+                // size:200,
+            },
             {
                 header: "Description",
                 accessorKey: "description",
+                minSize: 600,
                 cell: (info) => {
                     const value = info.getValue<string>();
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
@@ -82,6 +83,7 @@ const TicketSupportMocksTable: React.FC = () => {
             {
                 header: "Incident",
                 id: "incident",
+                size:150,
                 cell: ({ row }) => {
                     const ticket = row.original;
 
@@ -116,6 +118,7 @@ const TicketSupportMocksTable: React.FC = () => {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        columnResizeMode: "onChange"
     });
 
     return (
@@ -123,18 +126,29 @@ const TicketSupportMocksTable: React.FC = () => {
             <h1 className="support-table-title">All tickets (Mock)</h1>
 
             <div className="support-table-container">
-                <table className="support-table">
+                <table className="support-table" style={{width:'100%'}}>
                         <thead>
                         {table.getHeaderGroups().map((hg) => (
                             <tr key={hg.id}>
                                 {hg.headers.map((header) => (
-                                    <th key={header.id}>
+                                    <th
+                                        key={header.id}
+                                    style={{ width: header.getSize()}}
+                                    >
                                         {flexRender(
                                             header.column.columnDef.header,
                                             header.getContext()
                                         )}
+                                        <div
+                                            onMouseDown={header.getResizeHandler()}
+                                            onTouchStart={header.getResizeHandler()}
+                                            className={`resizer ${
+                                                header.column.getIsResizing() ? "isResizing" : ""
+                                            }`}
+                                        />
                                     </th>
                                 ))}
+
                             </tr>
                         ))}
                         </thead>
@@ -146,7 +160,10 @@ const TicketSupportMocksTable: React.FC = () => {
                                 className="table-row-clickable"
                             >
                                 {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id}>
+                                    <td
+                                        key={cell.id}
+                                        style={{width:cell.column.getSize()}}
+                                    >
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext()

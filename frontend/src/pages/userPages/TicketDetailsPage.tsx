@@ -68,51 +68,15 @@ const TicketDetailsPage: React.FC = () => {
                 <h1 style={{"fontFamily": "inherit"}}>Ticket #{current.requestId}</h1>
 
                 <div className="ticket-details-meta">
-                    <div className="ticket-details-row">
-                        <span className="ticket-details-label">Subject</span>
-                        <p className="ticket-details-value">
-                            {current.subject}
-                        </p>
-                    </div>
+                    <div><b>Ticket ID:</b> {current.requestId}</div>
+                    <div><b>Subject:</b> {current.subject}</div>
+                    <div><b>Priority:</b> {current.userReportedPriority}</div>
+                    <div><b>Category:</b> {current.category}</div>
+                    <div><b>Status:</b> {current.status}</div>
+                    <div><b>Description:</b> {current.description}</div>
+                    <div><b>Created at:</b> {new Date(current.createdAt).toLocaleString()}</div>
 
-                    <div className="ticket-details-row">
-                        <span className="ticket-details-label">Category</span>
-                        <p className="ticket-details-value">
-                            {current.category}
-                        </p>
-                    </div>
-
-                    <div className="ticket-details-row">
-                        <span className="ticket-details-label">Priority</span>
-                        <p className="ticket-details-value">
-                            {current.userReportedPriority}
-                        </p>
-                    </div>
-
-                    <div className="ticket-details-row">
-                        <span className="ticket-details-label">Status</span>
-                        <p className="ticket-details-value">
-                            {current.status}
-                        </p>
-                    </div>
-
-                    <div className="ticket-details-row">
-                        <span className="ticket-details-label">Created at</span>
-                        <p className="ticket-details-value">
-                            {new Date(
-                                current.createdAt
-                            ).toLocaleString()}
-                        </p>
-                    </div>
                 </div>
-
-                <div className="ticket-details-row">
-                    <span className="ticket-details-label">
-                        Description
-                    </span>
-                    <p>{current.description}</p>
-                </div>
-
 
             </div>
         </div>

@@ -8,7 +8,14 @@ export const enum TicketStatus {
 export const enum Category {
     Plumbing = 'plumbing',
     Electrical = 'electrical',
-    General = 'general'
+    Hvac = 'hvac',
+    Gas = 'gas',
+    Fire_safety = 'fire_safety',
+    Elevatory = 'elevators',
+    Access = 'access',
+    Network = 'network',
+    Infrastructure = 'infrastructure',
+    Other = 'other',
 };
 
 export const enum UserPriority {
@@ -28,7 +35,7 @@ export interface Ticket {
     category: Category;
     userReportedPriority: UserPriority;
     createdAt: string;
-    // updatedAt: string;
+    updatedAt: string;
 }
 
 export interface TicketRequest {

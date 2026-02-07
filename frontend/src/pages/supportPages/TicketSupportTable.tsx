@@ -44,10 +44,23 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "requestId",
+                cell: ({getValue}) => {
+                    const value = (getValue() ?? "") as string;
+                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+                }
+            },
+            {
+                header: "Title",
+                accessorKey: "subject",
+                cell: ({getValue}) => {
+                    const value = (getValue() ?? "") as string;
+                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+                }
             },
             {
                 header: "Description",
                 accessorKey: "description",
+                minSize: 600,
                 cell: ({ getValue }) => {
                     const value = (getValue() ?? "") as string;
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
@@ -82,7 +95,7 @@ const TicketSupportTable:React.FC = () => {
                         >
                             {STATUS_OPTIONS.map((s) => (
                                 <option key={s} value={s}>
-                                    {s}
+                                    {s.replace("_", " ")}
                                 </option>
                             ))}
                         </select>
@@ -100,11 +113,11 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "Updated at",
                 accessorKey: "updatedAt",
-                cell: () => "",
-                // cell: ({getValue}) => {
-                //     const value = getValue<string | undefined>();
-                //     return value ? new Date(value).toLocaleString() : "—";
-                // }
+                // cell: () => "",
+                cell: ({getValue}) => {
+                    const value = getValue<string | undefined>();
+                    return value ? new Date(value).toLocaleString() : "—";
+                }
             },
             {
                 header: "Open",
@@ -126,6 +139,7 @@ const TicketSupportTable:React.FC = () => {
             {
                 header: "Incident",
                 id: "incident",
+                size:150,
                 cell: ({ row }) => {
                     const ticket = row.original;
 
@@ -161,6 +175,7 @@ const TicketSupportTable:React.FC = () => {
         data: filteredData,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        columnResizeMode: "onChange",
     })
 
     return (
@@ -172,11 +187,18 @@ const TicketSupportTable:React.FC = () => {
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <th key={header.id}>
+                                <th key={header.id} style={{ width: header.getSize()}}>
                                     {header.isPlaceholder? null : flexRender(
                                         header.column.columnDef.header,
                                         header.getContext()
                                     )}
+                                    <div
+                                        onMouseDown={header.getResizeHandler()}
+                                        onTouchStart={header.getResizeHandler()}
+                                        className={`resizer ${
+                                            header.column.getIsResizing() ? "isResizing" : ""
+                                        }`}
+                                    />
                                 </th>
                             ))}
                         </tr>
@@ -189,7 +211,7 @@ const TicketSupportTable:React.FC = () => {
                             key={row.id}
                             className="table-row-clickable">
                             {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id}>
+                                <td key={cell.id} style={{width:cell.column.getSize()}}>
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()

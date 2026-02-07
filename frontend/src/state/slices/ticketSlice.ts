@@ -170,17 +170,23 @@ const ticketSlice = createSlice({
             })
             .addCase(updateTicketThunk.fulfilled, (state, action) => {
                 state.isUpdating = false;
-                const updated = action.payload;
+                const patch = action.payload;
 
                 const index = state.items.findIndex(
-                    (t) => t.requestId === action.payload.requestId
+                    (t) => t.requestId === patch.requestId
                 );
                 if(index !== -1) {
-                    state.items[index] = updated;
+                    state.items[index] = {
+                        ...state.items[index],
+                        ...patch,
+                    };
                 }
 
-                if(state.current && (state.current.requestId === updated.requestId)) {
-                    state.current = updated;
+                if(state.current && (state.current.requestId === patch.requestId)) {
+                    state.current = {
+                        ...state.current,
+                        ...patch,
+                    };
                 }
             })
             .addCase(updateTicketThunk.rejected, (state, action) => {

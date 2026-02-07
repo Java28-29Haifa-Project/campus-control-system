@@ -6,6 +6,19 @@ import {createTicketThunk} from "../../state/slices/ticketSlice.ts";
 import {Category, UserPriority} from "../../types/ticketTypes.ts";
 import {validateTicketForm} from "../../utils/validation.ts";
 
+const TICKET_CATEGORY:Category[] = [
+    Category.Plumbing,
+    Category.Gas,
+    Category.Electrical,
+    Category.Elevatory,
+    Category.Access,
+    Category.Hvac,
+    Category.Fire_safety,
+    Category.Infrastructure,
+    Category.Network,
+    Category.Other,
+]
+
 const TicketFormPage: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -73,7 +86,7 @@ const TicketFormPage: React.FC = () => {
                             className="secondary-btn"
                             onClick={() => {
                                 setIsSubmitted(false);
-                                navigate("/ticket/new")
+                                navigate("/ticket/new", { replace: true })
                             }}
                         >
                             Create another
@@ -122,9 +135,9 @@ const TicketFormPage: React.FC = () => {
                             <option value="" disabled>
                                 Select category…
                             </option>
-                            <option value={Category.Electrical}>Electrical</option>
-                            <option value={Category.Plumbing}>Plumbing</option>
-                            <option value={Category.General}>General</option>
+                            {TICKET_CATEGORY.map((category) => (
+                                <option key={category} value={category}>{category.replace("_", " ")}</option>
+                            ))}
                         </select>
                     </div>
 
