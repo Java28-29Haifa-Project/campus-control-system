@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import type {Table} from "@tanstack/react-table";
 import "../../styles/tables.css";
 
@@ -17,12 +17,12 @@ export function TicketTableFilters<TData>({
     const statusCol = table.getColumn("status");
     const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
 
-    const [draftStatus, setDraftStatus] = useState(appliedStatus);
+    // const [draftStatus, setDraftStatus] = useState(appliedStatus);
     const isActive = useMemo(() => appliedStatus !== "ALL", [appliedStatus]);
 
-    useEffect(() => {
-        if (open) setDraftStatus(appliedStatus);
-    }, [open, appliedStatus]);
+    // useEffect(() => {
+    //     if (open) setDraftStatus(appliedStatus);
+    // }, [open, appliedStatus]);
 
 
 
@@ -58,9 +58,9 @@ export function TicketTableFilters<TData>({
                     <div className="filter-actions">
                         <button
                             type="button"
-                            className="table-btn"
+                            className="secondary-btn table-btn"
                             onClick={() => {
-                                setDraftStatus("ALL");
+                                // setDraftStatus("ALL");
                                 statusCol?.setFilterValue("ALL");
                                 setOpen(false);
                             }}
@@ -68,16 +68,16 @@ export function TicketTableFilters<TData>({
                             Reset
                         </button>
 
-                        <button
-                            type="button"
-                            className="secondary-btn table-btn"
-                            onClick={() => {
-                                statusCol?.setFilterValue(draftStatus);
-                                setOpen(false);
-                            }}
-                        >
-                            Apply
-                        </button>
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    className="secondary-btn table-btn"*/}
+                        {/*    onClick={() => {*/}
+                        {/*        statusCol?.setFilterValue(draftStatus);*/}
+                        {/*        setOpen(false);*/}
+                        {/*    }}*/}
+                        {/*>*/}
+                        {/*    Apply*/}
+                        {/*</button>*/}
                     </div>
                 </div>
             )}

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/tables.css";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
-import {TicketStatus} from "../../types/ticketTypes.ts";
+import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
 
 const TicketListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -16,15 +16,16 @@ const TicketListPage: React.FC = () => {
     }, [dispatch]);
 
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = event.target.value as TicketStatus;
-        dispatch(setFilterStatus(value));
-        setFilterStatus(value);
+        dispatch(setFilterStatus(event.target.value as TicketStatus | "ALL" as TicketStatus));
     };
 
-    const filteredTickets = items.filter((ticket) => {
-        if (filterStatus === "ALL") return true;
-        return ticket.status === filterStatus;
-    });
+    const filteredTickets = (items ?? [])
+        .filter((t): t is Ticket => Boolean(t))
+        .filter((ticket) => {
+            if (filterStatus === "ALL") return true;
+            return ticket.status === filterStatus;
+        });
+
 
     const handleRowClick = (id: string) => {
         navigate(`/ticket/${id}`);

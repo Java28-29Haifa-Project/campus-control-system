@@ -41,9 +41,11 @@ export interface IncidentState {
     isLoadingCurrentInc: boolean;
     isCreatingInc: boolean;
     errorInc?: string | null;
-    filterStatus: IncidentStatus;
+    filterStatus: IncidentStatus | "ALL";
 
     isUpdatingStatusInc: boolean;
+
+    incidentByTicketId: Record<string, string>;
 }
 const initialState: IncidentState = {
     incidents: [],
@@ -52,9 +54,11 @@ const initialState: IncidentState = {
     isLoadingCurrentInc: false,
     isCreatingInc: false,
     errorInc: null,
-    filterStatus: IncidentStatus.Open,
+    filterStatus: "ALL",
 
-    isUpdatingStatusInc: false
+    isUpdatingStatusInc: false,
+
+    incidentByTicketId: {},
 }
 
 const incidentSlice = createSlice({
@@ -66,7 +70,16 @@ const incidentSlice = createSlice({
         },
         clearCurrentIncident(state) {
             state.currentInc = null;
-        }
+        },
+        linkIncidentToTicketLocal: (
+            state,
+            action: PayloadAction<{ ticketId: string; incidentId: string }>
+        ) => {
+            state.incidentByTicketId[action.payload.ticketId] = action.payload.incidentId;
+        },
+        unlinkIncidentFromTicketLocal: (state, action: PayloadAction<{ ticketId: string }>) => {
+            delete state.incidentByTicketId[action.payload.ticketId];
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -87,5 +100,5 @@ const incidentSlice = createSlice({
     }
 });
 
-export const {setIncFilterStatus, clearCurrentIncident} = incidentSlice.actions;
+export const {setIncFilterStatus, clearCurrentIncident, unlinkIncidentFromTicketLocal, linkIncidentToTicketLocal} = incidentSlice.actions;
 export const incidentReducer = incidentSlice.reducer;

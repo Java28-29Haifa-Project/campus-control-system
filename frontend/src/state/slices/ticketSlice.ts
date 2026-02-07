@@ -104,7 +104,7 @@ const initialState: TicketState = {
     isLoadingCurrent: false,
     isCreating: false,
     error: null,
-    filterStatus: TicketStatus.New,
+    filterStatus: "ALL",
 
     isUpdating: false,
 };
@@ -138,7 +138,7 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicketsThunk.fulfilled, (state, action) => {
                 state.isLoadingList = false;
-                state.items = action.payload;
+                state.items = (action.payload ?? []).filter(Boolean);
             })
             .addCase(fetchTicketsThunk.rejected, (state, action) => {
                 state.isLoadingList = false;

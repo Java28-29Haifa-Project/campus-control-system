@@ -2,9 +2,8 @@ import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {useNavigate, useParams} from "react-router-dom";
 import React, {type FormEvent, useEffect, useState} from "react";
 import {IncidentImpact, IncidentUrgencies} from "../../types/incidentTypes.ts";
-import {createIncidentThunk} from "../../state/slices/incidentSlice.ts";
+import {createIncidentThunk, linkIncidentToTicketLocal} from "../../state/slices/incidentSlice.ts";
 import {
-    attachIncidentToTicket,
     clearCurrentTicket,
     fetchTicketByIdThunk,
     fetchTicketsThunk
@@ -128,11 +127,19 @@ const CreateFormIncident:React.FC = () => {
 
             if (createIncidentThunk.fulfilled.match(resultAction)) {
                 const createdIncident = resultAction.payload;
-                const incidentId = createdIncident?.incidentId;
+                const incidentId =
+                    createdIncident?.incidentId ?? `MOCK-INC-${Date.now()}`;
 
-                if (incidentId) {
-                    dispatch(attachIncidentToTicket({ ticketId: current.requestId, incidentId }));
-                }
+                // if (incidentId) {
+                //     dispatch(attachIncidentToTicket({ ticketId: current.requestId, incidentId }));
+                // }
+                dispatch(
+                    linkIncidentToTicketLocal({
+                        ticketId: current.requestId,
+                        incidentId,
+                    })
+                );
+
                 setIsSubmitted(true);
                 resetForm();
             }

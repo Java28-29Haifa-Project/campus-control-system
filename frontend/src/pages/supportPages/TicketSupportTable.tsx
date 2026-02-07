@@ -25,6 +25,8 @@ const TicketSupportTable:React.FC = () => {
 
     const { items } = useAppSelector((state) => state.ticket);
 
+    const { incidentByTicketId } = useAppSelector((s) => s.incident);
+
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
     const navigate = useNavigate();
@@ -33,6 +35,11 @@ const TicketSupportTable:React.FC = () => {
     useEffect(() => {
         dispatch(fetchTicketsThunk());
     }, [dispatch]);
+
+    const getIncidentId = useCallback(
+        (ticket: Ticket) => ticket.incidentId ?? incidentByTicketId[ticket.requestId],
+        [incidentByTicketId]
+    );
 
     const handleStatusChange = useCallback((ticket: Ticket, newStatus: TicketStatus) => {
         dispatch(
@@ -119,14 +126,17 @@ const TicketSupportTable:React.FC = () => {
                     const ticket = row.original;
                     const current = getValue<TicketStatus>();
 
-                    const lockedByIncident = Boolean(ticket.incidentId);
+                    const incId = getIncidentId(ticket);
+                    const lockedByIncident = Boolean(incId);
+                    // const lockedByIncident = Boolean(ticket.incidentId);
 
                     return (
                         <select
                             className="table-select"
                             value={current}
                             disabled={lockedByIncident}
-                            title={lockedByIncident ? "Status locked: incident already created" : undefined}
+                            title={lockedByIncident ? `Locked: incident ${incId}` : undefined}
+                            // title={lockedByIncident ? "Status locked: incident already created" : undefined}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                                 e.stopPropagation();
@@ -153,8 +163,13 @@ const TicketSupportTable:React.FC = () => {
                 cell: ({ row }) => {
                     const ticket = row.original;
 
-                    if (ticket.incidentId) {
-                        return <span className="muted-text" style={{color:"#BF863C"}}>Incident {ticket.incidentId} created</span>;
+                    // if (ticket.incidentId) {
+                    //     return <span className="muted-text" style={{color:"#BF863C"}}>Incident {ticket.incidentId} created</span>;
+                    // }
+                    const incId = getIncidentId(ticket);
+
+                    if (incId) {
+                        return <span className="muted-text">Created</span>;
                     }
 
                     if (ticket.status === TicketStatus.New) {
