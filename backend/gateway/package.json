@@ -7,13 +7,15 @@
     "build": "rimraf ./build && tsc",
     "dev": "rimraf ./build && tsc && node ./build/src/app.js",
     "start": "node build/src/app.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest tests/unit",
-    "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest tests/integration",
-    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
-    "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --ci --coverage --maxWorkers=2",
+
+
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules jest tests/unit",
+    "test:integration": "cross-env NODE_OPTIONS=--experimental-vm-modules jest tests/integration",
+    "test:verbose": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --coverage --maxWorkers=2",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
