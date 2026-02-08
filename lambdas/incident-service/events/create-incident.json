@@ -1,0 +1,11 @@
+{
+  "action": "CREATE_INCIDENT",
+  "data": {
+    "ticketIds": ["req_001", "req_002"],
+    "impact": "high",
+    "urgency": "high",
+    "category": "network",
+    "description": "Multiple users reporting wi-fi connectivity issues across building A",
+    "createdBy": "support_001"
+  }
+}

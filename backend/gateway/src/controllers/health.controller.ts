@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { authLambdaServiceMock } from '../services/lambda-sdk/mocks/AuthLambdaServiceMock.js';
-import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
+// import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 import { monitoringLambdaServiceMock } from '../services/lambda-sdk/mocks/MonitoringLambdaServiceMock.js';
 import { auditLambdaServiceMock } from '../services/lambda-sdk/mocks/AuditLambdaServiceMock.js';
 // import { requestLambdaServiceMock } from '../services/lambda-sdk/mocks/RequestLambdaServiceMock.js';
 
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { InvocationType } from '@aws-sdk/client-lambda';
+import {incidentLambdaServiceAWS} from "../services/lambda-sdk/services/IncidentLambdaServiceAWS.js";
 
 
 class HealthController {
@@ -91,7 +92,7 @@ class HealthController {
 
      getIncidentLambdaHealth = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await incidentLambdaServiceMock.healthCheck();
+            const result = await incidentLambdaServiceAWS.healthCheck();
             res.status(200).send(result);
         } catch (error) {
             next(error);

@@ -1,0 +1,7 @@
+{
+  "action": "ASSIGN_INCIDENT",
+  "data": {
+    "incidentId": "inc_001",
+    "assignedBy": "engineer_001"
+  }
+}

@@ -1,100 +1,159 @@
-import { IIncidentLambdaService, CreateIncidentInput, GetIncidentInput, GetIncidentsInput, UpdateIncidentInput, IncidentLambdaResponse } from '../interfaces/IIncidentLambdaService.js';
+//TODO: remove
 
-export class IncidentLambdaServiceMock implements IIncidentLambdaService {
-    private incidents: IncidentLambdaResponse[] = [
-        {
-            incidentId: 'inc0',
-            incidentNumber: 'INC-0',
-            priority: 'P1',
-            status: 'OPEN',
-            impact: 'high',
-            urgency: 'critical',
-            category: 'Network',
-            description: 'description0',
-            createdBy: 'support0',
-            createdAt: '2025-01-01T13:00:00Z',
-            updatedAt: '2025-01-01T13:00:00Z',
-            sourceTickets: ['REQ-0', 'REQ-1']
-        },
-        {
-            incidentId: 'inc1',
-            incidentNumber: 'INC-1',
-            priority: 'P2',
-            status: 'IN_PROGRESS',
-            impact: 'medium',
-            urgency: 'high',
-            category: 'Hardware',
-            description: 'description1',
-            createdBy: 'support0',
-            createdAt: '2025-01-02T10:00:00Z',
-            updatedAt: '2025-01-02T11:30:00Z'
-        }
-    ];
-
-    async createIncident(input: CreateIncidentInput): Promise<IncidentLambdaResponse> {
-        const newIncident: IncidentLambdaResponse = {
-            incidentId: `inc${this.incidents.length}`,
-            incidentNumber: `INC-${this.incidents.length}`,
-            priority: 'P1',
-            status: 'OPEN',
-            impact: input.impact,
-            urgency: input.urgency,
-            category: input.category,
-            description: input.description,
-            createdBy: input.createdBy,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            sourceTickets: input.ticketIds
-        };
-
-        this.incidents.push(newIncident);
-        return newIncident;
-    }
-
-    async getIncident(input: GetIncidentInput): Promise<IncidentLambdaResponse> {
-        const incident = this.incidents.find(i => i.incidentId === input.incidentId);
-        return incident || this.incidents[0];
-    }
-
-    async getIncidents(input: GetIncidentsInput): Promise<IncidentLambdaResponse[]> {
-        let filtered = [...this.incidents];
-
-        if (input.status) {
-            filtered = filtered.filter(i => i.status === input.status);
-        }
-
-        return filtered;
-    }
-
-    async updateIncident(input: UpdateIncidentInput): Promise<Partial<IncidentLambdaResponse>> {
-        const incident = this.incidents.find(i => i.incidentId === input.incidentId);
-
-        if (incident) {
-            if (input.status) incident.status = input.status;
-            if (input.urgency) incident.urgency = input.urgency;
-            if (input.category) incident.category = input.category;
-            incident.updatedAt = new Date().toISOString();
-        }
-
-        return {
-            incidentId: input.incidentId,
-            incidentNumber: incident?.incidentNumber || 'INC-0',
-            status: input.status,
-            urgency: input.urgency,
-            category: input.category,
-            priority: incident?.priority || 'P1',
-            updatedBy: input.updatedBy,
-            updatedAt: new Date().toISOString()
-        };
-    }
-
-    async healthCheck(): Promise<{ service: string; status: string; timestamp: string }> {
-        return {
-            service: 'incident-lambda',
-            status: 'ok',
-            timestamp: new Date().toISOString()
-        };
-    }
-}
-
-export const incidentLambdaServiceMock = new IncidentLambdaServiceMock();
+// import { IIncidentLambdaService } from '../interfaces/IIncidentLambdaService.js';
+// import {
+//     IncidentOutputDTO,
+//     CreateIncidentApiGatewayRequest,
+//     UpdateIncidentStatusApiGatewayRequest,
+//     UpdateIncidentPriorityApiGatewayRequest,
+//     Impact,
+//     Urgency,
+//     IncidentStatus,
+//     IncidentPriority
+// } from '../../../types/incident.js';
+//
+// class IncidentLambdaServiceMock implements IIncidentLambdaService {
+//     private incidents: Map<string, IncidentOutputDTO> = new Map();
+//     private incidentCounter = 0;
+//
+//     async createIncident(
+//         incidentId: string,
+//         request: CreateIncidentApiGatewayRequest
+//     ): Promise<IncidentOutputDTO> {
+//
+//         const priority = this.calculatePriority(request.impact, request.urgency);
+//
+//         const incident: IncidentOutputDTO = {
+//             incidentId,
+//             ticketIds: request.ticketIds,
+//             priority,
+//             status: IncidentStatus.New,
+//             category: request.category,
+//             description: request.description,
+//             createdBy: request.createdBy,
+//             createdAt: new Date(),
+//             updatedAt: new Date()
+//         };
+//
+//         this.incidents.set(incidentId, incident);
+//
+//         console.log(`[Mock] Created incident ${incidentId} with priority ${priority} (from ${request.impact}/${request.urgency})`);
+//
+//         return incident;
+//     }
+//
+//     async updateIncidentStatus(
+//         request: UpdateIncidentStatusApiGatewayRequest
+//     ): Promise<IncidentOutputDTO> {
+//
+//         const incident = this.incidents.get(request.incidentId);
+//
+//         if (!incident) {
+//             throw new Error('Incident not found');
+//         }
+//
+//         this.validateStatusTransition(incident.status, request.status);
+//
+//         if (request.status === IncidentStatus.Assigned && !incident.assignedBy) {
+//             incident.assignedBy = request.updatedBy;
+//         }
+//         if (request.status === IncidentStatus.Resolved) {
+//             incident.resolvedBy = request.updatedBy;
+//         }
+//
+//         incident.status = request.status;
+//         incident.updatedAt = new Date();
+//
+//         console.log(`[Mock] Updated incident ${request.incidentId} status to ${request.status} by ${request.updatedBy}`);
+//
+//         return incident;
+//     }
+//
+//     async raiseIncidentPriority(
+//         request: UpdateIncidentPriorityApiGatewayRequest
+//     ): Promise<IncidentOutputDTO> {
+//
+//         const incident = this.incidents.get(request.incidentId);
+//
+//         if (!incident) {
+//             throw new Error('Incident not found');
+//         }
+//
+//         if (request.priority > incident.priority) {
+//             throw new Error(`Cannot lower priority from ${incident.priority} to ${request.priority}`);
+//         }
+//
+//         incident.priority = request.priority;
+//         incident.updatedAt = new Date();
+//
+//         console.log(`[Mock] Raised incident ${request.incidentId} priority to ${request.priority} by ${request.updatedBy}`);
+//
+//         return incident;
+//     }
+//
+//     async healthCheck(): Promise<{ service: string; status: 'UP' | 'DOWN'; timestamp: string }> {
+//         return {
+//             service: 'incident-api-gateway-mock',
+//             status: 'UP',
+//             timestamp: new Date().toISOString()
+//         };
+//     }
+//
+//     private calculatePriority(impact: Impact, urgency: Urgency): IncidentPriority {
+//         const priorityMatrix: Record<Impact, Record<Urgency, IncidentPriority>> = {
+//             [Impact.Critical]: {
+//                 [Urgency.Low]: 1,
+//                 [Urgency.Medium]: 1,
+//                 [Urgency.High]: 1
+//             },
+//             [Impact.High]: {
+//                 [Urgency.Low]: 2,
+//                 [Urgency.Medium]: 1,
+//                 [Urgency.High]: 1
+//             },
+//             [Impact.Medium]: {
+//                 [Urgency.Low]: 3,
+//                 [Urgency.Medium]: 2,
+//                 [Urgency.High]: 2
+//             },
+//             [Impact.Low]: {
+//                 [Urgency.Low]: 4,
+//                 [Urgency.Medium]: 3,
+//                 [Urgency.High]: 3
+//             }
+//         };
+//
+//         return priorityMatrix[impact][urgency];
+//     }
+//
+//      private validateStatusTransition(currentStatus: IncidentStatus, newStatus: IncidentStatus): void {
+//         const statusOrder = [
+//             IncidentStatus.New,
+//             IncidentStatus.Assigned,
+//             IncidentStatus.InProgress,
+//             IncidentStatus.Resolved,
+//             IncidentStatus.Closed
+//         ];
+//
+//         const currentIndex = statusOrder.indexOf(currentStatus);
+//         const newIndex = statusOrder.indexOf(newStatus);
+//
+//         if (newIndex < currentIndex) {
+//             throw new Error(
+//                 `Invalid status transition: cannot go from ${currentStatus} to ${newStatus}. ` +
+//                 `Status can only move forward: ${statusOrder.join(' → ')}`
+//             );
+//         }
+//     }
+//
+//     getIncident(incidentId: string): IncidentOutputDTO | undefined {
+//         return this.incidents.get(incidentId);
+//     }
+//
+//
+//     getAllIncidents(): IncidentOutputDTO[] {
+//         return Array.from(this.incidents.values());
+//     }
+// }
+//
+// export const incidentLambdaServiceMock = new IncidentLambdaServiceMock();

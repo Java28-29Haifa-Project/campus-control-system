@@ -1,0 +1,38 @@
+{
+  "name": "incident-service-lambda",
+  "version": "1.0.0",
+  "description": "Incident Management Service Lambda Function",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "watch": "tsc --watch",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "test": "echo \"No tests yet\"",
+    "sam:build": "sam build",
+    "sam:deploy": "sam deploy --guided",
+    "sam:local": "sam local invoke IncidentFunction -e events/create-incident.json",
+    "sam:logs": "sam logs --name IncidentFunction --tail"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "incident",
+    "management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/pg": "^8.10.9",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

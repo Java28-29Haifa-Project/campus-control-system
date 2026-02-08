@@ -1,52 +1,63 @@
-export interface CreateIncidentInput {
+import {
+    IncidentCreateInputDTO,
+    IncidentOutputDTO,
+    IncidentStatusUpdateDTO,
+    IncidentPriorityUpdateDTO
+} from '../../../types/incident.js';
+
+export interface CreateIncidentInputLambda {
     action: 'CREATE_INCIDENT';
     ticketIds: string[];
-    impact: string;
-    urgency: string;
-    category: string;
-    description: string;
-    createdBy: string;
-}
-
-export interface GetIncidentInput {
-    action: 'GET_INCIDENT';
-    incidentId: string;
-}
-
-export interface GetIncidentsInput {
-    action: 'GET_INCIDENTS';
-    status?: string;
-}
-
-export interface UpdateIncidentInput {
-    action: 'UPDATE_INCIDENT';
-    incidentId: string;
-    status?: string;
-    urgency?: string;
-    category?: string;
-    updatedBy: string;
-}
-
-export interface IncidentLambdaResponse {
-    incidentId: string;
-    incidentNumber: string;
-    priority: string;
-    status: string;
-    impact: string;
-    urgency: string;
+    impact: 'low' | 'medium' | 'high' | 'critical';
+    urgency: 'low' | 'medium' | 'high';
     category: string;
     description?: string;
     createdBy: string;
-    createdAt: string;
-    updatedAt: string;
-    sourceTickets?: string[];
-    updatedBy?: string;
+}
+
+export interface AssignIncidentInputLambda {
+    action: 'ASSIGN_INCIDENT';
+    incidentId: string;
+    assignedBy: string;  // Engineer ID
+}
+
+export interface UpdateIncidentStatusInputLambda {
+    action: 'UPDATE_STATUS';
+    incidentId: string;
+    status: string;
+    comment?: string;
+    updatedBy: string;
+}
+
+export interface UpdateIncidentPriorityInputLambda {
+    action: 'UPDATE_PRIORITY';
+    incidentId: string;
+    priority: number;
+    comment?: string;
+    updatedBy: string;
+}
+
+export interface GetIncidentsInputLambda {
+    action: 'GET_INCIDENTS';
+    filters?: {
+        status?: string;
+        priority?: number;
+        category?: string;
+        assignedBy?: string;
+    };
+}
+
+export interface GetIncidentByIdInputLambda {
+    action: 'GET_INCIDENT_BY_ID';
+    incidentId: string;
 }
 
 export interface IIncidentLambdaService {
-    createIncident(input: CreateIncidentInput): Promise<IncidentLambdaResponse>;
-    getIncident(input: GetIncidentInput): Promise<IncidentLambdaResponse>;
-    getIncidents(input: GetIncidentsInput): Promise<IncidentLambdaResponse[]>;
-    updateIncident(input: UpdateIncidentInput): Promise<Partial<IncidentLambdaResponse>>;
+    createIncident(input: CreateIncidentInputLambda): Promise<IncidentOutputDTO>;
+    assignIncident(input: AssignIncidentInputLambda): Promise<IncidentOutputDTO>;
+    updateIncidentStatus(input: UpdateIncidentStatusInputLambda): Promise<IncidentOutputDTO>;
+    updateIncidentPriority(input: UpdateIncidentPriorityInputLambda): Promise<IncidentOutputDTO>;
+    getIncidents(input: GetIncidentsInputLambda): Promise<IncidentOutputDTO[]>;
+    getIncidentById(input: GetIncidentByIdInputLambda): Promise<IncidentOutputDTO>;
     healthCheck(): Promise<{ service: string; status: string; timestamp: string }>;
 }

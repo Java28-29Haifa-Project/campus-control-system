@@ -1,0 +1,9 @@
+{
+  "action": "UPDATE_STATUS",
+  "data": {
+    "incidentId": "inc_001",
+    "status": "in_progress",
+    "comment": "Started investigating the wi-fi issue",
+    "updatedBy": "engineer_001"
+  }
+}
