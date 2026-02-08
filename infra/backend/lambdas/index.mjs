@@ -22,7 +22,12 @@ const ERROR_CODES = {
 };
 
 export const handler = async (event) => {
-    console.log('Action received:', event.action);
+    console.log('Action received:', event?.action);
+
+    if (event?.action === 'TRIGGER_ALARM_TEST') {
+        console.error('Manual alarm trigger invoked');
+        throw new Error('Manual test error for CloudWatch alarm');
+    }
 
     const pool = getPool();
 

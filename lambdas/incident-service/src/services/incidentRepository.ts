@@ -11,13 +11,16 @@ export class IncidentRepository {
     constructor(private pool: Pool) {}
 
     async createIncident(incident: Omit<Incident, 'createdAt' | 'updatedAt'>): Promise<Incident> {
+        const incidentNumber = `INC-${Date.now()}`;
+
         const query = `
             INSERT INTO incidents (
-                incident_id, priority, status, category,
+                incident_id, incident_number, priority, status, category,
                 description, created_by
-            ) VALUES ($1, $2, $3, $4, $5, $6)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING
                 incident_id AS "incidentId",
+                incident_number AS "incidentNumber", 
                 priority,
                 status,
                 category,
@@ -32,6 +35,7 @@ export class IncidentRepository {
         try {
             const result = await this.pool.query(query, [
                 incident.incidentId,
+                incidentNumber,
                 incident.priority,
                 incident.status,
                 incident.category,
@@ -41,12 +45,10 @@ export class IncidentRepository {
 
             const createdIncident = result.rows[0];
 
-            // Link tickets to incident
             if (incident.ticketIds && incident.ticketIds.length > 0) {
                 await this.linkTickets(incident.incidentId, incident.ticketIds);
             }
 
-            // Get tickets to include in response
             createdIncident.ticketIds = incident.ticketIds;
 
             return createdIncident;
