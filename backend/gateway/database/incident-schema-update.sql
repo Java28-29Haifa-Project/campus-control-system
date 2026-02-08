@@ -1,4 +1,4 @@
-gBEGIN;
+BEGIN;
 ALTER TABLE incidents DROP CONSTRAINT IF EXISTS incidents_priority_check;
 ALTER TABLE incidents DROP CONSTRAINT IF EXISTS incidents_status_check;
 
