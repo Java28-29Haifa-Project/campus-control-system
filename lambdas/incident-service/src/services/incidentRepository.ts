@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
 import { Incident, IncidentStatus, GetIncidentsFilters } from '../types/incident.js';
 
 const ERROR_CODES = {
@@ -11,14 +12,20 @@ export class IncidentRepository {
     constructor(private pool: Pool) {}
 
     async createIncident(incident: Omit<Incident, 'createdAt' | 'updatedAt'>): Promise<Incident> {
+        const incidentId = uuidv4();
         const incidentNumber = `INC-${Date.now()}`;
+        const priority = incident.priority;
+        const status = incident.status || 'new';
+        const category = incident.category;
+        const description = incident.description || null;
+        const createdBy = incident.createdBy;
 
         const query = `
             INSERT INTO incidents (
                 incident_id, incident_number, priority, status, category,
                 description, created_by
             ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING
+                RETURNING
                 incident_id AS "incidentId",
                 incident_number AS "incidentNumber", 
                 priority,
@@ -34,22 +41,22 @@ export class IncidentRepository {
 
         try {
             const result = await this.pool.query(query, [
-                incident.incidentId,
+                incidentId,
                 incidentNumber,
-                incident.priority,
-                incident.status,
-                incident.category,
-                incident.description || null,
-                incident.createdBy
+                priority,
+                status,
+                category,
+                description,
+                createdBy
             ]);
 
             const createdIncident = result.rows[0];
 
             if (incident.ticketIds && incident.ticketIds.length > 0) {
-                await this.linkTickets(incident.incidentId, incident.ticketIds);
+                await this.linkTickets(incidentId, incident.ticketIds);
             }
 
-            createdIncident.ticketIds = incident.ticketIds;
+            createdIncident.ticketIds = incident.ticketIds || [];
 
             return createdIncident;
         } catch (error: any) {
@@ -62,6 +69,7 @@ export class IncidentRepository {
         const query = `
             SELECT
                 i.incident_id AS "incidentId",
+                i.incident_number AS "incidentNumber",
                 i.priority,
                 i.status,
                 i.category,
@@ -72,11 +80,11 @@ export class IncidentRepository {
                 i.created_at AS "createdAt",
                 i.updated_at AS "updatedAt",
                 COALESCE(
-                    json_agg(ir.request_id) FILTER (WHERE ir.request_id IS NOT NULL),
-                    '[]'
+                        json_agg(ir.request_id) FILTER (WHERE ir.request_id IS NOT NULL),
+                        '[]'
                 ) AS "ticketIds"
             FROM incidents i
-            LEFT JOIN incident_requests ir ON i.incident_id = ir.incident_id
+                     LEFT JOIN incident_requests ir ON i.incident_id = ir.incident_id
             WHERE i.incident_id = $1
             GROUP BY i.incident_id
         `;
@@ -94,6 +102,7 @@ export class IncidentRepository {
         let query = `
             SELECT
                 i.incident_id AS "incidentId",
+                i.incident_number AS "incidentNumber",
                 i.priority,
                 i.status,
                 i.category,
@@ -104,11 +113,11 @@ export class IncidentRepository {
                 i.created_at AS "createdAt",
                 i.updated_at AS "updatedAt",
                 COALESCE(
-                    json_agg(ir.request_id) FILTER (WHERE ir.request_id IS NOT NULL),
-                    '[]'
+                        json_agg(ir.request_id) FILTER (WHERE ir.request_id IS NOT NULL),
+                        '[]'
                 ) AS "ticketIds"
             FROM incidents i
-            LEFT JOIN incident_requests ir ON i.incident_id = ir.incident_id
+                     LEFT JOIN incident_requests ir ON i.incident_id = ir.incident_id
             WHERE 1=1
         `;
 
@@ -161,16 +170,18 @@ export class IncidentRepository {
         status: IncidentStatus,
         updatedBy: string
     ): Promise<Incident> {
+        const isResolved = status === 'resolved';
+
         const query = `
             UPDATE incidents
             SET
                 status = $1,
-                updated_at = CURRENT_TIMESTAMP,
-                ${status === 'resolved' ? 'resolved_by = $2,' : ''}
-                1=1
-            WHERE incident_id = $${status === 'resolved' ? '3' : '2'}
+                updated_at = CURRENT_TIMESTAMP
+                ${isResolved ? ', resolved_by = $2' : ''}
+            WHERE incident_id = $${isResolved ? '3' : '2'}
             RETURNING
                 incident_id AS "incidentId",
+                incident_number AS "incidentNumber",
                 priority,
                 status,
                 category,
@@ -182,7 +193,7 @@ export class IncidentRepository {
                 updated_at AS "updatedAt"
         `;
 
-        const params = status === 'resolved'
+        const params = isResolved
             ? [status, updatedBy, incidentId]
             : [status, incidentId];
 
@@ -215,8 +226,9 @@ export class IncidentRepository {
                 assigned_by = $1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE incident_id = $2
-            RETURNING
+                RETURNING
                 incident_id AS "incidentId",
+                incident_number AS "incidentNumber",
                 priority,
                 status,
                 category,
@@ -256,8 +268,9 @@ export class IncidentRepository {
                 priority = $1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE incident_id = $2
-            RETURNING
+                RETURNING
                 incident_id AS "incidentId",
+                incident_number AS "incidentNumber",
                 priority,
                 status,
                 category,
@@ -295,7 +308,7 @@ export class IncidentRepository {
         const query = `
             INSERT INTO incident_requests (incident_id, request_id)
             VALUES ${values}
-            ON CONFLICT (incident_id, request_id) DO NOTHING
+                ON CONFLICT (incident_id, request_id) DO NOTHING
         `;
 
         await this.pool.query(query, [incidentId, ...ticketIds]);
