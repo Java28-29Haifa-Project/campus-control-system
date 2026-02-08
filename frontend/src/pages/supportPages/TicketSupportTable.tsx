@@ -25,7 +25,7 @@ const TicketSupportTable:React.FC = () => {
 
     const { items } = useAppSelector((state) => state.ticket);
 
-    const { incidentByTicketId } = useAppSelector((s) => s.incident);
+    const { incidentByTicketId } = useAppSelector((state) => state.incident);
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -103,25 +103,6 @@ const TicketSupportTable:React.FC = () => {
                     if(!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
                 },
-                header: ({ column }) => (
-                    <div className="th-status">
-                        <span>Status</span>
-
-                        <select
-                            className="th-status__filter"
-                            value={(column.getFilterValue() as string) ?? "ALL"}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => column.setFilterValue(e.target.value)}
-                        >
-                            <option value="ALL">All</option>
-                            {STATUS_OPTIONS.map((s) => (
-                                <option key={s} value={s}>
-                                    {s.replace("_", " ")}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                ),
                 cell: ({ row, getValue }) => {
                     const ticket = row.original;
                     const current = getValue<TicketStatus>();
@@ -217,7 +198,7 @@ const TicketSupportTable:React.FC = () => {
                 },
             },
         ],
-        [navigate, handleStatusChange]
+        [getIncidentId, handleStatusChange, navigate]
     );
 
     const table = useReactTable({

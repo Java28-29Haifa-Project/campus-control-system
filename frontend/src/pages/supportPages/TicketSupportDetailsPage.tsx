@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {clearCurrentTicket, fetchTicketByIdThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
@@ -17,6 +17,9 @@ const TicketSupportDetailsPage: React.FC = () => {
     const { current, isLoadingCurrent, error } = useAppSelector(
         (state) => state.ticket
     );
+
+    const { incidentByTicketId } = useAppSelector((state) => state.incident);
+
     useEffect(() => {
         if (!id) return;
         dispatch(fetchTicketByIdThunk(id));
@@ -26,8 +29,18 @@ const TicketSupportDetailsPage: React.FC = () => {
         };
     }, [dispatch, id]);
 
+    const incidentIdForTicket = useMemo(() => {
+        if (!current) return undefined;
+        return current.incidentId ?? incidentByTicketId[current.requestId];
+    }, [current, incidentByTicketId]);
+
+    const isLockedByIncident = Boolean(incidentIdForTicket);
+
     const handleStatusChangeDetails = useCallback(
         async (ticket: Ticket, newStatus: TicketStatus) => {
+
+            if (ticket.incidentId ?? incidentByTicketId[ticket.requestId]) return;
+
             if (ticket.status !== TicketStatus.New) return;
             if (
                 newStatus !== TicketStatus.InService &&
@@ -44,7 +57,7 @@ const TicketSupportDetailsPage: React.FC = () => {
         } catch (e) {
             console.error("Update status failed", e);
         }
-    }, [dispatch]);
+    }, [dispatch, incidentByTicketId]);
 
     if (!id) {
         return (
@@ -89,7 +102,9 @@ const TicketSupportDetailsPage: React.FC = () => {
             </div>
         );
     }
-    const canChangeStatus = current.status === TicketStatus.New;
+    const canChangeStatus = current.status === TicketStatus.New && !isLockedByIncident;
+
+    const canCreateIncident = current.status === TicketStatus.InService && !isLockedByIncident;
 
     return (
         <div className="auth-page">
@@ -103,6 +118,14 @@ const TicketSupportDetailsPage: React.FC = () => {
                     <div><b>Category:</b> {current.category}</div>
                     <div><b>Description:</b> {current.description}</div>
 
+                    <div>
+                        <b>Incident:</b>{" "}
+                        {incidentIdForTicket ? (
+                            <span>{incidentIdForTicket}</span>
+                        ) : (
+                            <span>—</span>
+                        )}
+                    </div>
 
                     <div>
                         <b>Status:</b>{" "}
@@ -116,7 +139,7 @@ const TicketSupportDetailsPage: React.FC = () => {
 
                                         if (nextStatus === current.status) return;
 
-                                        handleStatusChangeDetails(current, nextStatus);
+                                        void handleStatusChangeDetails(current, nextStatus);
                                     }}
                                 >
                                     <option value={TicketStatus.New} disabled>
@@ -134,16 +157,20 @@ const TicketSupportDetailsPage: React.FC = () => {
                         )}
                     </div>
 
-                    {current.status === TicketStatus.InService && (
+                    {incidentIdForTicket ? (
+                        <div className="ticket-form-actions">
+                            <span className="muted-text">Incident already created</span>
+                        </div>
+                    ) : canCreateIncident ? (
                         <div className="ticket-form-actions">
                             <button
                                 className="secondary-btn back-btn"
-                                onClick={() => navigate(`/incident/new`, { state: { current } })}
+                                onClick={() => navigate(`/incident/new/${current.requestId}`)}
                             >
                                 Create Incident
                             </button>
                         </div>
-                    )}
+                    ) : null}
 
                     <div className="ticket-form-actions">
                         <button
