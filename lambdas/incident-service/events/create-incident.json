@@ -1,7 +1,7 @@
 {
   "action": "CREATE_INCIDENT",
   "data": {
-    "ticketIds": ["req_001", "req_002"],
+    "ticketIds": ["31704c14-8a55-4bfb-b25f-618c7835926f", "ea0475c7-826b-4b07-9d19-091f4a75915e"],
     "impact": "high",
     "urgency": "high",
     "category": "network",
