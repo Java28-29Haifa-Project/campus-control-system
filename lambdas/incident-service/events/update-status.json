@@ -1,9 +1,9 @@
 {
   "action": "UPDATE_STATUS",
   "data": {
-    "incidentId": "inc_001",
+    "incidentId": "6a0430f6-0272-4aaa-9575-3dc41f8a53a3",
     "status": "in_progress",
     "comment": "Started investigating the wi-fi issue",
-    "updatedBy": "engineer_001"
+    "updatedBy": "engineer_charlie"
   }
 }
