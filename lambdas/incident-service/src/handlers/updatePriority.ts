@@ -14,7 +14,6 @@ export async function updatePriority(
             };
         }
 
-        // Get current incident
         const currentIncident = await repository.getIncidentById(data.incidentId);
 
         if (!currentIncident) {
@@ -24,7 +23,6 @@ export async function updatePriority(
             };
         }
 
-        // Validate priority raise (can only go up: 4→3→2→1)
         if (!canRaisePriority(currentIncident.priority, data.priority)) {
             return {
                 statusCode: 400,

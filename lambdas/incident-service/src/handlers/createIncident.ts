@@ -8,7 +8,6 @@ export async function createIncident(
     data: CreateIncidentInput
 ): Promise<{ statusCode: number; body: Incident }> {
     try {
-        // Validate input
         if (!data.ticketIds || data.ticketIds.length === 0) {
             return {
                 statusCode: 400,
@@ -23,13 +22,10 @@ export async function createIncident(
             };
         }
 
-        // Calculate priority from impact + urgency
         const priority = calculatePriority(data.impact, data.urgency);
 
-        // Generate incident ID
         const incidentId = randomUUID();
 
-        // Create incident in database
         const incident = await repository.createIncident({
             incidentId,
             ticketIds: data.ticketIds,

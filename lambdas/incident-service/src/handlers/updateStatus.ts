@@ -21,7 +21,6 @@ export async function updateStatus(
             };
         }
 
-        // Get current incident to check status transition
         const currentIncident = await repository.getIncidentById(data.incidentId);
 
         if (!currentIncident) {
@@ -31,7 +30,6 @@ export async function updateStatus(
             };
         }
 
-        // Validate status transition (forward only)
         const allowedTransitions = VALID_STATUS_TRANSITIONS[currentIncident.status];
         if (!allowedTransitions.includes(data.status)) {
             return {

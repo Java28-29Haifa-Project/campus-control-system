@@ -10,6 +10,8 @@ import { getIncidentById } from './handlers/getIncidentById.js';
 export const handler = async (event: any) => {
     console.log('Action received:', event.action);
     console.log('Event data:', JSON.stringify(event.data));
+    console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
 
     const pool = getPool();
     const repository = new IncidentRepository(pool);

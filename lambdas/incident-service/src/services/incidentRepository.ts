@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+
 import { Incident, IncidentStatus, GetIncidentsFilters } from '../types/incident.js';
 
 const ERROR_CODES = {
@@ -12,7 +13,7 @@ export class IncidentRepository {
     constructor(private pool: Pool) {}
 
     async createIncident(incident: Omit<Incident, 'createdAt' | 'updatedAt'>): Promise<Incident> {
-        const incidentId = uuidv4();
+        const incidentId = randomUUID();
         const incidentNumber = `INC-${Date.now()}`;
         const priority = incident.priority;
         const status = incident.status || 'new';
