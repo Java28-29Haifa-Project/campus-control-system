@@ -8,6 +8,7 @@ export const Paths = {
     TICKET: '/ticket',
     TICKET_NEW: '/ticket/new',
     TICKET_DETAILS: "/ticket/:id",
+    DASHBOARD_SUPPORT: '/support/dashboard',
     TICKET_SUPPORT: '/support/ticket',
     TICKET_SUPPORT_DETAILS: '/support/ticket/:id',
     INCIDENT_SUPPORT_NEW: '/support/incident/new/:ticketId',

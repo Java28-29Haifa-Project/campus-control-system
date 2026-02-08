@@ -19,7 +19,7 @@
 .support-table-page {
     position: fixed;
     top: var(--header-h);
-    left: var(--sidebar-w) ;
+    /*left: var(--sidebar-w) ;*/
     bottom: 0;
     right: 0;
 

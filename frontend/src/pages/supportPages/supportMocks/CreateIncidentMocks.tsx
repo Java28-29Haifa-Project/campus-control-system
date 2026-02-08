@@ -6,7 +6,8 @@ import { createIncidentThunk } from "../../../state/slices/incidentSlice";
 import { IncidentImpact, IncidentUrgencies } from "../../../types/incidentTypes";
 import '../../../styles/tables.css';
 import '../../../styles/forms.css'
-import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
+import {mockTickets} from "../../../mocks/ticketMocks.ts";
+import type { Ticket } from "../../../types/ticketTypes.ts";
 
 
 const CreateIncidentMock: React.FC = () => {
@@ -14,7 +15,7 @@ const CreateIncidentMock: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const getTicketByIdMock = (id: string): MockTicket => {
+    const getTicketByIdMock = (id: string): Ticket => {
         const t = mockTickets.filter(t => t.requestId === id);
         return t[0];
     };
@@ -65,7 +66,7 @@ const CreateIncidentMock: React.FC = () => {
                 urgency,
                 category: ticket.category,
                 // description: description.trim(),
-                description: ticket.description,
+                description: ticket.description!,
             })
         );
 

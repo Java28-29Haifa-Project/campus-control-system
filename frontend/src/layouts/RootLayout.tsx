@@ -37,7 +37,7 @@ const RootLayout: React.FC = () => {
                 items = [];
         }
     }
-    const isSupportZone = location.pathname.startsWith("/support");
+    const isSupportZone = location.pathname.startsWith("/support") ;
 
     return (
         <div className={`layout ${sidebarOpen ? "" : "sidebar-overlay"}`}>

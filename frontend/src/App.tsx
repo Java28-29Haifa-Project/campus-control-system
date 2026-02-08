@@ -50,6 +50,7 @@ function App() {
 
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
                     <Route element={<SupportLayout />}>
+                        <Route path={Paths.DASHBOARD_SUPPORT} element={<Dashboard/>}/>
                     <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport/>}/>
                     <Route path={Paths.INCIDENT_SUPPORT_NEW} element={<CreateIncident/>}/>
                     <Route path={Paths.TICKET_SUPPORT_DETAILS} element={<TicketSupportDetails/>}/>

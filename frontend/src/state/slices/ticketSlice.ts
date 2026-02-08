@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice, type PayloadAction,} from "@reduxjs/toolk
 import {type Ticket, type TicketRequest, TicketStatus} from "../../types/ticketTypes.ts";
 import {createTicketApi, getTicketByIdApi, getTicketsApi, updateTicketApi} from "../../api/ticketApi.ts";
 import ApiError, {TICKET_ERROR_MESSAGES} from "../../utils/ApiError.ts";
+import {fetchTicketsMock} from "../../mocks/ticketsMockApi.ts";
 
 const mapTicketErrorCodeToMessage = (code?: string | null): string => {
     if (!code) {
@@ -13,6 +14,9 @@ const mapTicketErrorCodeToMessage = (code?: string | null): string => {
     return code;
 };
 
+const USE_MOCK_TICKETS = import.meta.env.VITE_USE_MOCK_TICKETS === "true";
+
+
 export const fetchTicketsThunk = createAsyncThunk<
     Ticket[],
     void,
@@ -21,6 +25,10 @@ export const fetchTicketsThunk = createAsyncThunk<
     "tickets",
     async (_, { rejectWithValue }) => {
         try {
+            if (USE_MOCK_TICKETS) {
+                return await fetchTicketsMock();
+            }
+
             return await getTicketsApi();
         } catch (e) {
             if (e instanceof ApiError) {
@@ -149,7 +157,7 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicketsThunk.fulfilled, (state, action) => {
                 state.isLoadingList = false;
-                state.items = (action.payload ?? []).filter(Boolean);
+                state.items = (action.payload ?? []).filter(Boolean) ;
 
                 state.ticketsSyncing = false;
                 state.ticketsLastSyncAt = new Date().toISOString();

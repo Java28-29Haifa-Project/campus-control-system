@@ -8,6 +8,8 @@ import "../styles/sidebar.css";
 
 const POLL_MS = 10_000;
 
+const isMockTickets = import.meta.env.VITE_USE_MOCK_TICKETS === "true";
+
 function formatLastSync(iso: string | null) {
     if (!iso) return "—";
     return new Date(iso).toLocaleString();
@@ -45,8 +47,11 @@ const SupportLayout: React.FC = () => {
 
     return (
         <div className="layout">
+
             <aside className="navbar">
+                {isMockTickets && <div className="muted-text">Mock tickets mode</div>}
                 <Navbar items={supportNavItems} />
+
 
                 <div className="sidebar-panel">
                     <div className="sidebar-panel-row">

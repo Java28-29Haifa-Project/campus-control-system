@@ -9,8 +9,8 @@ import {
     flexRender,
     type ColumnDef,
 } from "@tanstack/react-table";
-import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
-import {TicketStatus} from "../../../types/ticketTypes.ts";
+import {mockTickets} from "../../../mocks/ticketMocks.ts";
+import {TicketStatus, type Ticket} from "../../../types/ticketTypes.ts";
 
 
 
@@ -19,7 +19,7 @@ const TicketSupportMocksTable: React.FC = () => {
 
     const data = useMemo(() => mockTickets, []);
 
-    const columns = useMemo<ColumnDef<MockTicket>[]>(
+    const columns = useMemo<ColumnDef<Ticket>[]>(
         () => [
             {
                 header: "ID",
