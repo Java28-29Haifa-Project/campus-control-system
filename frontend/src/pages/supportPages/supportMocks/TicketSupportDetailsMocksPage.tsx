@@ -51,7 +51,7 @@ const TicketSupportDetailsMocksPage: React.FC<Props> = ({ticket}) => {
                                     className="secondary-btn back-btn"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/incident/new/${ticket.requestId}`);
+                                        navigate(`/support/incident/new/${ticket.requestId}`);
                                     }}
                                 >
                                     Create Incident

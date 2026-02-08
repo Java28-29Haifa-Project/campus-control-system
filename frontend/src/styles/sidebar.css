@@ -1,0 +1,89 @@
+.layout {
+    --header-h: 60px;
+    --sidebar-w: 200px;
+
+    min-height: 100vh;
+}
+
+.layout.sidebar-overlay {
+    --sidebar-w: 0px;
+}
+
+.navbar {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    width: 160px;
+    height: calc(100vh - var(--header-h));
+    z-index: 900;
+
+    backdrop-filter: blur(25px);
+    background: rgba(30, 30, 30, .6);
+    border-right: 1px solid rgba(255,255,255,.2);
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    transform: translateX(0);
+    transition: transform 200ms ease;
+}
+
+/* когда sidebar "закрыт" (overlay режим) — прячем его влево */
+.layout.sidebar-overlay .navbar {
+    transform: translateX(-100%);
+}
+.sidebar-backdrop {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 850;
+
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(2px);
+}
+
+.navbar-link {
+    display: block;
+    color: #fff;
+    margin: 10px 0;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.navbar-link.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+.sidebar-panel {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-panel-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.sidebar-error {
+    font-size: 12px;
+    opacity: 0.85;
+}
+.content {
+    margin-left: var(--sidebar-w);
+    padding: 20px;
+    color: #fff;
+    box-sizing: border-box;
+
+    min-width: 0;
+    min-height: calc(100vh - var(--header-h));
+}
+

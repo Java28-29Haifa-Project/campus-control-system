@@ -10,6 +10,7 @@ export const Paths = {
     TICKET_DETAILS: "/ticket/:id",
     TICKET_SUPPORT: '/support/ticket',
     TICKET_SUPPORT_DETAILS: '/support/ticket/:id',
+    INCIDENT_SUPPORT_NEW: '/support/incident/new/:ticketId',
     INCIDENT: '/incident',
     INCIDENT_NEW: '/incident/new/:ticketId',
     INCIDENT_MY: '/incident/my',

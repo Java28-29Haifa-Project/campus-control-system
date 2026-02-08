@@ -95,6 +95,10 @@ export interface TicketState {
     filterStatus: TicketStatus  | "ALL";
 
     isUpdating: boolean;
+
+    ticketsSyncing: boolean;
+    ticketsLastSyncAt: string | null;
+    ticketsSyncError: string | null;
 }
 
 const initialState: TicketState = {
@@ -107,6 +111,10 @@ const initialState: TicketState = {
     filterStatus: "ALL",
 
     isUpdating: false,
+
+    ticketsSyncing: false,
+    ticketsLastSyncAt: null as string | null,
+    ticketsSyncError: null as string | null,
 };
 
 const ticketSlice = createSlice({
@@ -135,16 +143,25 @@ const ticketSlice = createSlice({
             .addCase(fetchTicketsThunk.pending, (state) => {
                 state.isLoadingList = true;
                 state.error = null;
+
+                state.ticketsSyncing = true;
+                state.ticketsSyncError = null;
             })
             .addCase(fetchTicketsThunk.fulfilled, (state, action) => {
                 state.isLoadingList = false;
                 state.items = (action.payload ?? []).filter(Boolean);
+
+                state.ticketsSyncing = false;
+                state.ticketsLastSyncAt = new Date().toISOString();
             })
             .addCase(fetchTicketsThunk.rejected, (state, action) => {
                 state.isLoadingList = false;
                 state.error = mapTicketErrorCodeToMessage(
                     action.payload ?? action.error.message
                 );
+
+                state.ticketsSyncing = false;
+                state.ticketsSyncError = action.error?.message ?? "Tickets sync failed";
             })
             .addCase(fetchTicketByIdThunk.pending, (state) => {
                 state.isLoadingCurrent = true;

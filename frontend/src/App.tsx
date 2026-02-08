@@ -20,6 +20,7 @@ import TicketFormPage from "./pages/userPages/TicketFormPage.tsx";
 import TicketDetails from "./pages/userPages/TicketDetails.tsx";
 import RegisterForm from "./components/RegisterForm.tsx";
 import TicketSupportDetails from "./pages/supportPages/TicketSupportDetails.tsx";
+import SupportLayout from "./layouts/SupportLayout.tsx";
 
 function App() {
 
@@ -48,9 +49,11 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
+                    <Route element={<SupportLayout />}>
                     <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport/>}/>
-                    <Route path={Paths.INCIDENT_NEW} element={<CreateIncident/>}/>
+                    <Route path={Paths.INCIDENT_SUPPORT_NEW} element={<CreateIncident/>}/>
                     <Route path={Paths.TICKET_SUPPORT_DETAILS} element={<TicketSupportDetails/>}/>
+                    </Route>
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>

@@ -86,9 +86,6 @@ const CreateIncidentMock: React.FC = () => {
                     <p>Incident has been successfully submitted!</p>
 
                     <div className="ticket-form-actions">
-                        <button type="button" onClick={() => navigate("/incident")}>
-                            Go to incidents
-                        </button>
 
                         <button
                             type="button"

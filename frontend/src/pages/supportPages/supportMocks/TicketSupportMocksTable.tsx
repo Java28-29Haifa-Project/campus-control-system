@@ -102,7 +102,7 @@ const TicketSupportMocksTable: React.FC = () => {
                             className="table-btn incident"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/incident/new/${row.original.requestId}`);
+                                navigate(`/support/incident/new/${row.original.requestId}`);
                             }}
                         >
                             <FaPlus className="icon"/>

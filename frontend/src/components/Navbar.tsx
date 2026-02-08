@@ -2,6 +2,7 @@
 import { NavLink } from "react-router-dom";
 import * as React from "react";
 import type {RouteType} from "../types/types.ts";
+import "../styles/sidebar.css";
 
 type Props = {
     items: RouteType[];
