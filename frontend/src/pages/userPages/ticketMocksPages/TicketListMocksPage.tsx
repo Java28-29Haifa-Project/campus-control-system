@@ -1,14 +1,14 @@
 import React, {useState} from "react";
 import '../../../styles/listTickets.css';
 import { useNavigate } from "react-router-dom";
-import {TicketStatus} from "../../../types/ticketTypes.ts";
-import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
+import {TicketStatus, type Ticket} from "../../../types/ticketTypes.ts";
+import {mockTickets} from "../../../mocks/ticketMocks.ts";
 
 const TicketListMocksPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [filterStatus, setFilterStatus] = useState<TicketStatus | "ALL">("ALL");
-    const [items] = useState<MockTicket[]>(mockTickets);
+    const [items] = useState<Ticket[]>(mockTickets);
 
     const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value as TicketStatus | "ALL";

@@ -1,13 +1,14 @@
 import React from "react";
 import '../../../styles/forms.css';
 import { useParams, useNavigate } from "react-router-dom";
-import {type MockTicket, mockTickets} from "../../../mocks/ticketMocks.ts";
+import {mockTickets} from "../../../mocks/ticketMocks.ts";
+import type { Ticket } from "../../../types/ticketTypes.ts";
 
 const TicketDetailsMocksPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const getTicketByIdMock = (id: string): MockTicket => {
+    const getTicketByIdMock = (id: string): Ticket => {
         const t = mockTickets.filter(t => t.requestId === id);
         return t[0];
     };

@@ -4,7 +4,7 @@ export const mockUser: User = {
     userId: 'user_001',
     username: 'john_user',
     email: 'user@test.org',
-    role: 'USER',
+    role: 'SUPPORT',
 };
 export const mockLoginUser: LoginRequest = {
     email:'user@test.org',
