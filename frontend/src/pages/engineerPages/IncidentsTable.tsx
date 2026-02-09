@@ -6,9 +6,9 @@ import {
     useReactTable
 } from "@tanstack/react-table";
 import {useNavigate} from "react-router-dom";
-import {fetchTicketsThunk} from "../../state/slices/ticketSlice.ts";
 import {TicketTableFilters} from "../supportPages/TicketTableFilters.tsx";
 import {type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
+import {getIncidentsThunk} from "../../state/slices/incidentSlice.ts";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.Open,
@@ -17,7 +17,7 @@ const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.Closed,
 ];
 
-const IncidentEngineer:React.FC = () => {
+const IncidentTable:React.FC = () => {
 
     const { incidents } = useAppSelector((state) => state.incident);
 
@@ -27,10 +27,10 @@ const IncidentEngineer:React.FC = () => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        dispatch(fetchTicketsThunk());
+        dispatch(getIncidentsThunk());
     }, [dispatch]);
 
-    // const handleStatusChange = useCallback((incident: Incident, newStatus: IncidentStatus) => {
+    // const handleStatusChange = useCallback((incident: IncidentDetails, newStatus: IncidentStatus) => {
     //     dispatch(
     //         updateTicketThunk({
     //             id: ticket.requestId,
@@ -272,4 +272,4 @@ const IncidentEngineer:React.FC = () => {
     );
 };
 
-export default IncidentEngineer;
+export default IncidentTable;

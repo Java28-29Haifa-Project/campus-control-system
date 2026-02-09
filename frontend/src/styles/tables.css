@@ -208,7 +208,7 @@
 
 /* ====== РАСПРЕДЕЛЕНИЕ ШИРИН КОЛОНОК (чтобы ВСЕ были видны) ======
    У тебя 9 колонок в таком порядке:
-   1 Open, 2 ID, 3 Title, 4 Description, 5 Category, 6 Priority, 7 Status, 8 Incident, 9 Created at
+   1 Open, 2 ID, 3 Title, 4 Description, 5 Category, 6 Priority, 7 Status, 8 IncidentDetails, 9 Created at
    Сумма 100% */
 
 
@@ -240,7 +240,7 @@
 /*.support-table td:nth-child(8) { width: 10%; }   !* Open *!*/
 
 /*.support-table th:nth-child(9),*/
-/*.support-table td:nth-child(9) { width: 7%; }  !* Incident *!*/
+/*.support-table td:nth-child(9) { width: 7%; }  !* IncidentDetails *!*/
 
 @media (min-width: 1200px) {
     .support-table {

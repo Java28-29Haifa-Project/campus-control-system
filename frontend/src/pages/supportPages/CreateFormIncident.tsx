@@ -239,7 +239,7 @@ const CreateFormIncident:React.FC = () => {
                                 type="submit"
                                 disabled={isCreatingInc || !impact || !urgency}
                             >
-                                {isCreatingInc ? "Creating..." : "Create Incident"}
+                                {isCreatingInc ? "Creating..." : "Create IncidentDetails"}
                             </button>
                         </div>
                     </form>

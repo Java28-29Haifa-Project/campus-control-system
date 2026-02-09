@@ -134,14 +134,14 @@ const TicketSupportTable:React.FC = () => {
                 },
             },
             {
-                header: "Incident",
+                header: "IncidentDetails",
                 id: "incident",
                 size:150,
                 cell: ({ row }) => {
                     const ticket = row.original;
 
                     // if (ticket.incidentId) {
-                    //     return <span className="muted-text" style={{color:"#BF863C"}}>Incident {ticket.incidentId} created</span>;
+                    //     return <span className="muted-text" style={{color:"#BF863C"}}>IncidentDetails {ticket.incidentId} created</span>;
                     // }
                     const incId = getIncidentId(ticket);
 
