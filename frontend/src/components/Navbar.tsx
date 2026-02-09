@@ -2,14 +2,16 @@
 import { NavLink } from "react-router-dom";
 import * as React from "react";
 import type {RouteType} from "../types/types.ts";
+import "../styles/sidebar.css";
 
 type Props = {
     items: RouteType[];
 };
 const Navbar: React.FC<Props> = ({ items }) => {
+    const isSupportZone = location.pathname.startsWith("/support");
 
     return (
-        <nav className="navbar">
+        <nav className={!isSupportZone? "navbar" : ""}>
             {items.map(item => (
                 <NavLink
                     key={item.path}

@@ -7,11 +7,11 @@ import {
     getFilteredRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
 import "../../styles/tables.css";
 import {useNavigate} from "react-router-dom";
-import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
+import {updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 import {TicketTableFilters} from "./TicketTableFilters.tsx";
 
 
@@ -31,10 +31,6 @@ const TicketSupportTable:React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        dispatch(fetchTicketsThunk());
-    }, [dispatch]);
 
     const getIncidentId = useCallback(
         (ticket: Ticket) => ticket.incidentId ?? incidentByTicketId[ticket.requestId],
@@ -169,7 +165,7 @@ const TicketSupportTable:React.FC = () => {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                navigate(`/incident/new/${ticket.requestId}`);
+                                navigate(`/support/incident/new/${ticket.requestId}`);
                             }}
                         >
                             Create incident

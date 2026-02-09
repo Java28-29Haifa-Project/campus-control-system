@@ -165,7 +165,7 @@ const TicketSupportDetailsPage: React.FC = () => {
                         <div className="ticket-form-actions">
                             <button
                                 className="secondary-btn back-btn"
-                                onClick={() => navigate(`/incident/new/${current.requestId}`)}
+                                onClick={() => navigate(`/support/incident/new/${current.requestId}`)}
                             >
                                 Create Incident
                             </button>

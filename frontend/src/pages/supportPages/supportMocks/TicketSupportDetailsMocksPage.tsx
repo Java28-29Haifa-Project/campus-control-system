@@ -1,12 +1,11 @@
 import {useNavigate} from "react-router-dom";
-import type {MockTicket} from "../../../mocks/ticketMocks.ts";
 import "../../../styles/tables.css"
 import React, {useState} from "react";
-import {TicketStatus} from "../../../types/ticketTypes.ts";
+import {TicketStatus, type Ticket} from "../../../types/ticketTypes.ts";
 
 
 type Props = {
-    ticket: MockTicket;
+    ticket: Ticket;
 };
 
 const TicketSupportDetailsMocksPage: React.FC<Props> = ({ticket}) => {
@@ -51,7 +50,7 @@ const TicketSupportDetailsMocksPage: React.FC<Props> = ({ticket}) => {
                                     className="secondary-btn back-btn"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/incident/new/${ticket.requestId}`);
+                                        navigate(`/support/incident/new/${ticket.requestId}`);
                                     }}
                                 >
                                     Create Incident
