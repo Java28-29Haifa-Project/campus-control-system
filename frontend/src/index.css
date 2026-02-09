@@ -7,7 +7,7 @@ html, body {
     height: 100%;
     overflow: hidden;
     --header-h: 60px;
-    --sidebar-w: 200px;
+    --sidebar-w: 160px;
 }
 
     body {

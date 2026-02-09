@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {useAppSelector} from "../state/hooks.ts";
 import type {RouteType} from "../types/types.ts";
 import {
@@ -13,7 +13,6 @@ import {Outlet} from "react-router-dom";
 import "../styles/sidebar.css";
 
 const RootLayout: React.FC = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true); // 🔥 ВОТ ОН
 
     const user = useAppSelector((state) => state.auth.user);
 
@@ -40,10 +39,10 @@ const RootLayout: React.FC = () => {
     const isSupportZone = location.pathname.startsWith("/support") ;
 
     return (
-        <div className={`layout ${sidebarOpen ? "" : "sidebar-overlay"}`}>
-            <Header onToggleSidebar={() => setSidebarOpen(v => !v)} />
-
-            {!isSupportZone && <Navbar items={items} />}
+        <div className="layout">
+            <Header />
+            {!isSupportZone &&
+                <Navbar items={items} />}
 
             <main className="content">
                 <Outlet />

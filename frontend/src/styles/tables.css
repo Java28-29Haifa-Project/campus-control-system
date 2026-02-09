@@ -2,14 +2,14 @@
 /* Таблица саппорта: full screen (под header и справа от sidebar), без горизонтального скролла,
    текст НЕ обрезаем, а переносим */
 
-:root {
-    --header-h: 60px;
-    --glass-bg: rgba(0, 0, 0, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --grid-border: rgba(255, 255, 255, 0.10);
-    --row-hover: rgba(255, 255, 255, 0.06);
-    --text-muted: rgba(255, 255, 255, 0.70);
-}
+/*:root {*/
+/*    --header-h: 60px;*/
+/*    --glass-bg: rgba(0, 0, 0, 0.25);*/
+/*    --glass-border: rgba(255, 255, 255, 0.18);*/
+/*    --grid-border: rgba(255, 255, 255, 0.10);*/
+/*    --row-hover: rgba(255, 255, 255, 0.06);*/
+/*    --text-muted: rgba(255, 255, 255, 0.70);*/
+/*}*/
 /*body {*/
 /*    background: #797537 no-repeat bottom center;*/
 /*}*/
@@ -19,7 +19,7 @@
 .support-table-page {
     position: fixed;
     top: var(--header-h);
-    /*left: var(--sidebar-w) ;*/
+    left: var(--sidebar-w) ;
     bottom: 0;
     right: 0;
 
