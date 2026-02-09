@@ -2,7 +2,7 @@ import {createAsyncThunk} from "@reduxjs/toolkit";
 import {type CreateIncidentRequest, type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import ApiError, {INCIDENT_ERROR_MESSAGES} from "../../utils/ApiError.ts";
-import {createIncidentApi, getIncidentApi} from "../../api/incidentApi.ts";
+import {createIncidentApi, getIncidentApi, updateIncidentStatusAssignedApi} from "../../api/incidentApi.ts";
 import {fetchTicketsThunk} from "./ticketSlice.ts";
 
 const mapIncidentErrorCodeToMessage = (code?: string | null): string => {
@@ -52,6 +52,24 @@ export const getIncidentsThunk = createAsyncThunk<
     }
 )
 
+export const updateIncidentAssignedThunk = createAsyncThunk<
+    Incident,
+    string,
+    { rejectValue: string }
+>(
+    "updateTicket",
+    async (idEngineer, {rejectWithValue}) => {
+        try {
+            return await updateIncidentStatusAssignedApi(idEngineer);
+        } catch (e) {
+            if (e instanceof ApiError) {
+                return rejectWithValue(e.code || "SERVER_ERROR");
+            }
+            return rejectWithValue("Failed to assigned incident");
+        }
+    }
+);
+
 export interface IncidentState {
     incidents: Incident[];
     currentInc: Incident | null;
@@ -63,6 +81,8 @@ export interface IncidentState {
 
     isUpdatingStatusInc: boolean;
     incidentByTicketId: Record<string, string>;
+
+    isAssigned: boolean;
 
     incidentsSyncing: boolean,
     incidentsLastSyncAt: string | null,
@@ -79,6 +99,8 @@ const initialState: IncidentState = {
 
     isUpdatingStatusInc: false,
     incidentByTicketId: {},
+
+    isAssigned: false,
 
     incidentsSyncing: false,
     incidentsLastSyncAt: null as string | null,
@@ -144,6 +166,37 @@ const incidentSlice = createSlice({
                 state.incidentsSyncing = false;
                 state.incidentsSyncError = action.error?.message ?? "Incidents sync failed";
             })
+            .addCase(updateIncidentAssignedThunk.pending, (state) => {
+                state.isAssigned = true;
+                state.errorInc = null;
+            })
+            .addCase(updateIncidentAssignedThunk.fulfilled, (state) => {
+                state.isAssigned = false;
+                // const patch = action.payload;
+                //
+                // const index = state.incidents.findIndex(
+                //     (t) => t.incidentId === patch.incidentId
+                // );
+                // if(index !== -1) {
+                //     state.items[index] = {
+                //         ...state.items[index],
+                //         ...patch,
+                //     };
+                // }
+                //
+                // if(state.current && (state.current.requestId === patch.requestId)) {
+                //     state.current = {
+                //         ...state.current,
+                //         ...patch,
+                //     };
+                // }
+            })
+            .addCase(updateIncidentAssignedThunk.rejected, (state, action) => {
+                state.isAssigned = false;
+                state.errorInc = mapIncidentErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
+            });
     }
 });
 

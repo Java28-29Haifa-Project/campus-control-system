@@ -19,9 +19,8 @@ export const createIncidentApi = async (
     });
 };
 
-export const updateIncidentApi = async (id: string, updates: Partial<Incident>): Promise<Incident> => {
-    return request<Incident>(`/requests/${id}/status`, {
+export const updateIncidentStatusAssignedApi = async (idEngineer: string): Promise<Incident> => {
+    return request<Incident>(`/incidents/${idEngineer}/assign`, {
         method: "PATCH",
-        body: updates,
     });
 }

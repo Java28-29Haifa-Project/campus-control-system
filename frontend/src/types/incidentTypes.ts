@@ -1,6 +1,7 @@
 
 export const enum IncidentStatus {
     Open = 'OPEN',
+    Assign = 'ASSIGNED',
     InProgress = 'IN_PROGRESS',
     Resolved = 'RESOLVED',
     Closed = 'CLOSED'

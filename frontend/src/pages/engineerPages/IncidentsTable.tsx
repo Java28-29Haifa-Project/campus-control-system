@@ -1,17 +1,17 @@
-import React, {useEffect, useMemo} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {
-    type ColumnDef, flexRender,
-    getCoreRowModel,
+    type ColumnDef, type ColumnFiltersState, flexRender,
+    getCoreRowModel, getFilteredRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import {useNavigate} from "react-router-dom";
 import {TicketTableFilters} from "../supportPages/TicketTableFilters.tsx";
 import {type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
 import {getIncidentsThunk} from "../../state/slices/incidentSlice.ts";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.Open,
+    IncidentStatus.Assign,
     IncidentStatus.InProgress,
     IncidentStatus.Resolved,
     IncidentStatus.Closed,
@@ -21,9 +21,9 @@ const IncidentTable:React.FC = () => {
 
     const { incidents } = useAppSelector((state) => state.incident);
 
-    // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -63,9 +63,9 @@ const IncidentTable:React.FC = () => {
                 header: "Ticket's id",
                 accessorKey: "ticketIds",
                 cell: ({getValue}) => {
-                    return getValue() ? getValue() : "-";
-                    // const value = (getValue() ?? "") as string;
-                    // return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+                    // return getValue() ? getValue() : "-";
+                    const value = (getValue() ?? "") as string;
+                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
                 }
             },
             {
@@ -93,7 +93,7 @@ const IncidentTable:React.FC = () => {
                 //     if(!filterValue || filterValue === "ALL") return true;
                 //     return row.getValue(columnId) === filterValue;
                 // },
-                cell: ({ getValue }) => {
+                cell: ({ getValue, }) => {
                     // const incident = row.original;
                     const current = getValue<IncidentStatus>();
 
@@ -111,11 +111,11 @@ const IncidentTable:React.FC = () => {
                             // onClick={(e) => e.stopPropagation()}
                             // onChange={(e) => {
                             //     e.stopPropagation();
-                            //     if (lockedByIncident) return;
+                            //     // if (lockedByIncident) return;
                             //
-                            //     const nextStatus = e.target.value as TicketStatus;
-                            //     if (nextStatus === ticket.status) return;
-                            //     handleStatusChange(ticket, nextStatus);
+                            //     const nextStatus = e.target.value as IncidentStatus;
+                            //     if (nextStatus === incident.status) return;
+                            //     // handleStatusChange(incident, nextStatus);
                             // }}
                         >
                             {STATUS_OPTIONS_INCIDENT.map((s) => (
@@ -174,16 +174,16 @@ const IncidentTable:React.FC = () => {
                 cell: () => "",
             },
         ],
-        [navigate]
+        []
     );
 
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        // getFilteredRowModel: getFilteredRowModel(),
-        // state: { columnFilters },
-        // onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
+        state: { columnFilters },
+        onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
     })
 
