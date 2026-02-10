@@ -1,6 +1,6 @@
 import {useMemo, useState} from "react";
 import type {Table} from "@tanstack/react-table";
-import "../../styles/tables.css";
+import "../styles/tables.css";
 
 type Props<TData> = {
     table: Table<TData>;
