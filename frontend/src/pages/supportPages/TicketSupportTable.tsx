@@ -1,9 +1,7 @@
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {
-    type ColumnDef,
-} from "@tanstack/react-table";
+import {type ColumnDef,} from "@tanstack/react-table";
 import React, {useCallback, useMemo} from "react";
-import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
+import {type Ticket, TicketStatus} from "../../types/ticketTypes.ts";
 import "../../styles/tables.css";
 import {useNavigate} from "react-router-dom";
 import {updateTicketThunk} from "../../state/slices/ticketSlice.ts";
@@ -69,6 +67,9 @@ const TicketSupportTable:React.FC = () => {
                     const currentTicketStatus = getValue<TicketStatus>();
 
                     const lockedByIncident = ticket.status === TicketStatus.InService;
+                    if (ticket.status === TicketStatus.Done) {
+                        return <span>{ticket.status.replace("_", " ")}</span>;
+                    }
 
                     return (
                         <select

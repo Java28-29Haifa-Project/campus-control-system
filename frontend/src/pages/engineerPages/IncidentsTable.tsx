@@ -9,10 +9,10 @@ import {
 } from "../../state/slices/incidentSlice.ts";
 import {TableFilters} from "../../components/TableFilters.tsx";
 import TableTanStack from "../../components/TableTanStack.tsx";
-import {canMoveIncident, isOptionDisabled} from "../../utils/helper.ts";
+import {buildStatusOptionsForRow, canMoveIncident, isOptionDisabled} from "../../utils/helper.ts";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
-    IncidentStatus.Open,
+    IncidentStatus.New,
     IncidentStatus.Assign,
     IncidentStatus.InProgress,
     IncidentStatus.Resolved
@@ -91,7 +91,10 @@ const IncidentTable:React.FC = () => {
                 cell: ({ getValue, row }) => {
                     const incident = row.original;
                     const currentIncidentStatus = getValue<IncidentStatus>();
-
+                    const options = buildStatusOptionsForRow(
+                        incident.status,
+                        STATUS_OPTIONS_INCIDENT
+                    );
                     return (
                         <select
                             className="table-select"
@@ -103,7 +106,7 @@ const IncidentTable:React.FC = () => {
                                 handleStatusChange(incident, next);
                             }}
                         >
-                            {STATUS_OPTIONS_INCIDENT.map((s) => (
+                            {options.map((s) => (
                                 <option
                                     key={s}
                                     value={s}
