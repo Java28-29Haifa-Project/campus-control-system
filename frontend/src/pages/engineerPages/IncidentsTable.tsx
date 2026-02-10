@@ -91,9 +91,11 @@ const IncidentTable:React.FC = () => {
                 cell: ({ getValue, row }) => {
                     const incident = row.original;
                     const currentIncidentStatus = getValue<IncidentStatus>();
+
+                    const roleOptions = STATUS_OPTIONS_INCIDENT;
                     const options = buildStatusOptionsForRow(
                         incident.status,
-                        STATUS_OPTIONS_INCIDENT
+                        roleOptions
                     );
                     return (
                         <select
@@ -110,7 +112,7 @@ const IncidentTable:React.FC = () => {
                                 <option
                                     key={s}
                                     value={s}
-                                    disabled={isOptionDisabled(incident.status, s)}
+                                    disabled={isOptionDisabled(incident.status, s, roleOptions)}
                                 >
                                     {s.replace("_", " ")}
                                 </option>
