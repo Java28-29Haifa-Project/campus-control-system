@@ -6,7 +6,7 @@ import {
     getFilteredRowModel, type Row,
     useReactTable,
 } from "@tanstack/react-table";
-import "../../styles/tables.css";
+import "../styles/tables.css";
 
 type TableTabStackProps<TData> = {
     data: TData[];
