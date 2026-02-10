@@ -37,13 +37,12 @@ function App() {
                     <RootLayout/>
                 </>
             }>
-                {/*<Route element={<ProtectedRoute allowedRoles={['ADMIN', 'USER', 'SUPPORT', 'ENGINEER']} />}>*/}
-                {/*    <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>*/}
-                {/*</Route>*/}
+                <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'USER', 'SUPPORT', 'ENGINEER']} />}>
+                    <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>
+                </Route>
 
                 <Route element={
                     <ProtectedRoute allowedRoles={['ADMIN', 'USER']}/>}>
-                    <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>
                         <Route path={Paths.TICKET} element={<Ticket/>}/>
                         <Route path={Paths.TICKET_NEW} element={<TicketFormPage/>}/>
                         <Route path={Paths.TICKET_DETAILS} element={<TicketDetails/>}/>
@@ -59,14 +58,12 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>
-                    <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>
                     <Route path={Paths.INCIDENT} element={<IncidentTable/>}/>
                     <Route path={Paths.INCIDENT_MY} element={<IncidentDetails/>}/>
                     <Route path={Paths.ALARM} element={<Alarm/>}/>
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-                    <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>
                     <Route path={Paths.LOGS} element={<Logs/>}/>
                     <Route path={Paths.HEALTH} element={<HealthPage/>}/>
                 </Route>
