@@ -37,7 +37,7 @@ function App() {
                     <RootLayout/>
                 </>
             }>
-                <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'USER', 'SUPPORT', 'ENGINEER']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'USER', 'ENGINEER']} />}>
                     <Route path={Paths.DASHBOARD} element={<Dashboard/>}/>
                 </Route>
 

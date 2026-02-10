@@ -62,15 +62,15 @@ export function TableFilters<TData>({
                             Reset
                         </button>
 
-                        <button
-                            type="button"
-                            className="secondary-btn table-btn"
-                            onClick={() => {
-                                setOpen(false);
-                            }}
-                        >
-                            Done
-                        </button>
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    className="secondary-btn table-btn"*/}
+                        {/*    onClick={() => {*/}
+                        {/*        setOpen(false);*/}
+                        {/*    }}*/}
+                        {/*>*/}
+                        {/*    Done*/}
+                        {/*</button>*/}
                     </div>
                 </div>
             )}

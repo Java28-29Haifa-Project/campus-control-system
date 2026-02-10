@@ -93,12 +93,6 @@ const TicketSupportTable:React.FC = () => {
                             }}
                         >
                             {STATUS_OPTIONS
-                                .filter((s) => {
-                                    if (s === TicketStatus.New) {
-                                        return false;
-                                    }
-                                    return true;
-                                })
                                 .map((s) => (
                                 <option key={s} value={s}>
                                     {s.replace("_", " ")}
