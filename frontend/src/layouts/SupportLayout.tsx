@@ -6,7 +6,7 @@ import {fetchTicketsThunk} from "../state/slices/ticketSlice.ts";
 import {supportNavItems} from "../components/configurations/nav-config.ts";
 import "../styles/sidebar.css";
 
-const POLL_MS = 20_000;
+const POLL_MS = 500_000;
 
 const isMockTickets = import.meta.env.VITE_USE_MOCK_TICKETS === "true";
 
@@ -41,7 +41,7 @@ const SupportLayout: React.FC = () => {
     }, [dispatch, shouldPollTickets, ticketsSyncing]);
 
     const forceRefresh = () => {
-        if (ticketsSyncing) return;
+        // if (ticketsSyncing) return;
         dispatch(fetchTicketsThunk());
     };
 
@@ -65,7 +65,8 @@ const SupportLayout: React.FC = () => {
                         disabled={ticketsSyncing}
                         title="Force refresh tickets"
                     >
-                        {ticketsSyncing ? "Updating..." : "Refresh"}
+                        Refresh
+                        {/*{ticketsSyncing ? "Updating..." : "Refresh"}*/}
                     </button>
 
                     {ticketsSyncError && <div className="sidebar-error">{ticketsSyncError}</div>}

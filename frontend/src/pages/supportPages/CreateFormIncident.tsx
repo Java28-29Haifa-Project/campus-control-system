@@ -4,13 +4,13 @@ import React, {type FormEvent, useEffect, useState} from "react";
 import {IncidentImpact, IncidentUrgencies} from "../../types/incidentTypes.ts";
 import {createIncidentThunk} from "../../state/slices/incidentSlice.ts";
 import {
-    attachIncidentToTicket,
     clearCurrentTicket,
     fetchTicketByIdThunk,
-    fetchTicketsThunk
+    fetchTicketsThunk, updateTicketThunk
 } from "../../state/slices/ticketSlice.ts";
 import "../../styles/tables.css";
 import "../../styles/forms.css";
+import {TicketStatus} from "../../types/ticketTypes.ts";
 
 const CreateFormIncident:React.FC = () => {
         const { ticketId } = useParams<{ ticketId: string }>();
@@ -22,7 +22,6 @@ const CreateFormIncident:React.FC = () => {
 
         const [impact, setImpact] = useState<IncidentImpact | "">("");
         const [urgency, setUrgency] = useState<IncidentUrgencies | "">("");
-        // const [description, setDescription] = useState<string>(ticket?.description ?? "");
         const [isSubmitted, setIsSubmitted] = useState(false);
 
     useEffect(() => {
@@ -84,65 +83,42 @@ const CreateFormIncident:React.FC = () => {
         );
     }
 
-    if (current.incidentId) {
-        return (
-            <div className="auth-page">
-                <div className="ticket-form-wrapper">
-                    <h2>Incident already exists</h2>
-                    <p>Incident: {current.incidentId}</p>
-
-                    <div className="ticket-form-actions">
-                        <button
-                            type="button"
-                            className="secondary-btn"
-                            onClick={() => navigate("/support/ticket")}
-                        >
-                            ← Back to tickets
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
         const resetForm = () => {
             setImpact("");
             setUrgency("");
-            // setDescription(ticket.description ?? "");
         };
 
         const onSubmit = async (e: FormEvent) => {
             e.preventDefault();
             if (!impact || !urgency) return;
 
-            const resultAction = await dispatch(
-                createIncidentThunk({
-                    ticketIds: [current.requestId],
-                    impact,
-                    urgency,
-                    category: current.category,
-                    // description: description.trim(),
-                    description: current.description || "",
-                })
-            );
+            const id = current.requestId;
 
-            if (createIncidentThunk.fulfilled.match(resultAction)) {
-                const createdIncident = resultAction.payload;
-                const incidentId =
-                    createdIncident?.incidentId ?? `MOCK-INC-${Date.now()}`;
+            try {
+                await dispatch(
+                    createIncidentThunk({
+                        ticketIds: [id],
+                        impact,
+                        urgency,
+                        category: current.category,
+                        description: current.description || "",
+                    })
+                ).unwrap();
 
-                if (incidentId) {
-                    dispatch(attachIncidentToTicket({ ticketId: current.requestId, incidentId }));
+                try {
+                    await dispatch(
+                        updateTicketThunk({ id, updates: { status: TicketStatus.InService } })
+                    ).unwrap();
+                } catch (e) {
+                    console.error("Incident created, but status update failed", e);
+                    // тут можно показать error message
+                    return;
                 }
-                // dispatch(
-                //     linkIncidentToTicketLocal({
-                //         ticketId: current.requestId,
-                //         incidentId,
-                //     })
-                // );
 
                 setIsSubmitted(true);
                 resetForm();
+            } catch (e) {
+                console.error("Create incident failed", e);
             }
         };
 
@@ -185,14 +161,6 @@ const CreateFormIncident:React.FC = () => {
                     </div>
 
                     <form onSubmit={onSubmit}>
-                        {/*        <div className="textarea-box">*/}
-                        {/*<textarea*/}
-                        {/*    placeholder="Describe incident..."*/}
-                        {/*    value={description}*/}
-                        {/*    onChange={(e) => setDescription(e.target.value)}*/}
-                        {/*/>*/}
-                        {/*        </div>*/}
-
                         <div className="select-box">
                             <select
                                 value={impact}
@@ -240,7 +208,7 @@ const CreateFormIncident:React.FC = () => {
                                 type="submit"
                                 disabled={isCreatingInc || !impact || !urgency}
                             >
-                                {isCreatingInc ? "Creating..." : "Create IncidentDetails"}
+                                {isCreatingInc ? "Creating..." : "Create Incident"}
                             </button>
                         </div>
                     </form>

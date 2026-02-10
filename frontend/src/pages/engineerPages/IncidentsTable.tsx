@@ -1,53 +1,50 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {
-    type ColumnDef, type ColumnFiltersState, flexRender,
-    getCoreRowModel, getFilteredRowModel,
-    useReactTable
-} from "@tanstack/react-table";
-import {TicketTableFilters} from "../supportPages/TicketTableFilters.tsx";
+import {type ColumnDef} from "@tanstack/react-table";
 import {type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
-import {getIncidentsThunk} from "../../state/slices/incidentSlice.ts";
+import {
+    getIncidentsThunk,
+    updateIncidentAssignedThunk,
+    updateIncidentStatusThunk
+} from "../../state/slices/incidentSlice.ts";
+import {TableFilters} from "../../components/TableFilters.tsx";
+import TableTanStack from "../../components/TableTanStack.tsx";
+import {canMoveIncident, isOptionDisabled} from "../../utils/helper.ts";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.Open,
     IncidentStatus.Assign,
     IncidentStatus.InProgress,
-    IncidentStatus.Resolved,
-    IncidentStatus.Closed,
+    IncidentStatus.Resolved
 ];
 
 const IncidentTable:React.FC = () => {
 
     const { incidents } = useAppSelector((state) => state.incident);
 
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-    // const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         dispatch(getIncidentsThunk());
     }, [dispatch]);
 
-    // const handleStatusChange = useCallback((incident: IncidentDetails, newStatus: IncidentStatus) => {
-    //     dispatch(
-    //         updateTicketThunk({
-    //             id: ticket.requestId,
-    //             updates: { status: newStatus },
-    //         })
-    //     );
-    // }, [dispatch]);
+    const handleStatusChange = useCallback(
+        (incident: Incident, nextStatus: IncidentStatus) => {
+            const current = incident.status;
+            if (nextStatus === current) return;
 
-    // const openTicket = useCallback(
-    //     (ticketId: string) => {
-    //         navigate(`/support/ticket/${ticketId}`);
-    //     },
-    //     [navigate]
-    // );
+            if (!canMoveIncident(current, nextStatus)) return;
 
+            if (nextStatus === IncidentStatus.Assign) {
+                dispatch(updateIncidentAssignedThunk(incident.incidentId));
+                return;
+            }
 
-    const data = useMemo(() => incidents, [incidents]);
+            dispatch(updateIncidentStatusThunk({ id: incident.incidentId, status: nextStatus }));
+        },
+        [dispatch]
+    );
+
 
     const columns = useMemo<ColumnDef<Incident>[]>(
         () => [
@@ -59,15 +56,15 @@ const IncidentTable:React.FC = () => {
                     return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
                 }
             },
-            {
-                header: "Ticket's id",
-                accessorKey: "ticketIds",
-                cell: ({getValue}) => {
-                    // return getValue() ? getValue() : "-";
-                    const value = (getValue() ?? "") as string;
-                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
-                }
-            },
+            // {
+            //     header: "Ticket's id",
+            //     accessorKey: "ticketIds",
+            //     cell: ({getValue}) => {
+            //         // return getValue() ? getValue() : "-";
+            //         const value = (getValue() ?? "") as string;
+            //         return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+            //     }
+            // },
             {
                 header: "Description",
                 accessorKey: "description",
@@ -77,49 +74,41 @@ const IncidentTable:React.FC = () => {
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
                 },
             },
-            {
-                header: "Category",
-                accessorKey: "category",
-            },
+            {header: "Category", accessorKey: "category",},
             {
                 header: "Priority",
                 accessorKey: "priority",
+                minSize: 40,
             },
             {
                 id: "status",
                 accessorKey: "status",
                 minSize: 400,
-                // filterFn: (row, columnId, filterValue) => {
-                //     if(!filterValue || filterValue === "ALL") return true;
-                //     return row.getValue(columnId) === filterValue;
-                // },
-                cell: ({ getValue, }) => {
-                    // const incident = row.original;
-                    const current = getValue<IncidentStatus>();
-
-                    // const incId = getIncidentId(ticket);
-                    // const lockedByIncident = Boolean(incId);
-                    // const lockedByIncident = Boolean(ticket.incidentId);
+                filterFn: (row, columnId, filterValue) => {
+                    if(!filterValue || filterValue === "ALL") return true;
+                    return row.getValue(columnId) === filterValue;
+                },
+                cell: ({ getValue, row }) => {
+                    const incident = row.original;
+                    const currentIncidentStatus = getValue<IncidentStatus>();
 
                     return (
                         <select
                             className="table-select"
-                            value={current}
-                            // disabled={lockedByIncident}
-                            // title={lockedByIncident ? `Locked: incident ${incId}` : undefined}
-                            // title={lockedByIncident ? "Status locked: incident already created" : undefined}
-                            // onClick={(e) => e.stopPropagation()}
-                            // onChange={(e) => {
-                            //     e.stopPropagation();
-                            //     // if (lockedByIncident) return;
-                            //
-                            //     const nextStatus = e.target.value as IncidentStatus;
-                            //     if (nextStatus === incident.status) return;
-                            //     // handleStatusChange(incident, nextStatus);
-                            // }}
+                            value={currentIncidentStatus}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                const next = e.target.value as IncidentStatus;
+                                handleStatusChange(incident, next);
+                            }}
                         >
                             {STATUS_OPTIONS_INCIDENT.map((s) => (
-                                <option key={s} value={s}>
+                                <option
+                                    key={s}
+                                    value={s}
+                                    disabled={isOptionDisabled(incident.status, s)}
+                                >
                                     {s.replace("_", " ")}
                                 </option>
                             ))}
@@ -127,25 +116,22 @@ const IncidentTable:React.FC = () => {
                     );
                 },
             },
-            {
-                header: "Created by",
-                accessorKey: "createdBy",
-                cell: ({ getValue }) => {
-                    const value = getValue<string | undefined>();
-                    return value ? value : "—";
-                }
-            },
+            // {
+            //     header: "Created by",
+            //     accessorKey: "createdBy",
+            //     cell: ({ getValue }) => {
+            //         const value = getValue<string | undefined>();
+            //         return value ? value : "—";
+            //     }
+            // },
             {
                 header: "Assigned by",
                 accessorKey: "assignedBy",
                 cell: ({ row }) => {
                     const t = row.original;
-
-                    if (!t.assignedBy) return "—";
-                    if (t.assignedBy && t.assignedBy === t.assignedBy) return "—";
-
-                    return t.assignedBy;
+                    return t.assignedBy ? t.assignedBy : "—";
                 },
+
             },
             {
                 header: "Created at",
@@ -155,120 +141,42 @@ const IncidentTable:React.FC = () => {
                     return value ? new Date(value).toLocaleString() : "—";
                 }
             },
-            {
-                header: "Updated at",
-                accessorKey: "updatedAt",
-                cell: ({ row }) => {
-                    const t = row.original;
-
-                    if (!t.updatedAt) return "—";
-                    if (t.createdAt && t.updatedAt === t.createdAt) return "—";
-
-                    return new Date(t.updatedAt).toLocaleString();
-                },
-            },
+            // {
+            //     header: "Updated at",
+            //     accessorKey: "updatedAt",
+            //     cell: ({ row }) => {
+            //         const t = row.original;
+            //
+            //         if (!t.updatedAt) return "—";
+            //         if (t.createdAt && t.updatedAt === t.createdAt) return "—";
+            //
+            //         return new Date(t.updatedAt).toLocaleString();
+            //     },
+            // },
             {
                 header: "Comment",
                 accessorKey: "comment",
-                minSize: 200,
+                minSize: 600,
                 cell: () => "",
             },
         ],
-        []
+        [handleStatusChange]
     );
 
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        state: { columnFilters },
-        onColumnFiltersChange: setColumnFilters,
-        columnResizeMode: "onChange",
-    })
-
     return (
-        <div className="support-table-page">
+        <TableTanStack
+            title="All incidents"
+            data={incidents}
+            columns={columns}
+            renderTopRight={(table)=>(
+                <TableFilters table={table} statusOptions={STATUS_OPTIONS_INCIDENT}/>
+            )}
+            isRowClickable={(row) => row.original.status !== IncidentStatus.Resolved}
+            getRowClassName={(row) => (
+                row.original.status === IncidentStatus.Resolved ? "row-disabled" : "")}
+            // onRowClick={(row) => navigate(`/support/ticket/${row.original.}`)}
 
-            <div className="support-table-header">
-                <h1 className="support-table-title">All incidents</h1>
-
-                <TicketTableFilters
-                    table={table}
-                    statusOptions={STATUS_OPTIONS_INCIDENT}
-                />
-            </div>
-
-            <div className="support-table-container">
-                <table className="support-table">
-                    <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th key={header.id} style={{ width: header.getSize()}}>
-                                    {header.isPlaceholder? null : flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                    )}
-                                    <div
-                                        onMouseDown={header.getResizeHandler()}
-                                        onTouchStart={header.getResizeHandler()}
-                                        className={`resizer ${
-                                            header.column.getIsResizing() ? "isResizing" : ""
-                                        }`}
-                                    />
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                    </thead>
-
-                    <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr
-                            key={row.id}
-                            // className={`table-row-clickable ${
-                            //     row.original.status === TicketStatus.Rejected
-                            //         ? "row-disabled"
-                            //         : ""
-                            // }`}
-                            // onClick={() => {
-                            //     const ticket = row.original;
-                            //
-                            //     if (ticket.status === TicketStatus.Rejected) return;
-                            //
-                            //     openTicket(ticket.requestId);
-                            // }}
-                            role="button"
-                            tabIndex={0}
-                            // onKeyDown={(e) => {
-                            //     const ticket = row.original;
-                            //
-                            //     if (ticket.status === TicketStatus.Rejected) return;
-                            //
-                            //     if (e.key === "Enter" || e.key === " ") {
-                            //         e.preventDefault();
-                            //         openTicket(ticket.requestId);
-                            //     }
-                            // }}
-
-                        >
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id} style={{width:cell.column.getSize()}}>
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-
-            </div>
-
-        </div>
+        />
     );
 };
 

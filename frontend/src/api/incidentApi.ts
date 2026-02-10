@@ -1,4 +1,9 @@
-import type {CreateIncidentRequest, Incident, IncidentResponse} from "../types/incidentTypes.ts";
+import {
+    type CreateIncidentRequest,
+    type Incident,
+    type IncidentResponse,
+    IncidentStatus
+} from "../types/incidentTypes.ts";
 import {request} from "./client.ts";
 
 
@@ -19,8 +24,14 @@ export const createIncidentApi = async (
     });
 };
 
-export const updateIncidentStatusAssignedApi = async (idEngineer: string): Promise<Incident> => {
-    return request<Incident>(`/incidents/${idEngineer}/assign`, {
+export const updateIncidentStatusAssignedApi = async (id: string): Promise<Incident> => {
+    return request<Incident>(`/incidents/${id}/assign`, {
         method: "PATCH",
+    });
+}
+export const updateIncidentStatusApi = async (id: string, status: IncidentStatus): Promise<Incident> => {
+    return request<Incident>(`/incidents/${id}/status`, {
+        method: "PATCH",
+        body: status,
     });
 }

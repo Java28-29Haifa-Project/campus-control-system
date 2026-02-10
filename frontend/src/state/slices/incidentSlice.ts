@@ -2,7 +2,12 @@ import {createAsyncThunk} from "@reduxjs/toolkit";
 import {type CreateIncidentRequest, type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import ApiError, {INCIDENT_ERROR_MESSAGES} from "../../utils/ApiError.ts";
-import {createIncidentApi, getIncidentApi, updateIncidentStatusAssignedApi} from "../../api/incidentApi.ts";
+import {
+    createIncidentApi,
+    getIncidentApi,
+    updateIncidentStatusApi,
+    updateIncidentStatusAssignedApi
+} from "../../api/incidentApi.ts";
 import {fetchTicketsThunk} from "./ticketSlice.ts";
 
 const mapIncidentErrorCodeToMessage = (code?: string | null): string => {
@@ -57,15 +62,32 @@ export const updateIncidentAssignedThunk = createAsyncThunk<
     string,
     { rejectValue: string }
 >(
-    "updateTicket",
-    async (idEngineer, {rejectWithValue}) => {
+    "incident/assign",
+    async (id, {rejectWithValue}) => {
         try {
-            return await updateIncidentStatusAssignedApi(idEngineer);
+            return await updateIncidentStatusAssignedApi(id);
         } catch (e) {
             if (e instanceof ApiError) {
                 return rejectWithValue(e.code || "SERVER_ERROR");
             }
             return rejectWithValue("Failed to assigned incident");
+        }
+    }
+);
+export const updateIncidentStatusThunk = createAsyncThunk<
+    Incident,
+    { id: string; status: IncidentStatus },
+    { rejectValue: string }
+>(
+    "incident/status",
+    async ({id, status},  {rejectWithValue}) => {
+        try {
+            return await updateIncidentStatusApi(id, status);
+        } catch (e) {
+            if (e instanceof ApiError) {
+                return rejectWithValue(e.code || "SERVER_ERROR");
+            }
+            return rejectWithValue("Failed to update status incident");
         }
     }
 );
@@ -170,28 +192,49 @@ const incidentSlice = createSlice({
                 state.isAssigned = true;
                 state.errorInc = null;
             })
-            .addCase(updateIncidentAssignedThunk.fulfilled, (state) => {
+            .addCase(updateIncidentAssignedThunk.fulfilled, (state, action) => {
                 state.isAssigned = false;
-                // const patch = action.payload;
-                //
-                // const index = state.incidents.findIndex(
-                //     (t) => t.incidentId === patch.incidentId
-                // );
-                // if(index !== -1) {
-                //     state.items[index] = {
-                //         ...state.items[index],
-                //         ...patch,
-                //     };
-                // }
-                //
-                // if(state.current && (state.current.requestId === patch.requestId)) {
-                //     state.current = {
-                //         ...state.current,
-                //         ...patch,
-                //     };
-                // }
+                const updated = action.payload;
+                const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
+                if (idx !== -1) state.incidents[idx] = {
+                    ...state.incidents[idx],
+                    ...updated,
+                };
+
+                if (state.currentInc && state.currentInc.incidentId === updated.incidentId){
+                    state.currentInc = {
+                        ...state.currentInc,
+                        ...updated,
+                    };
+                }
+
             })
             .addCase(updateIncidentAssignedThunk.rejected, (state, action) => {
+                state.isAssigned = false;
+                state.errorInc = mapIncidentErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
+            })
+            .addCase(updateIncidentStatusThunk.pending, (state) => {
+                state.isAssigned = true;
+                state.errorInc = null;
+            })
+            .addCase(updateIncidentStatusThunk.fulfilled, (state, action) => {
+                state.isAssigned = false;
+                const updated = action.payload;
+                const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
+                if (idx !== -1) state.incidents[idx] = {
+                    ...state.incidents[idx],
+                    ...updated,
+                };
+                if (state.currentInc && state.currentInc.incidentId === updated.incidentId){
+                    state.currentInc = {
+                        ...state.currentInc,
+                        ...updated,
+                    };
+                }
+            })
+            .addCase(updateIncidentStatusThunk.rejected, (state, action) => {
                 state.isAssigned = false;
                 state.errorInc = mapIncidentErrorCodeToMessage(
                     action.payload ?? action.error.message
