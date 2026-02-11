@@ -5,7 +5,7 @@ import "../styles/tables.css";
 type Props<TData> = {
     table: Table<TData>;
     statusOptions: string[];
-    priorityOptions: string[];
+    priorityOptions?: string[];
 };
 
 export function TableFilters<TData>({
@@ -18,6 +18,9 @@ export function TableFilters<TData>({
 
     const statusCol = table.getColumn("status");
     const priorityCol = table.getColumn("priority");
+
+    const showPriorityFilter =
+        priorityCol && priorityOptions && priorityOptions.length > 0;
 
     const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
     const appliedPriority = (priorityCol?.getFilterValue() as string) ?? "ALL";
@@ -58,27 +61,29 @@ export function TableFilters<TData>({
                         </select>
                     </div>
 
-                    <div className="filter-row">
-                        <span className="filter-label">Priority</span>
+                    {showPriorityFilter && (
+                        <div className="filter-row">
+                            <span className="filter-label">Priority</span>
 
-                        <select
-                            className="filter-select"
-                            value={appliedPriority}
-                            onChange={(e) => {
-                                priorityCol?.setFilterValue(e.target.value);
-                                setOpen(false);
-                            }}
-                            disabled={!priorityCol}
-                            title={!priorityCol ? "No priority column in this table" : undefined}
-                        >
-                            <option value="ALL">All</option>
-                            {priorityOptions.map((p) => (
-                                <option key={p} value={p}>
-                                    {p}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                            <select
+                                className="filter-select"
+                                value={appliedPriority}
+                                onChange={(e) => {
+                                    priorityCol?.setFilterValue(e.target.value);
+                                    setOpen(false);
+                                }}
+                            >
+                                <option value="ALL">All</option>
+
+                                {priorityOptions!.map((p) => (
+                                    <option key={p} value={p}>
+                                        {p}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
 
                     <div className="filter-actions">
                         <button
