@@ -177,6 +177,7 @@ export class IncidentRepository {
             UPDATE incidents
             SET
                 status = $1,
+                updated_by = $2,
                 updated_at = CURRENT_TIMESTAMP
                 ${isResolved ? ', resolved_by = $2' : ''}
             WHERE incident_id = $${isResolved ? '3' : '2'}
@@ -196,7 +197,7 @@ export class IncidentRepository {
 
         const params = isResolved
             ? [status, updatedBy, incidentId]
-            : [status, incidentId];
+            : [status, updatedBy, incidentId];
 
         try {
             const result = await this.pool.query(query, params);
@@ -217,6 +218,56 @@ export class IncidentRepository {
             }
             throw this.mapDatabaseError(error);
         }
+    }
+
+    async updateIncidentStatusWithAutoAssign(
+        incidentId: string,
+        status: IncidentStatus,
+        updatedBy: string
+    ): Promise<Incident> {
+        const current = await this.getIncidentById(incidentId);
+
+        if (!current) {
+            throw new Error('Incident not found');
+        }
+
+        const shouldAutoAssign = status === 'in_progress' && !current.assignedBy;
+
+        const query = `
+        UPDATE incidents
+        SET
+            status = $1,
+            updated_by = $2,
+            ${shouldAutoAssign ? 'assigned_by = $2,' : ''}
+            ${status === 'resolved' ? 'resolved_by = $2,' : ''}
+            updated_at = CURRENT_TIMESTAMP
+        WHERE incident_id = $3
+        RETURNING
+            incident_id AS "incidentId",
+            incident_number AS "incidentNumber",
+            priority,
+            status,
+            category,
+            description,
+            created_by AS "createdBy",
+            assigned_by AS "assignedBy",
+            resolved_by AS "resolvedBy",
+            updated_by AS "updatedBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+    `;
+
+        const result = await this.pool.query(query, [status, updatedBy, incidentId]);
+
+        if (result.rows.length === 0) {
+            throw new Error('Incident not found');
+        }
+
+        const incident = result.rows[0];
+        const tickets = await this.getTicketIds(incidentId);
+        incident.ticketIds = tickets;
+
+        return incident;
     }
 
     async assignIncident(incidentId: string, assignedBy: string): Promise<Incident> {
@@ -338,5 +389,49 @@ export class IncidentRepository {
         dbError.code = ERROR_CODES.DB_QUERY;
         dbError.statusCode = 500;
         return dbError;
+    }
+
+    async addComment(data: AddCommentInput): Promise<IncidentComment> {
+        const commentId = uuidv4();
+
+        const query = `
+        INSERT INTO incident_comments (
+            comment_id, incident_id, comment_text, created_by
+        ) VALUES ($1, $2, $3, $4)
+        RETURNING
+            comment_id AS "commentId",
+            incident_id AS "incidentId",
+            comment_text AS "commentText",
+            created_by AS "createdBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+    `;
+
+        const result = await this.pool.query(query, [
+            commentId,
+            data.incidentId,
+            data.commentText,
+            data.createdBy
+        ]);
+
+        return result.rows[0];
+    }
+
+    async getComments(incidentId: string): Promise<IncidentComment[]> {
+        const query = `
+        SELECT
+            comment_id AS "commentId",
+            incident_id AS "incidentId",
+            comment_text AS "commentText",
+            created_by AS "createdBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+        FROM incident_comments
+        WHERE incident_id = $1
+        ORDER BY created_at ASC
+    `;
+
+        const result = await this.pool.query(query, [incidentId]);
+        return result.rows;
     }
 }

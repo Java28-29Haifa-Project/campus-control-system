@@ -13,6 +13,7 @@ export async function updateStatus(
     repository: IncidentRepository,
     data: UpdateStatusInput
 ): Promise<{ statusCode: number; body: Incident }> {
+
     try {
         if (!data.incidentId || !data.status || !data.updatedBy) {
             return {
@@ -40,7 +41,7 @@ export async function updateStatus(
             };
         }
 
-        const incident = await repository.updateIncidentStatus(
+        const incident = await repository.updateIncidentStatusWithAutoAssign(
             data.incidentId,
             data.status,
             data.updatedBy

@@ -6,6 +6,8 @@ import { updateStatus } from './handlers/updateStatus.js';
 import { updatePriority } from './handlers/updatePriority.js';
 import { getIncidents } from './handlers/getIncidents.js';
 import { getIncidentById } from './handlers/getIncidentById.js';
+import { addComment } from './handlers/addComment.js';
+
 
 export const handler = async (event: any) => {
     console.log('Action received:', event.action);
@@ -37,6 +39,13 @@ export const handler = async (event: any) => {
 
             case 'GET_INCIDENT_BY_ID':
                 return await getIncidentById(repository, data);
+
+            case 'ADD_COMMENT':
+                return await addComment(repository, data);
+
+            case 'GET_COMMENTS':
+                const comments = await repository.getComments(data.incidentId);
+                return { statusCode: 200, body: comments };
 
             case 'HEALTH_CHECK':
                 return {
