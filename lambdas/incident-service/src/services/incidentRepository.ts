@@ -390,4 +390,48 @@ export class IncidentRepository {
         dbError.statusCode = 500;
         return dbError;
     }
+
+    async addComment(data: AddCommentInput): Promise<IncidentComment> {
+        const commentId = uuidv4();
+
+        const query = `
+        INSERT INTO incident_comments (
+            comment_id, incident_id, comment_text, created_by
+        ) VALUES ($1, $2, $3, $4)
+        RETURNING
+            comment_id AS "commentId",
+            incident_id AS "incidentId",
+            comment_text AS "commentText",
+            created_by AS "createdBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+    `;
+
+        const result = await this.pool.query(query, [
+            commentId,
+            data.incidentId,
+            data.commentText,
+            data.createdBy
+        ]);
+
+        return result.rows[0];
+    }
+
+    async getComments(incidentId: string): Promise<IncidentComment[]> {
+        const query = `
+        SELECT
+            comment_id AS "commentId",
+            incident_id AS "incidentId",
+            comment_text AS "commentText",
+            created_by AS "createdBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+        FROM incident_comments
+        WHERE incident_id = $1
+        ORDER BY created_at ASC
+    `;
+
+        const result = await this.pool.query(query, [incidentId]);
+        return result.rows;
+    }
 }
