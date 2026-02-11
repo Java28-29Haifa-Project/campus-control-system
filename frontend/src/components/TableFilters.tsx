@@ -19,9 +19,6 @@ export function TableFilters<TData>({
     const statusCol = table.getColumn("status");
     const priorityCol = table.getColumn("priority");
 
-    const showPriorityFilter =
-        priorityCol && priorityOptions && priorityOptions.length > 0;
-
     const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
     const appliedPriority = (priorityCol?.getFilterValue() as string) ?? "ALL";
 
@@ -61,7 +58,6 @@ export function TableFilters<TData>({
                         </select>
                     </div>
 
-                    {showPriorityFilter && (
                         <div className="filter-row">
                             <span className="filter-label">Priority</span>
 
@@ -82,7 +78,6 @@ export function TableFilters<TData>({
                                 ))}
                             </select>
                         </div>
-                    )}
 
 
                     <div className="filter-actions">

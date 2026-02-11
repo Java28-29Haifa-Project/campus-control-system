@@ -94,7 +94,7 @@ const IncidentTable:React.FC = () => {
             {
                 header: "Description",
                 accessorKey: "description",
-                minSize: 600,
+                minSize: 400,
                 cell: ({ getValue }) => {
                     const value = (getValue() ?? "") as string;
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
@@ -104,7 +104,7 @@ const IncidentTable:React.FC = () => {
             {
                 id: "priority",
                 accessorKey: "priority",
-                minSize: 200,
+                minSize: 250,
                 filterFn: (row, columnId, filterValue) => {
                     if(!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
