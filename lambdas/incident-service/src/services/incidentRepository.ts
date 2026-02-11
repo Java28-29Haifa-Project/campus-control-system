@@ -177,6 +177,7 @@ export class IncidentRepository {
             UPDATE incidents
             SET
                 status = $1,
+                updated_by = $2,
                 updated_at = CURRENT_TIMESTAMP
                 ${isResolved ? ', resolved_by = $2' : ''}
             WHERE incident_id = $${isResolved ? '3' : '2'}
@@ -196,7 +197,7 @@ export class IncidentRepository {
 
         const params = isResolved
             ? [status, updatedBy, incidentId]
-            : [status, incidentId];
+            : [status, updatedBy, incidentId];
 
         try {
             const result = await this.pool.query(query, params);
