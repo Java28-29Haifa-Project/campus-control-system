@@ -17,7 +17,7 @@ import {
 } from "../../utils/helper.ts";
 import {useLocation} from "react-router-dom";
 import {usePolling} from "../../hooks/usePolling.ts";
-import {PollingHeader} from "../../components/PollingHeader.tsx";
+import {PollingInline} from "../../components/PollingInline.tsx";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.New,
@@ -37,7 +37,7 @@ const POLL_MS = 500_000;
 
 const IncidentTable:React.FC = () => {
 
-    const { incidents, incidentsSyncing, incidentsSyncError, incidentsNewCount } = useAppSelector((s) => s.incident);
+    const { incidents, incidentsSyncing, incidentsNewCount } = useAppSelector((s) => s.incident);
 
     const dispatch = useAppDispatch();
     const location = useLocation();
@@ -253,17 +253,19 @@ const IncidentTable:React.FC = () => {
 
     return (
         <TableTanStack
+            title={
+                <>
+                    All incidents
+
+                    <PollingInline
+                        newCount={incidentsNewCount}
+                        syncing={incidentsSyncing}
+                        onRefresh={forceRefresh}
+                    />
+                </>
+            }
             data={incidents}
             columns={columns}
-            renderTitle={() => (
-                <PollingHeader
-                    label="Incidents"
-                    syncing={incidentsSyncing}
-                    error={incidentsSyncError}
-                    newCount={incidentsNewCount}
-                    onRefresh={forceRefresh}
-                />
-            )}
             renderTopRight={(table)=>(
                 <TableFilters
                     table={table}

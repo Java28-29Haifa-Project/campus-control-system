@@ -16,11 +16,8 @@ import {
 
 type FetchSource = "poll" | "manual";
 
-function countNewIncidents(prev: Incident[], next: Incident[]) {
-    const prevIds = new Set(prev.map((x) => x.incidentId));
-    let cnt = 0;
-    for (const x of next) if (!prevIds.has(x.incidentId)) cnt++;
-    return cnt;
+function countNewIncidentsByStatus(list: Incident[]) {
+    return list.filter((i) => i.status === IncidentStatus.New).length;
 }
 
 const mapIncidentErrorCodeToMessage = (code?: string | null): string => {
@@ -188,17 +185,14 @@ const incidentSlice = createSlice({
                 state.incidentsSyncError = null;
             })
             .addCase(getIncidentsThunk.fulfilled, (state, action) => {
-                const source = action.meta.arg?.source ?? "manual";
-
-                const prev = state.incidents;
                 const next = action.payload;
-
-                const arrived = countNewIncidents(prev, next);
 
                 state.incidents = next;
                 state.incidentsSyncing = false;
                 state.incidentsLastSyncAt = new Date().toISOString();
-                state.incidentsNewCount = source === "poll" ? arrived : 0;
+
+                state.incidentsNewCount =
+                    countNewIncidentsByStatus(next);
             })
             .addCase(getIncidentsThunk.rejected, (state, action) => {
                 state.isLoadingIncidents = false;
