@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from "react";
+import React, {useCallback, useMemo} from "react";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {type ColumnDef} from "@tanstack/react-table";
 import {type Incident, IncidentPriority, IncidentStatus} from "../../types/incidentTypes.ts";
@@ -15,6 +15,9 @@ import {
     INCIDENT_STATUS_ORDER,
     isOptionDisabledByRank
 } from "../../utils/helper.ts";
+import {useLocation} from "react-router-dom";
+import {usePolling} from "../../hooks/usePolling.ts";
+import {PollingHeader} from "../../components/PollingHeader.tsx";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.New,
@@ -30,15 +33,31 @@ const PRIORITY_OPTIONS_INCIDENT: IncidentPriority[] = [
     IncidentPriority.P4,
 ];
 
+const POLL_MS = 500_000;
 
 const IncidentTable:React.FC = () => {
 
-    const { incidents } = useAppSelector((state) => state.incident);
+    const { incidents, incidentsSyncing, incidentsSyncError, incidentsNewCount } = useAppSelector((s) => s.incident);
 
     const dispatch = useAppDispatch();
+    const location = useLocation();
 
-    useEffect(() => {
-        dispatch(getIncidentsThunk());
+    const enabled =
+        location.pathname.startsWith("/incident");
+
+    const tick = useCallback(() => {
+        dispatch(getIncidentsThunk({ source: "poll" }));
+    }, [dispatch]);
+
+    usePolling({
+        enabled,
+        intervalMs: POLL_MS,
+        isSyncing: incidentsSyncing,
+        tick,
+    });
+
+    const forceRefresh = useCallback(() => {
+        dispatch(getIncidentsThunk({ source: "manual" }));
     }, [dispatch]);
 
     const handleStatusChange = useCallback(
@@ -234,9 +253,17 @@ const IncidentTable:React.FC = () => {
 
     return (
         <TableTanStack
-            title="All incidents"
             data={incidents}
             columns={columns}
+            renderTitle={() => (
+                <PollingHeader
+                    label="Incidents"
+                    syncing={incidentsSyncing}
+                    error={incidentsSyncError}
+                    newCount={incidentsNewCount}
+                    onRefresh={forceRefresh}
+                />
+            )}
             renderTopRight={(table)=>(
                 <TableFilters
                     table={table}

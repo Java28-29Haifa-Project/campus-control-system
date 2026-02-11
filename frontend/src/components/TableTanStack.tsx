@@ -18,6 +18,7 @@ type TableTabStackProps<TData> = {
     renderTopRight?: (table: ReturnType<typeof useReactTable<TData>>) => React.ReactNode;
 
     title?: string;
+    renderTitle?: (table: ReturnType<typeof useReactTable<TData>>) => React.ReactNode;
 };
 
 function TableTanStack<TData>({
@@ -29,6 +30,7 @@ function TableTanStack<TData>({
                                             getRowClassName,
                                             renderTopRight,
                                             title,
+                                            renderTitle,
                                         }: TableTabStackProps<TData>) {
 
     const [columnFilters, setColumnFilters] =
@@ -45,13 +47,16 @@ function TableTanStack<TData>({
     });
 
     return (
-        <div className="support-table-page">
-            {(title || renderTopRight) && (
-                <div className="support-table-header">
-                    {title && <h1 className="support-table-title">{title}</h1>}
+        <div className="support-table">
+            <div className="support-table-top">
+                <div className="support-table-title">
+                    {renderTitle ? renderTitle(table) : title ? <h2>{title}</h2> : null}
+                </div>
+
+                <div className="support-table-actions">
                     {renderTopRight?.(table)}
                 </div>
-            )}
+            </div>
 
             <div className="support-table-container">
                 <table className="support-table">

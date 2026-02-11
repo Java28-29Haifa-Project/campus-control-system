@@ -13,7 +13,15 @@ import {
     updateIncidentStatusApi,
     updateIncidentStatusAssignedApi
 } from "../../api/incidentApi.ts";
-import {fetchTicketsThunk} from "./ticketSlice.ts";
+
+type FetchSource = "poll" | "manual";
+
+function countNewIncidents(prev: Incident[], next: Incident[]) {
+    const prevIds = new Set(prev.map((x) => x.incidentId));
+    let cnt = 0;
+    for (const x of next) if (!prevIds.has(x.incidentId)) cnt++;
+    return cnt;
+}
 
 const mapIncidentErrorCodeToMessage = (code?: string | null): string => {
     if (!code) {
@@ -46,7 +54,7 @@ export const createIncidentThunk = createAsyncThunk<
 
 export const getIncidentsThunk = createAsyncThunk<
     Incident[],
-    void,
+    { source: FetchSource } | void,
     { rejectValue: string }
 >(
     "getIncidents",
@@ -127,9 +135,10 @@ export interface IncidentState {
 
     isAssigned: boolean;
 
-    incidentsSyncing: boolean,
-    incidentsLastSyncAt: string | null,
-    incidentsSyncError: string | null,
+    incidentsSyncing: boolean;
+    incidentsLastSyncAt: string | null;
+    incidentsSyncError: string | null;
+    incidentsNewCount: number;
 }
 const initialState: IncidentState = {
     incidents: [],
@@ -145,8 +154,9 @@ const initialState: IncidentState = {
     isAssigned: false,
 
     incidentsSyncing: false,
-    incidentsLastSyncAt: null as string | null,
-    incidentsSyncError: null as string | null,
+    incidentsLastSyncAt: null,
+    incidentsSyncError: null,
+    incidentsNewCount: 0,
 }
 
 const incidentSlice = createSlice({
@@ -164,7 +174,7 @@ const incidentSlice = createSlice({
                 state.isCreatingInc = false;
                 state.incidents.unshift(action.payload);
             })
-            .addCase(fetchTicketsThunk.rejected, (state, action) => {
+            .addCase(createIncidentThunk.rejected, (state, action) => {
                 state.isCreatingInc = false;
                 state.errorInc = mapIncidentErrorCodeToMessage(
                     action.payload ?? action.error.message
@@ -178,11 +188,17 @@ const incidentSlice = createSlice({
                 state.incidentsSyncError = null;
             })
             .addCase(getIncidentsThunk.fulfilled, (state, action) => {
-                state.isLoadingIncidents = false;
-                state.incidents = (action.payload ?? []).filter(Boolean) ;
+                const source = action.meta.arg?.source ?? "manual";
 
+                const prev = state.incidents;
+                const next = action.payload;
+
+                const arrived = countNewIncidents(prev, next);
+
+                state.incidents = next;
                 state.incidentsSyncing = false;
                 state.incidentsLastSyncAt = new Date().toISOString();
+                state.incidentsNewCount = source === "poll" ? arrived : 0;
             })
             .addCase(getIncidentsThunk.rejected, (state, action) => {
                 state.isLoadingIncidents = false;
