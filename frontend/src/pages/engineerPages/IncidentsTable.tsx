@@ -120,7 +120,7 @@ const IncidentTable:React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                                 e.stopPropagation();
-                                const nextPriority = e.target.value as IncidentPriority;
+                                const nextPriority = e.target.value as unknown as IncidentPriority;
                                 handlePriorityChange(incident, nextPriority);
                             }}
                         >
@@ -134,7 +134,7 @@ const IncidentTable:React.FC = () => {
                                         p,
                                     )}
                                 >
-                                    {p.replace("_", " ")}
+                                    {p}
                                 </option>
                             ))}
                         </select>

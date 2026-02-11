@@ -5,7 +5,7 @@ import "../styles/tables.css";
 type Props<TData> = {
     table: Table<TData>;
     statusOptions: string[];
-    priorityOptions?: string[];
+    priorityOptions?: number[];
 };
 
 export function TableFilters<TData>({
