@@ -1,6 +1,7 @@
 import {useMemo, useState} from "react";
 import type {Table} from "@tanstack/react-table";
 import "../styles/tables.css";
+import type {IncidentPriority} from "../types/incidentTypes.ts";
 
 type Props<TData> = {
     table: Table<TData>;
@@ -20,7 +21,7 @@ export function TableFilters<TData>({
     const priorityCol = table.getColumn("priority");
 
     const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
-    const appliedPriority = (priorityCol?.getFilterValue() as string) ?? "ALL";
+    const appliedPriority = (priorityCol?.getFilterValue() as IncidentPriority | "ALL") ?? "ALL";
 
     const isActive = useMemo(() =>
         appliedStatus !== "ALL" || appliedPriority !== "ALL",
@@ -63,10 +64,10 @@ export function TableFilters<TData>({
 
                             <select
                                 className="filter-select"
-                                value={appliedPriority}
+                                value={String(appliedPriority)}
                                 onChange={(e) => {
-                                    priorityCol?.setFilterValue(e.target.value);
-                                    // setOpen(false);
+                                    const v = e.target.value;
+                                    priorityCol?.setFilterValue(v === "ALL" ? "ALL" : (Number(v) as IncidentPriority));
                                 }}
                             >
                                 <option value="ALL">All</option>

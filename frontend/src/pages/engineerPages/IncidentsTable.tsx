@@ -106,7 +106,7 @@ const IncidentTable:React.FC = () => {
                 accessorKey: "priority",
                 minSize: 250,
                 filterFn: (row, columnId, filterValue) => {
-                    if(!filterValue || filterValue === "ALL") return true;
+                    if (!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
                 },
                 cell: ({ getValue, row }) => {
@@ -120,7 +120,7 @@ const IncidentTable:React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                                 e.stopPropagation();
-                                const nextPriority = e.target.value as unknown as IncidentPriority;
+                                const nextPriority = Number(e.target.value) as IncidentPriority;
                                 handlePriorityChange(incident, nextPriority);
                             }}
                         >
