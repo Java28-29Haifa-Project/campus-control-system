@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo} from "react";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {type ColumnDef} from "@tanstack/react-table";
-import {type Incident, IncidentStatus} from "../../types/incidentTypes.ts";
+import {type Incident, IncidentPriority, IncidentStatus} from "../../types/incidentTypes.ts";
 import {
     getIncidentsThunk,
     updateIncidentAssignedThunk,
@@ -9,14 +9,27 @@ import {
 } from "../../state/slices/incidentSlice.ts";
 import {TableFilters} from "../../components/TableFilters.tsx";
 import TableTanStack from "../../components/TableTanStack.tsx";
-import {buildStatusOptionsForRow, canMoveIncident, isOptionDisabled} from "../../utils/helper.ts";
+import {
+    canMoveByRank,
+    INCIDENT_PRIORITY_ORDER,
+    INCIDENT_STATUS_ORDER,
+    isOptionDisabledByRank
+} from "../../utils/helper.ts";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.New,
     IncidentStatus.Assign,
     IncidentStatus.InProgress,
-    IncidentStatus.Resolved
+    IncidentStatus.Resolved,
+    IncidentStatus.Closed,
 ];
+const PRIORITY_OPTIONS_INCIDENT: IncidentPriority[] = [
+    IncidentPriority.P1,
+    IncidentPriority.P2,
+    IncidentPriority.P3,
+    IncidentPriority.P4,
+];
+
 
 const IncidentTable:React.FC = () => {
 
@@ -31,16 +44,29 @@ const IncidentTable:React.FC = () => {
     const handleStatusChange = useCallback(
         (incident: Incident, nextStatus: IncidentStatus) => {
             const current = incident.status;
+
             if (nextStatus === current) return;
 
-            if (!canMoveIncident(current, nextStatus)) return;
+            if (!canMoveByRank(INCIDENT_STATUS_ORDER, incident.status, nextStatus)) return;
 
             if (nextStatus === IncidentStatus.Assign) {
                 dispatch(updateIncidentAssignedThunk(incident.incidentId));
                 return;
             }
 
-            dispatch(updateIncidentStatusThunk({ id: incident.incidentId, status: nextStatus }));
+            dispatch(updateIncidentStatusThunk({id: incident.incidentId, status: nextStatus}));
+        },
+        [dispatch]
+    );
+    const handlePriorityChange = useCallback(
+        (incident: Incident, nextPriority: IncidentPriority) => {
+            const current = incident.priority;
+
+            if (nextPriority === current) return;
+
+            if (!canMoveByRank(INCIDENT_PRIORITY_ORDER, incident.priority, nextPriority)) return;
+
+            // dispatch(updateIncidentStatusThunk({id: incident.incidentId, status: nextStatus}));
         },
         [dispatch]
     );
@@ -76,9 +102,45 @@ const IncidentTable:React.FC = () => {
             },
             {header: "Category", accessorKey: "category",},
             {
+                id: "priority",
                 header: "Priority",
                 accessorKey: "priority",
-                minSize: 40,
+                minSize: 200,
+                filterFn: (row, columnId, filterValue) => {
+                    if(!filterValue || filterValue === "ALL") return true;
+                    return row.getValue(columnId) === filterValue;
+                },
+                cell: ({ getValue, row }) => {
+                    const incident = row.original;
+                    const currentPriority = getValue<IncidentPriority>();
+
+                    return (
+                        <select
+                            className="table-select"
+                            value={currentPriority}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                const nextPriority = e.target.value as IncidentPriority;
+                                handlePriorityChange(incident, nextPriority);
+                            }}
+                        >
+                            {PRIORITY_OPTIONS_INCIDENT.map((p) => (
+                                <option
+                                    key={p}
+                                    value={p}
+                                    disabled={isOptionDisabledByRank(
+                                        INCIDENT_PRIORITY_ORDER,
+                                        incident.priority,
+                                        p,
+                                    )}
+                                >
+                                    {p.replace("_", " ")}
+                                </option>
+                            ))}
+                        </select>
+                    );
+                }
             },
             {
                 id: "status",
@@ -92,11 +154,10 @@ const IncidentTable:React.FC = () => {
                     const incident = row.original;
                     const currentIncidentStatus = getValue<IncidentStatus>();
 
-                    const roleOptions = STATUS_OPTIONS_INCIDENT;
-                    const options = buildStatusOptionsForRow(
-                        incident.status,
-                        roleOptions
-                    );
+                    if (incident.status === IncidentStatus.Closed) {
+                        return <span>{incident.status.replace("_", " ")}</span>;
+                    }
+
                     return (
                         <select
                             className="table-select"
@@ -108,11 +169,15 @@ const IncidentTable:React.FC = () => {
                                 handleStatusChange(incident, next);
                             }}
                         >
-                            {options.map((s) => (
+                            {STATUS_OPTIONS_INCIDENT.map((s) => (
                                 <option
                                     key={s}
                                     value={s}
-                                    disabled={isOptionDisabled(incident.status, s, roleOptions)}
+                                    disabled={isOptionDisabledByRank(
+                                        INCIDENT_STATUS_ORDER,
+                                        incident.status,
+                                        s,
+                                    )}
                                 >
                                     {s.replace("_", " ")}
                                 </option>
@@ -165,7 +230,7 @@ const IncidentTable:React.FC = () => {
                 cell: () => "",
             },
         ],
-        [handleStatusChange]
+        [handlePriorityChange, handleStatusChange]
     );
 
     return (
@@ -174,11 +239,15 @@ const IncidentTable:React.FC = () => {
             data={incidents}
             columns={columns}
             renderTopRight={(table)=>(
-                <TableFilters table={table} statusOptions={STATUS_OPTIONS_INCIDENT}/>
+                <TableFilters
+                    table={table}
+                    statusOptions={STATUS_OPTIONS_INCIDENT}
+                    priorityOptions={PRIORITY_OPTIONS_INCIDENT}
+                />
             )}
             isRowClickable={(row) => row.original.status !== IncidentStatus.Resolved}
             getRowClassName={(row) => (
-                row.original.status === IncidentStatus.Resolved ? "row-disabled" : "")}
+                row.original.status === IncidentStatus.Resolved || row.original.status === IncidentStatus.Closed ? "row-disabled" : "")}
             // onRowClick={(row) => navigate(`/support/ticket/${row.original.}`)}
 
         />

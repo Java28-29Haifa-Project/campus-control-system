@@ -1,10 +1,10 @@
 
 export const enum IncidentStatus {
-    New = 'NEW',
-    Assign = 'ASSIGNED',
-    InProgress = 'IN_PROGRESS',
-    Resolved = 'RESOLVED',
-    Closed = 'CLOSED'
+    New = 'new',
+    Assign = 'assigned',
+    InProgress = 'in_progress',
+    Resolved = 'resolved',
+    Closed = 'closed'
 };
 export const enum IncidentImpact {
     Low = 'low',

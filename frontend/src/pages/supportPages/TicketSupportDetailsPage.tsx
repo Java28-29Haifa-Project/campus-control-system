@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from "react";
+import React, {useCallback, useEffect} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {clearCurrentTicket, fetchTicketByIdThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
@@ -18,8 +18,6 @@ const TicketSupportDetailsPage: React.FC = () => {
         (state) => state.ticket
     );
 
-    const { incidentByTicketId } = useAppSelector((state) => state.incident);
-
     useEffect(() => {
         if (!id) return;
         dispatch(fetchTicketByIdThunk(id));
@@ -29,35 +27,16 @@ const TicketSupportDetailsPage: React.FC = () => {
         };
     }, [dispatch, id]);
 
-    const incidentIdForTicket = useMemo(() => {
-        if (!current) return undefined;
-        return current.incidentId ?? incidentByTicketId[current.requestId];
-    }, [current, incidentByTicketId]);
-
-    const isLockedByIncident = Boolean(incidentIdForTicket);
-
     const handleStatusChangeDetails = useCallback(
-        async (ticket: Ticket, newStatus: TicketStatus) => {
-
-            if (ticket.incidentId ?? incidentByTicketId[ticket.requestId]) return;
-
+        (ticket: Ticket, newStatus: TicketStatus) => {
             if (ticket.status !== TicketStatus.New) return;
-            if (
-                newStatus !== TicketStatus.InService &&
-                newStatus !== TicketStatus.Rejected
-            ) return;
-
-        try {
-            await dispatch(
+       dispatch(
                 updateTicketThunk({
                     id: ticket.requestId,
                     updates: { status: newStatus },
                 })
-            ).unwrap();
-        } catch (e) {
-            console.error("Update status failed", e);
-        }
-    }, [dispatch, incidentByTicketId]);
+            )
+    }, [dispatch]);
 
     if (!id) {
         return (
@@ -102,9 +81,6 @@ const TicketSupportDetailsPage: React.FC = () => {
             </div>
         );
     }
-    const canChangeStatus = current.status === TicketStatus.New && !isLockedByIncident;
-
-    const canCreateIncident = current.status === TicketStatus.InService && !isLockedByIncident;
 
     return (
         <div className="auth-page">
@@ -120,16 +96,10 @@ const TicketSupportDetailsPage: React.FC = () => {
 
                     <div>
                         <b>Incident:</b>{" "}
-                        {incidentIdForTicket ? (
-                            <span>{incidentIdForTicket}</span>
-                        ) : (
-                            <span>—</span>
-                        )}
                     </div>
 
                     <div>
                         <b>Status:</b>{" "}
-                        {canChangeStatus ? (
                             <div className="select-box">
                                 <select
                                     className="table-select"
@@ -138,8 +108,12 @@ const TicketSupportDetailsPage: React.FC = () => {
                                         const nextStatus = e.target.value as TicketStatus;
 
                                         if (nextStatus === current.status) return;
+                                        if (nextStatus === TicketStatus.InService) {
+                                            navigate(`/support/incident/new/${current.requestId}`);
+                                            return;
+                                        }
 
-                                        void handleStatusChangeDetails(current, nextStatus);
+                                        handleStatusChangeDetails(current, nextStatus);
                                     }}
                                 >
                                     <option value={TicketStatus.New} disabled>
@@ -154,23 +128,16 @@ const TicketSupportDetailsPage: React.FC = () => {
                             </div>
                         ) : (
                             <span>{current.status}</span>
-                        )}
                     </div>
 
-                    {incidentIdForTicket ? (
-                        <div className="ticket-form-actions">
-                            <span className="muted-text">Incident already created</span>
-                        </div>
-                    ) : canCreateIncident ? (
-                        <div className="ticket-form-actions">
-                            <button
-                                className="secondary-btn back-btn"
-                                onClick={() => navigate(`/support/incident/new/${current.requestId}`)}
-                            >
-                                Create Incident
-                            </button>
-                        </div>
-                    ) : null}
+                        {/*<div className="ticket-form-actions">*/}
+                        {/*    <button*/}
+                        {/*        className="secondary-btn back-btn"*/}
+                        {/*        onClick={() => navigate(`/support/incident/new/${current.requestId}`)}*/}
+                        {/*    >*/}
+                        {/*        Create Incident*/}
+                        {/*    </button>*/}
+                        {/*</div>*/}
 
                     <div className="ticket-form-actions">
                         <button

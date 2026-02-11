@@ -5,19 +5,27 @@ import "../styles/tables.css";
 type Props<TData> = {
     table: Table<TData>;
     statusOptions: string[];
+    priorityOptions: string[];
 };
 
 export function TableFilters<TData>({
                                               table,
                                               statusOptions,
+                                        priorityOptions
                                           }: Props<TData>) {
 
     const [open, setOpen] = useState(false);
 
     const statusCol = table.getColumn("status");
-    const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
+    const priorityCol = table.getColumn("priority");
 
-    const isActive = useMemo(() => appliedStatus !== "ALL", [appliedStatus]);
+    const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
+    const appliedPriority = (priorityCol?.getFilterValue() as string) ?? "ALL";
+
+    const isActive = useMemo(() =>
+        appliedStatus !== "ALL" || appliedPriority !== "ALL",
+        [appliedStatus, appliedPriority]
+    );
 
     return (
         <div className="support-table-actions" onClick={(e) => e.stopPropagation()}>
@@ -31,9 +39,9 @@ export function TableFilters<TData>({
 
             {open && (
                 <div className="filter-popover">
+
                     <div className="filter-row">
                         <span className="filter-label">Status</span>
-
                         <select
                             className="filter-select"
                             value={appliedStatus}
@@ -50,27 +58,50 @@ export function TableFilters<TData>({
                         </select>
                     </div>
 
+                    <div className="filter-row">
+                        <span className="filter-label">Priority</span>
+
+                        <select
+                            className="filter-select"
+                            value={appliedPriority}
+                            onChange={(e) => {
+                                priorityCol?.setFilterValue(e.target.value);
+                                setOpen(false);
+                            }}
+                            disabled={!priorityCol}
+                            title={!priorityCol ? "No priority column in this table" : undefined}
+                        >
+                            <option value="ALL">All</option>
+                            {priorityOptions.map((p) => (
+                                <option key={p} value={p}>
+                                    {p}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div className="filter-actions">
                         <button
                             type="button"
                             className="secondary-btn table-btn"
                             onClick={() => {
                                 statusCol?.setFilterValue("ALL");
-                                setOpen(false);
+                                priorityCol?.setFilterValue("ALL");
+                                // setOpen(false);
                             }}
                         >
                             Reset
                         </button>
 
-                        {/*<button*/}
-                        {/*    type="button"*/}
-                        {/*    className="secondary-btn table-btn"*/}
-                        {/*    onClick={() => {*/}
-                        {/*        setOpen(false);*/}
-                        {/*    }}*/}
-                        {/*>*/}
-                        {/*    Done*/}
-                        {/*</button>*/}
+                        <button
+                            type="button"
+                            className="secondary-btn table-btn"
+                            onClick={() => {
+                                setOpen(false);
+                            }}
+                        >
+                            Done
+                        </button>
                     </div>
                 </div>
             )}

@@ -111,7 +111,6 @@ const CreateFormIncident:React.FC = () => {
                     ).unwrap();
                 } catch (e) {
                     console.error("Incident created, but status update failed", e);
-                    // тут можно показать error message
                     return;
                 }
 
