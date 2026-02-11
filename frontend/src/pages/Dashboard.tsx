@@ -38,7 +38,7 @@ const Dashboard = () => {
                     <p>You can work with incidents here:</p>
                     <ul>
                         <li><Link to={Paths.INCIDENT}>All Incidents</Link></li>
-                        <li><Link to={Paths.INCIDENT_MY}>My Incidents</Link></li>
+                        {/*<li><Link to={Paths.INCIDENT_MY}>My Incidents</Link></li>*/}
                     </ul>
                 </>
             )}

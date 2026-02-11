@@ -8,7 +8,6 @@ import Ticket from "./pages/userPages/Ticket.tsx";
 import TicketSupport from "./pages/supportPages/TicketSupport.tsx";
 import CreateIncident from "./pages/supportPages/CreateIncident.tsx";
 import IncidentDetails from "./pages/engineerPages/IncidentDetails.tsx";
-import Alarm from "./pages/adminPages/Alarm.tsx";
 import Logs from "./pages/adminPages/Logs.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import LoginForm from "./components/LoginForm.tsx";
@@ -59,8 +58,8 @@ function App() {
 
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>
                     <Route path={Paths.INCIDENT} element={<IncidentTable/>}/>
-                    <Route path={Paths.INCIDENT_MY} element={<IncidentDetails/>}/>
-                    <Route path={Paths.ALARM} element={<Alarm/>}/>
+                    <Route path={Paths.INCIDENT_DETAILS} element={<IncidentDetails/>}/>
+                    {/*<Route path={Paths.ALARM} element={<Alarm/>}/>*/}
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

@@ -126,8 +126,6 @@ const TicketSupportDetailsPage: React.FC = () => {
                                     ))}
                                 </select>
                             </div>
-                        ) : (
-                            <span>{current.status}</span>
                     </div>
 
                         {/*<div className="ticket-form-actions">*/}

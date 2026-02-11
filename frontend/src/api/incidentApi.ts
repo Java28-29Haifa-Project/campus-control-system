@@ -1,6 +1,6 @@
 import {
     type CreateIncidentRequest,
-    type Incident,
+    type Incident, IncidentPriority,
     type IncidentResponse,
     IncidentStatus
 } from "../types/incidentTypes.ts";
@@ -33,5 +33,11 @@ export const updateIncidentStatusApi = async (id: string, status: IncidentStatus
     return request<Incident>(`/incidents/${id}/status`, {
         method: "PATCH",
         body: status,
+    });
+}
+export const updateIncidentPriorityApi = async (id: string, priority: IncidentPriority): Promise<Incident> => {
+    return request<Incident>(`/incidents/${id}/priority`, {
+        method: "PATCH",
+        body: priority,
     });
 }

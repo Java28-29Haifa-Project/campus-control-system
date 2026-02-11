@@ -70,7 +70,7 @@ export function TableFilters<TData>({
                                 value={appliedPriority}
                                 onChange={(e) => {
                                     priorityCol?.setFilterValue(e.target.value);
-                                    setOpen(false);
+                                    // setOpen(false);
                                 }}
                             >
                                 <option value="ALL">All</option>
@@ -92,7 +92,7 @@ export function TableFilters<TData>({
                             onClick={() => {
                                 statusCol?.setFilterValue("ALL");
                                 priorityCol?.setFilterValue("ALL");
-                                // setOpen(false);
+                                setOpen(false);
                             }}
                         >
                             Reset
