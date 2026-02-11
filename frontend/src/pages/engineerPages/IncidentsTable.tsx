@@ -37,7 +37,7 @@ const POLL_MS = 500_000;
 
 const IncidentTable:React.FC = () => {
 
-    const { incidents, incidentsSyncing, incidentsNewCount } = useAppSelector((s) => s.incident);
+    const { incidents, incidentsSyncing, incidentsLastSyncAt, incidentsNewCount } = useAppSelector((s) => s.incident);
 
     const dispatch = useAppDispatch();
     const location = useLocation();
@@ -255,11 +255,10 @@ const IncidentTable:React.FC = () => {
         <TableTanStack
             title={
                 <>
-                    All incidents
-
                     <PollingInline
                         newCount={incidentsNewCount}
                         syncing={incidentsSyncing}
+                        lastSyncAt={incidentsLastSyncAt}
                         onRefresh={forceRefresh}
                     />
                 </>

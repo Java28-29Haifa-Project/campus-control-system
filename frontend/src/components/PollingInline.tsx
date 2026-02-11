@@ -1,15 +1,22 @@
 
 import React from "react";
 
+function formatLastSync(iso: string | null) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleTimeString();
+}
+
 type Props = {
     newCount: number;
     syncing: boolean;
+    lastSyncAt: string | null;
     onRefresh: () => void;
 };
 
 export const PollingInline: React.FC<Props> = ({
                                                    newCount,
                                                    syncing,
+                                                    lastSyncAt,
                                                    onRefresh,
                                                }) => {
     return (
@@ -19,16 +26,20 @@ export const PollingInline: React.FC<Props> = ({
                 alignItems: "center",
                 gap: 12,
                 marginLeft: 16,
-                fontSize: 14,
-                fontWeight: 400,
+                fontSize: 20,
+                fontWeight: 600,
             }}
         >
 
-            {newCount > 0 && (
-                <span style={{ color: "#BF863C" }}>
+            {
+                <p style={{ color: "#BF863C" }}>
           +{newCount} new
-        </span>
-            )}
+        </p>
+            }
+
+            <span className="muted-text">
+        {formatLastSync(lastSyncAt)}
+      </span>
 
 
             <button

@@ -178,7 +178,8 @@ const TicketSupportTable:React.FC = () => {
                     statusOptions={STATUS_OPTIONS}
                 />
             )}
-            isRowClickable={(row) => row.original.status !== TicketStatus.Rejected}
+            isRowClickable={(row) =>  row.original.status !== TicketStatus.InService &&
+                row.original.status !== TicketStatus.Rejected}
             getRowClassName={(row) => (
             row.original.status === TicketStatus.InService ||
             row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
