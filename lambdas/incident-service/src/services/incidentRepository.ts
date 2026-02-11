@@ -220,6 +220,56 @@ export class IncidentRepository {
         }
     }
 
+    async updateIncidentStatusWithAutoAssign(
+        incidentId: string,
+        status: IncidentStatus,
+        updatedBy: string
+    ): Promise<Incident> {
+        const current = await this.getIncidentById(incidentId);
+
+        if (!current) {
+            throw new Error('Incident not found');
+        }
+
+        const shouldAutoAssign = status === 'in_progress' && !current.assignedBy;
+
+        const query = `
+        UPDATE incidents
+        SET
+            status = $1,
+            updated_by = $2,
+            ${shouldAutoAssign ? 'assigned_by = $2,' : ''}
+            ${status === 'resolved' ? 'resolved_by = $2,' : ''}
+            updated_at = CURRENT_TIMESTAMP
+        WHERE incident_id = $3
+        RETURNING
+            incident_id AS "incidentId",
+            incident_number AS "incidentNumber",
+            priority,
+            status,
+            category,
+            description,
+            created_by AS "createdBy",
+            assigned_by AS "assignedBy",
+            resolved_by AS "resolvedBy",
+            updated_by AS "updatedBy",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+    `;
+
+        const result = await this.pool.query(query, [status, updatedBy, incidentId]);
+
+        if (result.rows.length === 0) {
+            throw new Error('Incident not found');
+        }
+
+        const incident = result.rows[0];
+        const tickets = await this.getTicketIds(incidentId);
+        incident.ticketIds = tickets;
+
+        return incident;
+    }
+
     async assignIncident(incidentId: string, assignedBy: string): Promise<Incident> {
         const query = `
             UPDATE incidents
