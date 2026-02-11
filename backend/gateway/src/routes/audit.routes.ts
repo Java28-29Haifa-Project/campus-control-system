@@ -3,4 +3,4 @@ import { auditController } from '../controllers/audit.controller.js';
 
 export const auditRoutes = express.Router();
 
-auditRoutes.post('/', auditController.sendAuditEvent);
+// auditRoutes.post('/', auditController.sendAuditEvent);

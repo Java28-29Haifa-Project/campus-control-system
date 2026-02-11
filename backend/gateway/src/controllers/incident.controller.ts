@@ -1,44 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import { incidentLambdaServiceAWS } from '../services/lambda-sdk/services/IncidentLambdaServiceAWS.js';
-import {
-    IncidentStatus,
-    IncidentCategory,
-    Impact,
-    Urgency
-} from '../types/incident.js';
-import { HttpError } from '../errors/http-error.js';
-import { parseDateFilters } from '../middleware/validation.middleware.js';
+import {HttpError} from '../errors/http-error.js';
 import Logger from '../utils/logger.js';
+import { auditClient } from '../services/auditClient.js';
+import { createAuditEvent, IncidentActions } from '../types/audit.js';
+import { randomUUID } from 'crypto';
 
 class IncidentController {
     async getIncidents(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
+            const filters = {
+                status: req.query.status as string,
+                priority: req.query.priority ? parseInt(req.query.priority as string) : undefined,
+                category: req.query.category as string,
+                assignedBy: req.query.assignedBy as string,
+                dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom as string) : undefined,
+                dateTo: req.query.dateTo ? new Date(req.query.dateTo as string) : undefined
+            };
 
-            const { status, priority, category, assignedBy } = req.query;
-            const { dateFrom, dateTo } = parseDateFilters(req.query);
+            Logger.info('Fetching incidents', { userId: req.user!.userId, filters });
 
-            const incidents = await incidentLambdaServiceAWS.getIncidents({
-                filters: {
-                    status: status as string,
-                    priority: priority ? Number(priority) : undefined,
-                    category: category as string,
-                    assignedBy: assignedBy as string,
-                    dateFrom,
-                    dateTo
-                }
-            });
+            const incidents = await incidentLambdaServiceAWS.getIncidents({ filters });
 
-            const filteredIncidents = req.user.role === 'SUPPORT'
-                ? incidents.filter(inc => inc.category !== IncidentCategory.System)
+            const filteredIncidents = req.user!.role === 'SUPPORT'
+                ? incidents.filter(incident => incident.category !== 'system')
                 : incidents;
 
             res.status(200).json(filteredIncidents);
         } catch (error: any) {
-            Logger.error('Failed to get incidents', {
-                userId: req.user?.userId,
+            Logger.error('Failed to fetch incidents', {
                 error: error.message,
-                stack: error.stack
+                userId: req.user!.userId
             });
             next(new HttpError(error.statusCode || 500, error.message));
         }
@@ -46,187 +38,254 @@ class IncidentController {
 
     async getIncident(req: Request, res: Response, next: NextFunction) {
         try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
+            const incidentId = req.params.id as string;
 
-            const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            Logger.info('Fetching incident', { incidentId, userId: req.user!.userId });
 
-            const incident = await incidentLambdaServiceAWS.getIncidentById({
-                incidentId
-            });
+            const incident = await incidentLambdaServiceAWS.getIncidentById({ incidentId });
 
-            if (!incident) {
-                throw new HttpError(404, 'Incident not found');
-            }
-
-            if (req.user.role === 'SUPPORT' && incident.category === IncidentCategory.System) {
+            // Check SUPPORT access to system category
+            if (incident.category === 'system' && req.user!.role === 'SUPPORT') {
                 Logger.warn('SUPPORT user attempted to access system incident', {
-                    userId: req.user.userId,
-                    incidentId
+                    incidentId,
+                    userId: req.user!.userId
                 });
-                throw new HttpError(403, 'Access denied to system incidents');
+                return next(new HttpError(403, 'Access denied to system category incidents'));
             }
 
             res.status(200).json(incident);
         } catch (error: any) {
-            Logger.error('Failed to get incident', {
-                userId: req.user?.userId,
-                incidentId: req.params.id,
+            Logger.error('Failed to fetch incident', {
                 error: error.message,
-                stack: error.stack
-            });
-            next(error);
-        }
-    }
-
-    async createIncident(req: Request, res: Response, next: NextFunction) {
-        try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
-
-            Logger.info('Incident creation started', {
-                userId: req.user.userId,
-                ticketCount: req.body.ticketIds?.length,
-                category: req.body.category
-            });
-
-            const { ticketIds, impact, urgency, category, description } = req.body;
-
-            const incident = await incidentLambdaServiceAWS.createIncident({
-                ticketIds,
-                impact: impact as Impact,
-                urgency: urgency as Urgency,
-                category: category as IncidentCategory,
-                description,
-                createdBy: req.user.userId
-            });
-
-            Logger.info('Incident created successfully', {
-                userId: req.user.userId,
-                incidentId: incident.incidentId,
-                priority: incident.priority
-            });
-
-            res.status(201).json(incident);
-        } catch (error: any) {
-            Logger.error('Incident creation failed', {
-                userId: req.user?.userId,
-                error: error.message,
-                stack: error.stack
+                incidentId: req.params.id
             });
             next(new HttpError(error.statusCode || 500, error.message));
         }
     }
 
-    async updateIncidentStatus(req: Request, res: Response, next: NextFunction) {
+    async createIncident(req: Request, res: Response, next: NextFunction) {
+        const correlationId = randomUUID();
+
         try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
-            if (req.user.role !== 'ENGINEER' && req.user.role !== 'ADMIN') {
-                Logger.warn('Non-engineer attempted to update incident status', {
-                    userId: req.user.userId,
-                    role: req.user.role,
-                    incidentId: req.params.id
-                });
-                throw new HttpError(403, 'Only engineers can update incident status');
-            }
-
-            const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-            const { status, comment } = req.body;
-
-            const incident = await incidentLambdaServiceAWS.updateIncidentStatus({
-                incidentId,
-                status: status as IncidentStatus,
-                updatedBy: req.user.userId,
-                comment
+            Logger.info('Creating incident', {
+                userId: req.user!.userId,
+                correlationId
             });
 
-            Logger.info('Incident status updated', {
-                userId: req.user.userId,
-                incidentId,
-                newStatus: status
+            const result = await incidentLambdaServiceAWS.createIncident({
+                ticketIds: req.body.ticketIds,
+                impact: req.body.impact,
+                urgency: req.body.urgency,
+                category: req.body.category,
+                description: req.body.description,
+                createdBy: req.user!.userId
             });
 
-            res.status(200).json(incident);
+            Logger.info('Incident created successfully', {
+                incidentId: result.incidentId,
+                priority: result.priority,
+                correlationId
+            });
+
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    result.incidentId,
+                    IncidentActions.CREATED,
+                    req.user!.userId,
+                    req.user!.role as any,
+                    {
+                        priority: result.priority,
+                        status: result.status,
+                        category: result.category,
+                        impact: req.body.impact,
+                        urgency: req.body.urgency,
+                        ticketIds: req.body.ticketIds,
+                        ticketCount: req.body.ticketIds.length
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(201).json(result);
         } catch (error: any) {
-            Logger.error('Failed to update incident status', {
-                userId: req.user?.userId,
-                incidentId: req.params.id,
+            Logger.error('Failed to create incident', {
                 error: error.message,
-                stack: error.stack
+                userId: req.user!.userId,
+                correlationId
             });
             next(new HttpError(error.statusCode || 500, error.message));
         }
     }
 
     async assignIncident(req: Request, res: Response, next: NextFunction) {
+        const correlationId = randomUUID();
+
         try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
-            if (req.user.role !== 'ENGINEER' && req.user.role !== 'ADMIN') {
-                Logger.warn('Non-engineer attempted to assign incident', {
-                    userId: req.user.userId,
-                    role: req.user.role,
-                    incidentId: req.params.id
-                });
-                throw new HttpError(403, 'Only engineers can assign incidents');
-            }
+            const incidentId = req.params.id as string;
 
-            const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-            const incident = await incidentLambdaServiceAWS.assignIncident({
+            Logger.info('Assigning incident', {
                 incidentId,
-                assignedBy: req.user.userId
+                userId: req.user!.userId,
+                correlationId
             });
 
-            Logger.info('Incident assigned to engineer', {
-                userId: req.user.userId,
+            const result = await incidentLambdaServiceAWS.assignIncident({
+                incidentId,
+                assignedBy: req.user!.userId
+            });
+
+            Logger.info('Incident assigned successfully', {
+                incidentId,
+                assignedBy: req.user!.userId,
+                newStatus: result.status,
+                correlationId
+            });
+
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    incidentId,
+                    IncidentActions.ASSIGNED,
+                    req.user!.userId,
+                    req.user!.role as any,
+                    {
+                        assignedBy: req.user!.userId,
+                        oldStatus: 'new',
+                        newStatus: result.status,
+                        priority: result.priority
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(200).json(result);
+        } catch (error: any) {
+            Logger.error('Failed to assign incident', {
+                error: error.message,
+                incidentId: req.params.id,
+                userId: req.user!.userId,
+                correlationId
+            });
+            next(new HttpError(error.statusCode || 500, error.message));
+        }
+    }
+
+    async updateIncidentStatus(req: Request, res: Response, next: NextFunction) {
+        const correlationId = randomUUID();
+
+        try {
+            const incidentId = req.params.id as string;
+            const { status, comment } = req.body;
+
+            Logger.info('Updating incident status', {
+                incidentId,
+                newStatus: status,
+                userId: req.user!.userId,
+                correlationId
+            });
+
+            const currentIncident = await incidentLambdaServiceAWS.getIncidentById({
                 incidentId
             });
 
-            res.status(200).json(incident);
+            const result = await incidentLambdaServiceAWS.updateIncidentStatus({
+                incidentId,
+                status,
+                comment,
+                updatedBy: req.user!.userId
+            });
+
+            Logger.info('Incident status updated successfully', {
+                incidentId,
+                oldStatus: currentIncident.status,
+                newStatus: status,
+                correlationId
+            });
+
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    incidentId,
+                    IncidentActions.STATUS_CHANGED,
+                    req.user!.userId,
+                    req.user!.role as any,
+                    {
+                        oldStatus: currentIncident.status,
+                        newStatus: status,
+                        comment: comment || null,
+                        priority: result.priority
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(200).json(result);
         } catch (error: any) {
-            Logger.error('Failed to assign incident', {
-                userId: req.user?.userId,
-                incidentId: req.params.id,
+            Logger.error('Failed to update incident status', {
                 error: error.message,
-                stack: error.stack
+                incidentId: req.params.id,
+                correlationId
             });
             next(new HttpError(error.statusCode || 500, error.message));
         }
     }
 
     async raiseIncidentPriority(req: Request, res: Response, next: NextFunction) {
-        try {
-            if (!req.user) throw new HttpError(401, 'Authentication required');
-            if (req.user.role !== 'ENGINEER' && req.user.role !== 'ADMIN') {
-                Logger.warn('Non-engineer attempted to raise priority', {
-                    userId: req.user.userId,
-                    role: req.user.role,
-                    incidentId: req.params.id
-                });
-                throw new HttpError(403, 'Forbidden');
-            }
+        const correlationId = randomUUID();
 
-            const incidentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        try {
+            const incidentId = req.params.id as string;
             const { priority, comment } = req.body;
 
-            const incident = await incidentLambdaServiceAWS.updateIncidentPriority({
+            Logger.info('Raising incident priority', {
+                incidentId,
+                newPriority: priority,
+                userId: req.user!.userId,
+                correlationId
+            });
+
+            const currentIncident = await incidentLambdaServiceAWS.getIncidentById({
+                incidentId
+            });
+
+            const result = await incidentLambdaServiceAWS.updateIncidentPriority({
                 incidentId,
                 priority,
-                updatedBy: req.user.userId,
-                comment
+                comment,
+                updatedBy: req.user!.userId
             });
 
-            Logger.info('Incident priority raised', {
-                userId: req.user.userId,
+            Logger.info('Incident priority raised successfully', {
                 incidentId,
-                newPriority: priority
+                oldPriority: currentIncident.priority,
+                newPriority: priority,
+                correlationId
             });
 
-            res.status(200).json(incident);
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    incidentId,
+                    IncidentActions.PRIORITY_RAISED,
+                    req.user!.userId,
+                    req.user!.role as any,
+                    {
+                        oldPriority: currentIncident.priority,
+                        newPriority: priority,
+                        comment: comment || null,
+                        status: result.status
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(200).json(result);
         } catch (error: any) {
             Logger.error('Failed to raise incident priority', {
-                userId: req.user?.userId,
-                incidentId: req.params.id,
                 error: error.message,
-                stack: error.stack
+                incidentId: req.params.id,
+                correlationId
             });
             next(new HttpError(error.statusCode || 500, error.message));
         }
