@@ -36,10 +36,10 @@ export const PollingInline: React.FC<Props> = ({
           +{newCount} new
         </p>
             }
-
-            <span className="muted-text">
-        {formatLastSync(lastSyncAt)}
-      </span>
+            <span className="sidebar-panel-row">
+                        <span className="muted-text">Updated:</span>
+                        <span className="muted-text">{formatLastSync(lastSyncAt)}</span>
+                    </span>
 
 
             <button
