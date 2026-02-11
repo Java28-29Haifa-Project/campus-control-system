@@ -50,7 +50,7 @@ export function TableFilters<TData>({
                             value={appliedStatus}
                             onChange={(e) => {
                                 statusCol?.setFilterValue(e.target.value);
-                                setOpen(false);
+                                // setOpen(false);
                             }}                        >
                             <option value="ALL">All</option>
                             {statusOptions.map((s) => (

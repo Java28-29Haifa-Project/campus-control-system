@@ -4,7 +4,7 @@ import {type ColumnDef} from "@tanstack/react-table";
 import {type Incident, IncidentPriority, IncidentStatus} from "../../types/incidentTypes.ts";
 import {
     getIncidentsThunk,
-    updateIncidentAssignedThunk,
+    updateIncidentAssignedThunk, updateIncidentPriorityThunk,
     updateIncidentStatusThunk
 } from "../../state/slices/incidentSlice.ts";
 import {TableFilters} from "../../components/TableFilters.tsx";
@@ -66,7 +66,7 @@ const IncidentTable:React.FC = () => {
 
             if (!canMoveByRank(INCIDENT_PRIORITY_ORDER, incident.priority, nextPriority)) return;
 
-            // dispatch(updateIncidentStatusThunk({id: incident.incidentId, status: nextStatus}));
+            dispatch(updateIncidentPriorityThunk({id: incident.incidentId, priority: nextPriority}));
         },
         [dispatch]
     );
@@ -103,7 +103,6 @@ const IncidentTable:React.FC = () => {
             {header: "Category", accessorKey: "category",},
             {
                 id: "priority",
-                header: "Priority",
                 accessorKey: "priority",
                 minSize: 200,
                 filterFn: (row, columnId, filterValue) => {
