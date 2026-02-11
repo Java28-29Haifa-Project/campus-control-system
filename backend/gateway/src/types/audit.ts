@@ -1,48 +1,50 @@
-export type EntityType = 'Request' | 'Incident' | 'System';
-export type PerformedByType = 'USER' | 'SYSTEM';
-export type UserRole = 'USER' | 'SUPPORT' | 'ENGINEER' | 'ADMIN' | 'SYSTEM';
+import { randomUUID } from 'crypto';
 
-export interface PerformedBy {
-    type: PerformedByType;
-    role: UserRole;
-    id: string | null;
-}
+export type EntityType = 'Request' | 'Incident' | 'System';
+export type Role = 'USER' | 'SUPPORT' | 'ENGINEER' | 'ADMIN' | 'SYSTEM';
 
 export interface AuditEvent {
     entity: EntityType;
     entityId: string;
+    role: Role;
+    userId: string | null;
     action: string;
-    performedBy: PerformedBy;
     timestamp: string;
-    details: Record<string, any>;
-    correlationId: string;
+    metadata: Record<string, any>;
+    correlationId: string; // uuid
 }
 
-// Helper to create audit events
 export function createAuditEvent(
     entity: EntityType,
     entityId: string,
     action: string,
     userId: string | null,
-    userRole: UserRole,
-    details: Record<string, any>,
+    role: Role,
+    metadata: Record<string, any> = {},
     correlationId?: string
 ): AuditEvent {
     return {
         entity,
         entityId,
+        role,
+        userId,
         action,
-        performedBy: {
-            type: userId ? 'USER' : 'SYSTEM',
-            role: userRole,
-            id: userId
-        },
         timestamp: new Date().toISOString(),
-        details,
-        correlationId: correlationId || generateCorrelationId()
+        metadata,
+        correlationId: correlationId || randomUUID()
     };
 }
 
-function generateCorrelationId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
+export const IncidentActions = {
+    CREATED: 'incident_created',
+    ASSIGNED: 'incident_assigned',
+    STATUS_CHANGED: 'incident_status_changed',
+    PRIORITY_RAISED: 'incident_priority_raised',
+    COMMENT_ADDED: 'incident_comment_added'
+} as const;
+
+export const RequestActions = {
+    CREATED: 'request_created',
+    STATUS_CHANGED: 'request_status_changed',
+    UPDATED: 'request_updated'
+} as const;
