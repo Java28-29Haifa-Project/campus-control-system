@@ -17,10 +17,10 @@ export const enum IncidentUrgencies {
     High = 'high'
 }
 export const enum IncidentPriority {
-    P1 = 1,
-    P2 = 2,
-    P3 = 3,
-    P4 = 4
+    P1 = 4,
+    P2 = 3,
+    P3 = 2,
+    P4 = 1
 }
 
 export interface Incident {
