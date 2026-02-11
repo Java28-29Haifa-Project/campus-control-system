@@ -3,7 +3,6 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// ==================== Mock Data & Types ====================
 
 const IncidentStatus = {
     New: 'new',
@@ -33,7 +32,6 @@ const Urgency = {
     High: 'high'
 };
 
-// ==================== Mock Helper Functions ====================
 
 const createTestUser = (role = 'ENGINEER') => ({
     userId: `${role.toLowerCase()}_001`,
@@ -78,7 +76,6 @@ const mockResponse = () => {
 
 const mockNext = () => jest.fn();
 
-// ==================== Mock API Gateway ====================
 
 class MockIncidentApiGateway {
     constructor() {
@@ -211,7 +208,6 @@ class MockIncidentApiGateway {
 
 const mockApiGateway = new MockIncidentApiGateway();
 
-// ==================== Mock Controller ====================
 
 const incidentController = {
     async getIncidents(req, res, next) {
@@ -354,7 +350,6 @@ const incidentController = {
     }
 };
 
-// ==================== TESTS ====================
 
 describe('Incident Controller - Standalone Tests', () => {
     beforeEach(() => {
