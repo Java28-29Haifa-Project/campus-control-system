@@ -3,6 +3,7 @@ import type {CommentIncident, Incident} from "../types/incidentTypes.ts";
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
 import {addIncidentCommentThunk} from "../state/slices/incidentSlice.ts";
 import "../styles/comment.css";
+import { FaPlus } from "react-icons/fa";
 
 type Props = {
     incident: Incident;
@@ -77,7 +78,7 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
                     onClick={onToggle}
                     disabled={isAdding}
                 >
-                    +
+                    <FaPlus />
                 </button>
             </div>
 
@@ -97,6 +98,7 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
                         <div className="muted-text">+{comments.length - 2} more…</div>
                     )}
                 </div>
+
             )}
 
 
@@ -156,7 +158,7 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
 
                             <button
                                 type="button"
-                                className="primary-btn"
+                                className="secondary-btn"
                                 onClick={onSave}
                                 disabled={isAdding || text.trim().length === 0}
                             >

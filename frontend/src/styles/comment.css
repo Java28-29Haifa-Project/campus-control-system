@@ -36,6 +36,7 @@
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(16px);
     box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    overflow: hidden;
 }
 
 .comment-popover-header {
@@ -54,6 +55,7 @@
     resize: vertical;
     border-radius: 12px;
     padding: 10px;
+    box-sizing: border-box;
 }
 
 .comment-actions {
