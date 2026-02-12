@@ -1,8 +1,8 @@
 import {
+    type CommentIncident,
     type CreateIncidentRequest,
-    type Incident, IncidentPriority,
+    type Incident,
     type IncidentResponse,
-    IncidentStatus
 } from "../types/incidentTypes.ts";
 import {request} from "./client.ts";
 
@@ -29,15 +29,21 @@ export const updateIncidentStatusAssignedApi = async (id: string): Promise<Incid
         method: "PATCH",
     });
 }
-export const updateIncidentStatusApi = async (id: string, status: IncidentStatus): Promise<Incident> => {
+export const updateIncidentStatusApi = async (id: string, updates: Partial<Incident>): Promise<Incident> => {
     return request<Incident>(`/incidents/${id}/status`, {
         method: "PATCH",
-        body: status,
+        body: updates,
     });
 }
-export const updateIncidentPriorityApi = async (id: string, priority: IncidentPriority): Promise<Incident> => {
+export const updateIncidentPriorityApi = async (id: string, updates: Partial<Incident>): Promise<Incident> => {
     return request<Incident>(`/incidents/${id}/priority`, {
         method: "PATCH",
-        body: priority,
+        body: updates,
     });
 }
+export const addIncidentCommentApi = async (id: string, body: { commentText: string }): Promise<CommentIncident> => {
+    return request<CommentIncident>(`/incidents/${id}/comments`, {
+        method: "POST",
+        body,
+    });
+};

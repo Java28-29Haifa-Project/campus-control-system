@@ -23,6 +23,15 @@ export const enum IncidentPriority {
     P4 = 1
 }
 
+export type CommentIncident = {
+        commentId: string;
+        incidentId: string;
+        commentText: string;
+        createdBy: string;
+        createdAt: string;
+        updatedAt: string;
+}
+
 export interface Incident {
     incidentId: string;
     ticketIds: string[];
@@ -34,7 +43,7 @@ export interface Incident {
     createdAt: string;
     updatedAt: string;
     assignedBy?: string;
-    comment?: string;
+    comment?: CommentIncident[];
 }
 export type CreateIncidentRequest = {
     ticketIds: string[];

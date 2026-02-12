@@ -1,13 +1,14 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {
+    type CommentIncident,
     type CreateIncidentRequest,
     type Incident,
-    IncidentPriority,
     IncidentStatus
 } from "../../types/incidentTypes.ts";
 import {createSlice} from "@reduxjs/toolkit";
 import ApiError, {INCIDENT_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 import {
+    addIncidentCommentApi,
     createIncidentApi,
     getIncidentApi, updateIncidentPriorityApi,
     updateIncidentStatusApi,
@@ -29,6 +30,17 @@ const mapIncidentErrorCodeToMessage = (code?: string | null): string => {
     }
     return code;
 };
+
+const applyIncidentPatch = (state: IncidentState, updated: Partial<Incident> & { incidentId: string }) => {
+    const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
+    if (idx !== -1) {
+        state.incidents[idx] = { ...state.incidents[idx], ...updated };
+    }
+    if (state.currentInc?.incidentId === updated.incidentId) {
+        state.currentInc = { ...state.currentInc, ...updated };
+    }
+};
+
 
 export const createIncidentThunk = createAsyncThunk<
     Incident,
@@ -86,13 +98,13 @@ export const updateIncidentAssignedThunk = createAsyncThunk<
 );
 export const updateIncidentStatusThunk = createAsyncThunk<
     Incident,
-    { id: string; status: IncidentStatus },
+    { id: string; updates: Partial<Incident> },
     { rejectValue: string }
 >(
     "incident/status",
-    async ({id, status},  {rejectWithValue}) => {
+    async ({id, updates},  {rejectWithValue}) => {
         try {
-            return await updateIncidentStatusApi(id, status);
+            return await updateIncidentStatusApi(id, updates);
         } catch (e) {
             if (e instanceof ApiError) {
                 return rejectWithValue(e.code || "SERVER_ERROR");
@@ -103,13 +115,13 @@ export const updateIncidentStatusThunk = createAsyncThunk<
 );
 export const updateIncidentPriorityThunk = createAsyncThunk<
     Incident,
-    { id: string; priority: IncidentPriority },
+    { id: string; updates: Partial<Incident> },
     { rejectValue: string }
 >(
     "incident/priority",
-    async ({id, priority},  {rejectWithValue}) => {
+    async ({id, updates},  {rejectWithValue}) => {
         try {
-            return await updateIncidentPriorityApi(id, priority);
+            return await updateIncidentPriorityApi(id, updates);
         } catch (e) {
             if (e instanceof ApiError) {
                 return rejectWithValue(e.code || "SERVER_ERROR");
@@ -118,6 +130,27 @@ export const updateIncidentPriorityThunk = createAsyncThunk<
         }
     }
 );
+export const addIncidentCommentThunk = createAsyncThunk<
+    { incidentId: string; comment: CommentIncident },
+    { incidentId: string; commentText: string },
+    { rejectValue: string }
+>(
+    "incident/addComment",
+    async ({ incidentId, commentText }, { rejectWithValue }) => {
+        try {
+            const comment = await addIncidentCommentApi(incidentId, {commentText} );
+            return { incidentId, comment };
+        } catch (e) {
+            if (e instanceof ApiError) {
+                return rejectWithValue(
+                    mapIncidentErrorCodeToMessage(e.code)
+                );
+            }
+            return rejectWithValue(INCIDENT_ERROR_MESSAGES.UNKNOWN);
+        }
+    }
+);
+
 
 export interface IncidentState {
     incidents: Incident[];
@@ -136,6 +169,9 @@ export interface IncidentState {
     incidentsLastSyncAt: string | null;
     incidentsSyncError: string | null;
     incidentsNewCount: number;
+
+    addingCommentByIncidentId: Record<string, boolean>
+    addCommentErrorByIncidentId: Record<string, string | null>
 }
 const initialState: IncidentState = {
     incidents: [],
@@ -154,7 +190,11 @@ const initialState: IncidentState = {
     incidentsLastSyncAt: null,
     incidentsSyncError: null,
     incidentsNewCount: 0,
+
+    addingCommentByIncidentId: {},
+    addCommentErrorByIncidentId: {}
 }
+
 
 const incidentSlice = createSlice({
     name: "incident",
@@ -177,6 +217,7 @@ const incidentSlice = createSlice({
                     action.payload ?? action.error.message
                 );
             })
+
             .addCase(getIncidentsThunk.pending, (state) => {
                 state.isLoadingIncidents = true;
                 state.errorInc = null;
@@ -203,26 +244,14 @@ const incidentSlice = createSlice({
                 state.incidentsSyncing = false;
                 state.incidentsSyncError = action.error?.message ?? "Incidents sync failed";
             })
+
             .addCase(updateIncidentAssignedThunk.pending, (state) => {
                 state.isAssigned = true;
                 state.errorInc = null;
             })
             .addCase(updateIncidentAssignedThunk.fulfilled, (state, action) => {
                 state.isAssigned = false;
-                const updated = action.payload;
-                const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
-                if (idx !== -1) state.incidents[idx] = {
-                    ...state.incidents[idx],
-                    ...updated,
-                };
-
-                if (state.currentInc && state.currentInc.incidentId === updated.incidentId){
-                    state.currentInc = {
-                        ...state.currentInc,
-                        ...updated,
-                    };
-                }
-
+                applyIncidentPatch(state, action.payload);
             })
             .addCase(updateIncidentAssignedThunk.rejected, (state, action) => {
                 state.isAssigned = false;
@@ -230,24 +259,14 @@ const incidentSlice = createSlice({
                     action.payload ?? action.error.message
                 );
             })
+
             .addCase(updateIncidentStatusThunk.pending, (state) => {
                 state.isAssigned = true;
                 state.errorInc = null;
             })
             .addCase(updateIncidentStatusThunk.fulfilled, (state, action) => {
                 state.isAssigned = false;
-                const updated = action.payload;
-                const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
-                if (idx !== -1) state.incidents[idx] = {
-                    ...state.incidents[idx],
-                    ...updated,
-                };
-                if (state.currentInc && state.currentInc.incidentId === updated.incidentId){
-                    state.currentInc = {
-                        ...state.currentInc,
-                        ...updated,
-                    };
-                }
+                applyIncidentPatch(state, action.payload);
             })
             .addCase(updateIncidentStatusThunk.rejected, (state, action) => {
                 state.isAssigned = false;
@@ -255,31 +274,46 @@ const incidentSlice = createSlice({
                     action.payload ?? action.error.message
                 );
             })
+
             .addCase(updateIncidentPriorityThunk.pending, (state) => {
                 state.isAssigned = true;
                 state.errorInc = null;
                 })
             .addCase(updateIncidentPriorityThunk.fulfilled, (state, action) => {
                 state.isAssigned = false;
-                const updated = action.payload;
-                const idx = state.incidents.findIndex(i => i.incidentId === updated.incidentId);
-                if (idx !== -1) state.incidents[idx] = {
-                    ...state.incidents[idx],
-                    ...updated,
-                };
-                if (state.currentInc && state.currentInc.incidentId === updated.incidentId){
-                    state.currentInc = {
-                        ...state.currentInc,
-                        ...updated,
-                    };
-                }
+                state.isAssigned = false;
+                applyIncidentPatch(state, action.payload);
             })
             .addCase(updateIncidentPriorityThunk.rejected, (state, action) => {
                 state.isAssigned = false;
                 state.errorInc = mapIncidentErrorCodeToMessage(
                     action.payload ?? action.error.message
                 );
+            })
+
+            .addCase(addIncidentCommentThunk.pending, (state, action) => {
+                const id = action.meta.arg.incidentId;
+                state.addingCommentByIncidentId[id] = true;
+                state.addCommentErrorByIncidentId[id] = null;
+            })
+            .addCase(addIncidentCommentThunk.fulfilled, (state, action) => {
+                const { incidentId, comment } = action.payload;
+
+                state.addingCommentByIncidentId[incidentId] = false;
+
+                const inc = state.incidents.find(i => i.incidentId === incidentId);
+                if (!inc) return;
+
+                inc.comment ??= [];
+                inc.comment.unshift(comment);
+            })
+            .addCase(addIncidentCommentThunk.rejected, (state, action) => {
+                const id = action.meta.arg.incidentId;
+                state.addingCommentByIncidentId[id] = false;
+                state.addCommentErrorByIncidentId[id] =
+                    action.payload || INCIDENT_ERROR_MESSAGES.UNKNOWN;
             });
+
     }
 });
 

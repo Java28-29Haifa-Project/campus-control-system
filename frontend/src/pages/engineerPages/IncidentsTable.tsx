@@ -18,6 +18,7 @@ import {
 import {useLocation} from "react-router-dom";
 import {usePolling} from "../../hooks/usePolling.ts";
 import {PollingInline} from "../../components/PollingInline.tsx";
+import {CommentCell} from "../../components/CommentCell.tsx";
 
 const STATUS_OPTIONS_INCIDENT: IncidentStatus[] = [
     IncidentStatus.New,
@@ -73,7 +74,11 @@ const IncidentTable:React.FC = () => {
                 return;
             }
 
-            dispatch(updateIncidentStatusThunk({id: incident.incidentId, status: nextStatus}));
+            dispatch(
+                updateIncidentStatusThunk({
+                    id: incident.incidentId,
+                    updates: {status: nextStatus}
+                }));
         },
         [dispatch]
     );
@@ -85,7 +90,11 @@ const IncidentTable:React.FC = () => {
 
             if (!canMoveByRank(INCIDENT_PRIORITY_ORDER, incident.priority, nextPriority)) return;
 
-            dispatch(updateIncidentPriorityThunk({id: incident.incidentId, priority: nextPriority}));
+            dispatch(
+                updateIncidentPriorityThunk({
+                    id: incident.incidentId,
+                    updates: {priority: nextPriority}
+                }));
         },
         [dispatch]
     );
@@ -123,7 +132,7 @@ const IncidentTable:React.FC = () => {
             {
                 id: "priority",
                 accessorKey: "priority",
-                minSize: 250,
+                minSize: 200,
                 filterFn: (row, columnId, filterValue) => {
                     if (!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
@@ -163,7 +172,7 @@ const IncidentTable:React.FC = () => {
             {
                 id: "status",
                 accessorKey: "status",
-                minSize: 400,
+                minSize: 200,
                 filterFn: (row, columnId, filterValue) => {
                     if(!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
@@ -244,8 +253,8 @@ const IncidentTable:React.FC = () => {
             {
                 header: "Comment",
                 accessorKey: "comment",
-                minSize: 600,
-                cell: () => "",
+                minSize: 400,
+                cell: ({ row }) => <CommentCell incident={row.original} />
             },
         ],
         [handlePriorityChange, handleStatusChange]
