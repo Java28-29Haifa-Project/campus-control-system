@@ -8,12 +8,9 @@ import { getIncidents } from './handlers/getIncidents.js';
 import { getIncidentById } from './handlers/getIncidentById.js';
 import { addComment } from './handlers/addComment.js';
 
-
 export const handler = async (event: any) => {
     console.log('Action received:', event.action);
     console.log('Event data:', JSON.stringify(event.data));
-    console.log('DATABASE_URL:', process.env.DATABASE_URL);
-
 
     const pool = getPool();
     const repository = new IncidentRepository(pool);
@@ -42,10 +39,6 @@ export const handler = async (event: any) => {
 
             case 'ADD_COMMENT':
                 return await addComment(repository, data);
-
-            case 'GET_COMMENTS':
-                const comments = await repository.getComments(data.incidentId);
-                return { statusCode: 200, body: comments };
 
             case 'HEALTH_CHECK':
                 return {

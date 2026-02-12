@@ -22,8 +22,12 @@ export async function getIncidentById(
             };
         }
 
+        const comments = await repository.getComments(data.incidentId);
+        incident.comments = comments;
+
         console.log('Incident retrieved:', {
-            incidentId: incident.incidentId
+            incidentId: incident.incidentId,
+            commentCount: comments.length
         });
 
         return {

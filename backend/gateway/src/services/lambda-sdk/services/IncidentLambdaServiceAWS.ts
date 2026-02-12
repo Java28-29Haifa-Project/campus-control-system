@@ -31,25 +31,23 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
         });
     }
 
-    async updateIncidentStatus(input: any): Promise<any> {
+    async updateStatus(input: any): Promise<any> {
         return this.invoke({
             action: 'UPDATE_STATUS',
             data: {
                 incidentId: input.incidentId,
                 status: input.status,
-                comment: input.comment,
                 updatedBy: input.updatedBy
             }
         });
     }
 
-    async updateIncidentPriority(input: any): Promise<any> {
+    async updatePriority(input: any): Promise<any> {
         return this.invoke({
             action: 'UPDATE_PRIORITY',
             data: {
                 incidentId: input.incidentId,
                 priority: input.priority,
-                comment: input.comment,
                 updatedBy: input.updatedBy
             }
         });
@@ -69,6 +67,21 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
             action: 'GET_INCIDENT_BY_ID',
             data: {
                 incidentId: input.incidentId
+            }
+        });
+    }
+
+    async addComment(data: {
+        incidentId: string;
+        commentText: string;
+        createdBy: string;
+    }): Promise<any> {
+        return this.invoke({
+            action: 'ADD_COMMENT',
+            data: {
+                incidentId: data.incidentId,
+                commentText: data.commentText,
+                createdBy: data.createdBy
             }
         });
     }
@@ -127,7 +140,6 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
             return typeof result.body === 'string'
                 ? JSON.parse(result.body)
                 : (result.body || result);
-
         } catch (error: any) {
             Logger.error('Incident Lambda invocation error', {
                 functionName: this.functionName,
