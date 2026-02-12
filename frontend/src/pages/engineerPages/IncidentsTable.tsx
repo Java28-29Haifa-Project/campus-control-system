@@ -15,7 +15,7 @@ import {
     INCIDENT_STATUS_ORDER,
     isOptionDisabledByRank
 } from "../../utils/helper.ts";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {usePolling} from "../../hooks/usePolling.ts";
 import {PollingInline} from "../../components/PollingInline.tsx";
 import {CommentCell} from "../../components/CommentCell.tsx";
@@ -41,6 +41,7 @@ const IncidentTable:React.FC = () => {
     const { incidents, incidentsSyncing, incidentsLastSyncAt, incidentsNewCount } = useAppSelector((s) => s.incident);
 
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const enabled =
@@ -284,7 +285,7 @@ const IncidentTable:React.FC = () => {
             isRowClickable={(row) => row.original.status !== IncidentStatus.Resolved}
             getRowClassName={(row) => (
                 row.original.status === IncidentStatus.Resolved || row.original.status === IncidentStatus.Closed ? "row-disabled" : "")}
-            // onRowClick={(row) => navigate(`/support/ticket/${row.original.}`)}
+            onRowClick={(row) => navigate(`/incident/${row.original.incidentId}`)}
 
         />
     );

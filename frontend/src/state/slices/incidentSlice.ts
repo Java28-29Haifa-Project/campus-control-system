@@ -10,7 +10,7 @@ import ApiError, {INCIDENT_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 import {
     addIncidentCommentApi,
     createIncidentApi,
-    getIncidentApi, updateIncidentPriorityApi,
+    getIncidentApi, getIncidentByIdApi, updateIncidentPriorityApi,
     updateIncidentStatusApi,
     updateIncidentStatusAssignedApi
 } from "../../api/incidentApi.ts";
@@ -57,6 +57,23 @@ export const createIncidentThunk = createAsyncThunk<
                 return rejectWithValue(e.code || "SERVER_ERROR");
             }
             return rejectWithValue("Failed to create incident");
+        }
+    }
+);
+export const getIncidentByIdThunk = createAsyncThunk<
+    Incident,
+    string,
+    { rejectValue: string }
+>(
+    "incidentById",
+    async (id, { rejectWithValue }) => {
+        try {
+            return await getIncidentByIdApi(id);
+        } catch (e) {
+            if (e instanceof ApiError) {
+                return rejectWithValue(e.code || "SERVER_ERROR");
+            }
+            return rejectWithValue("Failed to load incident");
         }
     }
 );
@@ -200,6 +217,9 @@ const incidentSlice = createSlice({
     name: "incident",
     initialState,
     reducers: {
+        clearCurrentIncident(state) {
+            state.currentInc = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -243,6 +263,21 @@ const incidentSlice = createSlice({
 
                 state.incidentsSyncing = false;
                 state.incidentsSyncError = action.error?.message ?? "Incidents sync failed";
+            })
+
+            .addCase(getIncidentByIdThunk.pending, (state) => {
+                state.isLoadingCurrentInc = true;
+                state.errorInc = null;
+            })
+            .addCase(getIncidentByIdThunk.fulfilled, (state, action) => {
+                state.isLoadingCurrentInc = false;
+                state.currentInc = action.payload;
+            })
+            .addCase(getIncidentByIdThunk.rejected, (state, action) => {
+                state.isLoadingCurrentInc = false;
+                state.errorInc = mapIncidentErrorCodeToMessage(
+                    action.payload ?? action.error.message
+                );
             })
 
             .addCase(updateIncidentAssignedThunk.pending, (state) => {
@@ -317,5 +352,5 @@ const incidentSlice = createSlice({
     }
 });
 
-
+export const { clearCurrentIncident } = incidentSlice.actions;
 export const incidentReducer = incidentSlice.reducer;
