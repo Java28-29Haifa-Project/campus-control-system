@@ -8,14 +8,21 @@ export async function getIncidents(
     try {
         const incidents = await repository.getIncidents(data.filters || {});
 
+        const incidentsWithComments = await Promise.all(
+            incidents.map(async (incident) => {
+                const comments = await repository.getComments(incident.incidentId);
+                return { ...incident, comments };
+            })
+        );
+
         console.log('Incidents retrieved:', {
-            count: incidents.length,
+            count: incidentsWithComments.length,
             filters: data.filters
         });
 
         return {
             statusCode: 200,
-            body: incidents
+            body: incidentsWithComments
         };
     } catch (error: any) {
         console.error('Error getting incidents:', error);

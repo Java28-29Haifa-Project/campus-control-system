@@ -32,7 +32,14 @@ export async function updatePriority(
             };
         }
 
-        const incident = await repository.updatePriority(data.incidentId, data.priority);
+        const incident = await repository.updatePriority(
+            data.incidentId,
+            data.priority,
+            data.updatedBy
+        );
+
+        const comments = await repository.getComments(data.incidentId);
+        incident.comments = comments;
 
         console.log('Incident priority raised:', {
             incidentId: incident.incidentId,
