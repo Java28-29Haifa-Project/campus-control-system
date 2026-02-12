@@ -7,60 +7,6 @@ const lambda = new LambdaClient({ region: process.env.AWS_REGION });
 class IncidentLambdaServiceAWS implements IIncidentLambdaService {
     private functionName = process.env.INCIDENT_LAMBDA_NAME || 'incident-service-lambda';
 
-    async addComment(data: {
-        incidentId: string;
-        commentText: string;
-        createdBy: string;
-    }): Promise<any> {
-        const payload = {
-            action: 'ADD_COMMENT',
-            data: {
-                incidentId: data.incidentId,
-                commentText: data.commentText,
-                createdBy: data.createdBy
-            }
-        };
-
-        const command = new InvokeCommand({
-            FunctionName: this.functionName,
-            Payload: JSON.stringify(payload)
-        });
-
-        try {
-            Logger.info('Invoking Lambda - ADD_COMMENT', {
-                functionName: this.functionName,
-                incidentId: data.incidentId
-            });
-
-            const response = await this.lambdaClient.send(command);
-            const result = JSON.parse(new TextDecoder().decode(response.Payload));
-
-            if (result.statusCode >= 500) {
-                Logger.error('Lambda returned server error - ADD_COMMENT', {
-                    statusCode: result.statusCode,
-                    error: result.body?.error
-                });
-            } else if (result.statusCode >= 400) {
-                Logger.warn('Lambda returned client error - ADD_COMMENT', {
-                    statusCode: result.statusCode,
-                    error: result.body?.error
-                });
-            }
-
-            if (result.statusCode !== 201) {
-                throw new Error(result.body?.error || 'Failed to add comment');
-            }
-
-            return result.body;
-        } catch (error: any) {
-            Logger.error('Error invoking Lambda - ADD_COMMENT', {
-                error: error.message,
-                functionName: this.functionName
-            });
-            throw error;
-        }
-    }
-
     async createIncident(input: any): Promise<any> {
         return this.invoke({
             action: 'CREATE_INCIDENT',
@@ -85,25 +31,23 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
         });
     }
 
-    async updateIncidentStatus(input: any): Promise<any> {
+    async updateStatus(input: any): Promise<any> {
         return this.invoke({
             action: 'UPDATE_STATUS',
             data: {
                 incidentId: input.incidentId,
                 status: input.status,
-                comment: input.comment,
                 updatedBy: input.updatedBy
             }
         });
     }
 
-    async updateIncidentPriority(input: any): Promise<any> {
+    async updatePriority(input: any): Promise<any> {
         return this.invoke({
             action: 'UPDATE_PRIORITY',
             data: {
                 incidentId: input.incidentId,
                 priority: input.priority,
-                comment: input.comment,
                 updatedBy: input.updatedBy
             }
         });
@@ -123,6 +67,21 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
             action: 'GET_INCIDENT_BY_ID',
             data: {
                 incidentId: input.incidentId
+            }
+        });
+    }
+
+    async addComment(data: {
+        incidentId: string;
+        commentText: string;
+        createdBy: string;
+    }): Promise<any> {
+        return this.invoke({
+            action: 'ADD_COMMENT',
+            data: {
+                incidentId: data.incidentId,
+                commentText: data.commentText,
+                createdBy: data.createdBy
             }
         });
     }
@@ -181,7 +140,6 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
             return typeof result.body === 'string'
                 ? JSON.parse(result.body)
                 : (result.body || result);
-
         } catch (error: any) {
             Logger.error('Incident Lambda invocation error', {
                 functionName: this.functionName,
