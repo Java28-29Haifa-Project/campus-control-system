@@ -1,6 +1,5 @@
-
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {addIncidentCommentThunk, clearCurrentIncident, getIncidentByIdThunk} from "../../state/slices/incidentSlice.ts";
 
@@ -12,11 +11,11 @@ function formatDateTime(iso?: string) {
 type Params = { id: string };
 
 const IncidentDetailsPage: React.FC = () => {
-    const { id } = useParams<Params>();
+    const {id} = useParams<Params>();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const { currentInc, isLoadingCurrentInc, errorInc } = useAppSelector((state) => state.incident);
+    const {currentInc, isLoadingCurrentInc, errorInc} = useAppSelector((state) => state.incident);
 
     const [text, setText] = useState("");
     const [open, setOpen] = useState(false);
@@ -59,7 +58,7 @@ const IncidentDetailsPage: React.FC = () => {
 
             setText("");
             setOpen(false);
-        } catch (e)  {
+        } catch (e) {
             console.error(e)
         }
     }, [dispatch, currentInc, text]);
@@ -157,21 +156,54 @@ const IncidentDetailsPage: React.FC = () => {
                         <b>Updated at:</b> {formatDateTime(currentInc.updatedAt)}
                     </div>
 
-                    <div style={{ marginTop: 14 }}>
+                    <div style={{marginTop: 14}}>
                         <div className="row-space">
                             <b>Comments:</b>
+                            <div style={{marginTop: 12}}>
+                                {!commentsSorted.length ? (
+                                    <div className="muted-text">No comments yet</div>
+                                ) : (
+                                    <div className="comments-list">
+                                        {commentsSorted.map((c) => (
+                                            <div key={c.commentId} className="comment-card">
+                                                <div className="comment-meta">
+                        <span className="muted-text">
+                          <b>{c.createdBy}</b>
+                        </span>
+                                                    <span className="muted-text">{formatDateTime(c.createdAt)}</span>
+                                                </div>
 
-                            <button
-                                type="button"
-                                className="secondary-btn"
-                                onClick={() => setOpen((v) => !v)}
-                            >
-                                {open ? "Close" : "+ Add comment"}
-                            </button>
+                                                <div className="comment-text">{c.commentText}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {!open && (
+                                <div className="filter-actions">
+                                    <button
+                                        type="button"
+                                        className="secondary-btn"
+                                        onClick={() => setOpen(true)}
+                                    >
+                                        Add comment
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="secondary-btn back-btn"
+                                        onClick={() => navigate("/incident")}
+                                    >
+                                        ← Back to list
+                                    </button>
+                                </div>
+
+                            )}
                         </div>
 
                         {open && (
-                            <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
+                            <div style={{marginTop: 10}} onClick={(e) => e.stopPropagation()}>
                 <textarea
                     className="comment-textarea"
                     value={text}
@@ -181,12 +213,12 @@ const IncidentDetailsPage: React.FC = () => {
                 />
 
                                 {addError && (
-                                    <div className="error-text" style={{ marginTop: 6 }}>
+                                    <div className="error-text" style={{marginTop: 6}}>
                                         {String(addError)}
                                     </div>
                                 )}
 
-                                <div className="ticket-form-actions" style={{ gap: 10 }}>
+                                <div className="ticket-form-actions" style={{gap: 10}}>
                                     <button
                                         type="button"
                                         className="secondary-btn"
@@ -201,7 +233,7 @@ const IncidentDetailsPage: React.FC = () => {
 
                                     <button
                                         type="button"
-                                        className="primary-btn"
+                                        className="secondary-btn"
                                         onClick={onSubmitComment}
                                         disabled={isAdding || !text.trim()}
                                         title={!text.trim() ? "Write something first" : "Add comment"}
@@ -212,38 +244,18 @@ const IncidentDetailsPage: React.FC = () => {
                             </div>
                         )}
 
-                        <div style={{ marginTop: 12 }}>
-                            {!commentsSorted.length ? (
-                                <div className="muted-text">No comments yet</div>
-                            ) : (
-                                <div className="comments-list">
-                                    {commentsSorted.map((c) => (
-                                        <div key={c.commentId} className="comment-card">
-                                            <div className="comment-meta">
-                        <span className="muted-text">
-                          <b>{c.createdBy}</b>
-                        </span>
-                                                <span className="muted-text">{formatDateTime(c.createdAt)}</span>
-                                            </div>
-
-                                            <div className="comment-text">{c.commentText}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
                     </div>
 
 
-                    <div className="ticket-form-actions">
-                        <button
-                            type="button"
-                            className="secondary-btn back-btn"
-                            onClick={() => navigate("/incident")}
-                        >
-                            ← Back to list
-                        </button>
-                    </div>
+                    {/*<div className="ticket-form-actions">*/}
+                    {/*    <button*/}
+                    {/*        type="button"*/}
+                    {/*        className="secondary-btn back-btn"*/}
+                    {/*        onClick={() => navigate("/incident")}*/}
+                    {/*    >*/}
+                    {/*        ← Back to list*/}
+                    {/*    </button>*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </div>
