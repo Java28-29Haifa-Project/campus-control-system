@@ -1,22 +1,21 @@
 export type Impact = 'low' | 'medium' | 'high' | 'critical';
 export type Urgency = 'low' | 'medium' | 'high';
 export type IncidentStatus = 'new' | 'assigned' | 'in_progress' | 'resolved' | 'closed';
-
 export type IncidentCategory =
-    | 'plumbing'
-    | 'electrical'
-    | 'hvac'
-    | 'gas'
-    | 'fire_safety'
-    | 'elevators'
-    | 'access'
-    | 'network'
-    | 'infrastructure'
-    | 'other'
-    | 'system';
+    | 'plumbing' | 'electrical' | 'hvac' | 'gas'
+    | 'fire_safety' | 'elevators' | 'access' | 'network'
+    | 'infrastructure' | 'other' | 'system';
+
+export interface IncidentComment {
+    commentId: string;
+    commentText: string;
+    createdBy: string;
+    createdAt: string;
+}
 
 export interface Incident {
     incidentId: string;
+    incidentNumber: string;
     ticketIds: string[];
     priority: number;
     status: IncidentStatus;
@@ -25,8 +24,10 @@ export interface Incident {
     createdBy: string;
     assignedBy?: string;
     resolvedBy?: string;
+    updatedBy?: string;
     createdAt: string;
     updatedAt: string;
+    comments: IncidentComment[];  // ← Array of comments
 }
 
 export interface CreateIncidentInput {
@@ -46,15 +47,19 @@ export interface AssignIncidentInput {
 export interface UpdateStatusInput {
     incidentId: string;
     status: IncidentStatus;
-    comment?: string;
     updatedBy: string;
 }
 
 export interface UpdatePriorityInput {
     incidentId: string;
     priority: number;
-    comment?: string;
     updatedBy: string;
+}
+
+export interface AddCommentInput {
+    incidentId: string;
+    commentText: string;
+    createdBy: string;
 }
 
 export interface GetIncidentsFilters {

@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { randomUUID } from 'crypto';
+import {AddCommentInput, IncidentComment} from '../types/comment';
 
 import { Incident, IncidentStatus, GetIncidentsFilters } from '../types/incident.js';
 
@@ -392,7 +393,8 @@ export class IncidentRepository {
     }
 
     async addComment(data: AddCommentInput): Promise<IncidentComment> {
-        const commentId = uuidv4();
+
+        const commentId = randomUUID();
 
         const query = `
         INSERT INTO incident_comments (
