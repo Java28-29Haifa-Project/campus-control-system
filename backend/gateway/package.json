@@ -7,8 +7,6 @@
     "build": "rimraf ./build && tsc",
     "dev": "rimraf ./build && tsc && node ./build/src/app.js",
     "start": "node build/src/app.js",
-
-
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
@@ -50,6 +48,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.971.0",
+    "@aws-sdk/client-sqs": "^3.988.0",
     "axios": "^1.13.2",
     "bcrypt": "^5.1.0",
     "bcryptjs": "^3.0.3",
