@@ -13,7 +13,8 @@ const ERROR_CODES = {
 export class IncidentRepository {
     constructor(private pool: Pool) {}
 
-    async createIncident(incident: Omit<Incident, 'createdAt' | 'updatedAt'>): Promise<Incident> {
+    async createIncident(incident: Omit<Incident, 'incidentNumber' | 'comments' | 'createdAt' | 'updatedAt'>): Promise<Incident>
+    {
         const incidentId = randomUUID();
         const incidentNumber = `INC-${Date.now()}`;
         const priority = incident.priority;
@@ -37,6 +38,7 @@ export class IncidentRepository {
                 created_by AS "createdBy",
                 assigned_by AS "assignedBy",
                 resolved_by AS "resolvedBy",
+                 updated_by AS "updatedBy",
                 created_at AS "createdAt",
                 updated_at AS "updatedAt"
         `;
@@ -79,6 +81,7 @@ export class IncidentRepository {
                 i.created_by AS "createdBy",
                 i.assigned_by AS "assignedBy",
                 i.resolved_by AS "resolvedBy",
+                i.updated_by AS "updatedBy",
                 i.created_at AS "createdAt",
                 i.updated_at AS "updatedAt",
                 COALESCE(
@@ -112,6 +115,7 @@ export class IncidentRepository {
                 i.created_by AS "createdBy",
                 i.assigned_by AS "assignedBy",
                 i.resolved_by AS "resolvedBy",
+                i.updated_by AS "updatedBy",
                 i.created_at AS "createdAt",
                 i.updated_at AS "updatedAt",
                 COALESCE(
@@ -181,7 +185,7 @@ export class IncidentRepository {
                 updated_by = $2,
                 updated_at = CURRENT_TIMESTAMP
                 ${isResolved ? ', resolved_by = $2' : ''}
-            WHERE incident_id = $${isResolved ? '3' : '2'}
+            WHERE incident_id = $3
             RETURNING
                 incident_id AS "incidentId",
                 incident_number AS "incidentNumber",
@@ -192,13 +196,12 @@ export class IncidentRepository {
                 created_by AS "createdBy",
                 assigned_by AS "assignedBy",
                 resolved_by AS "resolvedBy",
+                updated_by AS "updatedBy",
                 created_at AS "createdAt",
                 updated_at AS "updatedAt"
         `;
 
-        const params = isResolved
-            ? [status, updatedBy, incidentId]
-            : [status, updatedBy, incidentId];
+        const params = [status, updatedBy, incidentId];
 
         try {
             const result = await this.pool.query(query, params);
@@ -277,6 +280,7 @@ export class IncidentRepository {
             SET
                 status = 'assigned',
                 assigned_by = $1,
+                updated_by = $1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE incident_id = $2
                 RETURNING
@@ -289,6 +293,7 @@ export class IncidentRepository {
                 created_by AS "createdBy",
                 assigned_by AS "assignedBy",
                 resolved_by AS "resolvedBy",
+                updated_by AS "updatedBy",
                 created_at AS "createdAt",
                 updated_at AS "updatedAt"
         `;
@@ -314,13 +319,14 @@ export class IncidentRepository {
         }
     }
 
-    async updatePriority(incidentId: string, priority: number): Promise<Incident> {
+    async updatePriority(incidentId: string, priority: number, updatedBy: string): Promise<Incident> {
         const query = `
             UPDATE incidents
             SET
                 priority = $1,
+                updated_by = $2,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE incident_id = $2
+            WHERE incident_id = $3
                 RETURNING
                 incident_id AS "incidentId",
                 incident_number AS "incidentNumber",
@@ -331,12 +337,13 @@ export class IncidentRepository {
                 created_by AS "createdBy",
                 assigned_by AS "assignedBy",
                 resolved_by AS "resolvedBy",
+                updated_by AS "updatedBy",
                 created_at AS "createdAt",
                 updated_at AS "updatedAt"
         `;
 
         try {
-            const result = await this.pool.query(query, [priority, incidentId]);
+            const result = await this.pool.query(query, [priority, updatedBy, incidentId]);
 
             if (result.rows.length === 0) {
                 throw new Error('Incident not found');
