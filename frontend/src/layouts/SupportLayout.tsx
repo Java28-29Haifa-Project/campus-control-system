@@ -6,7 +6,7 @@ import {fetchTicketsThunk} from "../state/slices/ticketSlice.ts";
 import {supportNavItems} from "../components/configurations/nav-config.ts";
 import "../styles/sidebar.css";
 
-const POLL_MS = 500_000;
+const POLL_MS = 60_000;
 
 const isMockTickets = import.meta.env.VITE_USE_MOCK_TICKETS === "true";
 

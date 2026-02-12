@@ -33,7 +33,7 @@ const PRIORITY_OPTIONS_INCIDENT: IncidentPriority[] = [
     IncidentPriority.P4,
 ];
 
-const POLL_MS = 500_000;
+const POLL_MS = 60_000;
 
 const IncidentTable:React.FC = () => {
 
