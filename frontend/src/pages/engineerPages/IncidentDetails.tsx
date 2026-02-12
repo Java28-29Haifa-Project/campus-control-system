@@ -218,7 +218,7 @@ const IncidentDetailsPage: React.FC = () => {
                                     </div>
                                 )}
 
-                                <div className="ticket-form-actions" style={{gap: 10}}>
+                                <div className="filter-actions">
                                     <button
                                         type="button"
                                         className="secondary-btn"

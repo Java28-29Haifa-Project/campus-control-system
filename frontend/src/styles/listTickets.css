@@ -1,5 +1,3 @@
-/* ticketListTable.css */
-/* Таблица "My tickets" в стиле tables.css: glass, sticky header, аккуратный скролл */
 
 :root {
     --glass-bg: rgba(0, 0, 0, 0.25);
@@ -8,12 +6,22 @@
     --row-hover: rgba(255, 255, 255, 0.06);
     --text-muted: rgba(255, 255, 255, 0.70);
 }
-.ticket-table-wrapper{
+
+.auth-page.auth-page--table {
+    align-items: stretch;
+    justify-content: stretch;
+    padding-left: calc(var(--sidebar-w) + 16px);
+}
+.ticket-table-wrapper {
     position: fixed;
     top: var(--header-h);
     left: var(--sidebar-w) ;
     bottom: 0;
     right: 0;
+    /*width: 100%;*/
+    /*max-width: 1400px;*/
+    /*height: 100%;*/
+    /*min-height: calc(100vh - 60px - 24px);*/
 
     margin: 10px;
 
@@ -24,7 +32,6 @@
     padding: 16px;
     box-sizing: border-box;
 
-    /* glass card */
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.20);
     border-radius: 15px;
@@ -35,10 +42,9 @@
     font-family: inherit;
     font-size: 20px;
 
-    /* важно для вложенных overflow во flex */
     min-width: 0;
-    min-height: 0;
 }
+
 .ticket-table-wrapper h2{
     margin: 8px;
 }
@@ -61,37 +67,25 @@
 
 
 
-
-/* === Контейнер таблицы ===
-   Важно: в твоей верстке ticket-table-wrapper — карточка.
-   Поэтому тут делаем внутренний scroll-контейнер с max-height. */
-
 .ticket-list-table-container {
-
     flex: 1;
     min-height: 0;
     min-width: 0;
-    /*margin-top: 8px;*/
-
-    /*max-height: 320px; !* как у тебя было, но уже в css *!*/
     overflow: auto;
 
     border-radius: 14px;
     border: 1px solid var(--grid-border);
     background: var(--glass-bg);
-
 }
 
-/* === Таблица === */
-
 .ticket-list-table {
+    width: 100%;           /* ✅ важно */
     border-collapse: collapse;
-    table-layout: fixed; /* стабильная ширина колонок */
+    table-layout: fixed;
     color: #fff;
     font-size: 18px;
 }
 
-/* Sticky header */
 .ticket-list-table thead th {
     position: sticky;
     top: 0;
@@ -109,17 +103,11 @@
     letter-spacing: 0.08em;
     color: rgba(255, 255, 255, 0.85);
 
-    /* заголовки могут переноситься */
+
     white-space: normal;
     overflow-wrap: anywhere;
 }
-/* === Блок фильтра (замена инлайн стилям) === */
 
-/*.ticket-list-filter {*/
-/*    margin-top: 12px;*/
-/*    margin-bottom: 16px;*/
-/*    text-align: left;*/
-/*}*/
 
 .ticket-list-filter-label {
 
@@ -146,14 +134,13 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     vertical-align: top;
 
-    /* НЕ обрезаем текст */
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
     line-height: 1.35;
 }
 
-/* Кликабельные строки */
+
 .ticket-list-row {
     cursor: pointer;
 }
@@ -162,7 +149,7 @@
     background: var(--row-hover);
 }
 
-/* Description обычно длиннее — чуть уменьшим шрифт, чтобы читалось лучше */
+
 .ticket-list-desc {
     font-size: 13px;
     color: rgba(255, 255, 255, 0.92);
@@ -201,7 +188,7 @@
     width: 10%;
 }
 
-/* Чуть компактнее на небольших экранах */
+
 @media (max-width: 640px) {
     .ticket-list-table,
     .secondary-btn{
@@ -216,7 +203,7 @@
         padding: 8px 10px;
     }
 
-    /* Можно дать больше места Description */
+
     .ticket-list-table th:nth-child(2),
     .ticket-list-table td:nth-child(2) {
         width: 30%;

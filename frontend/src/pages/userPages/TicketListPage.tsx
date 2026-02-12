@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/tables.css";
+import "../../styles/listTickets.css";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {fetchTicketsThunk, setFilterStatus} from "../../state/slices/ticketSlice.ts";
 import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
@@ -44,7 +44,7 @@ const TicketListPage: React.FC = () => {
     }
 
     return (
-        <div className="auth-page">
+        <div className="auth-page auth-page--table">
             <div className="ticket-table-wrapper">
                 <h2>My tickets</h2>
 

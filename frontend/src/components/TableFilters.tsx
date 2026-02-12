@@ -58,7 +58,7 @@ export function TableFilters<TData>({
                             ))}
                         </select>
                     </div>
-
+                    {priorityCol?
                         <div className="filter-row">
                             <span className="filter-label">Priority</span>
 
@@ -79,6 +79,8 @@ export function TableFilters<TData>({
                                 ))}
                             </select>
                         </div>
+                        : <></>
+                    }
 
 
                     <div className="filter-actions">
