@@ -135,16 +135,16 @@ const ticketSlice = createSlice({
         clearCurrentTicket(state) {
             state.current = null;
         },
-        attachIncidentToTicket: (state, action: PayloadAction<{ ticketId: string; incidentId: string }>) => {
-            const { ticketId, incidentId } = action.payload;
-
-            const t = state.items.find((x) => x.requestId === ticketId);
-            if (t) t.incidentId = incidentId;
-
-            if (state.current?.requestId === ticketId) {
-                state.current.incidentId = incidentId;
-            }
-        }
+        // attachIncidentToTicket: (state, action: PayloadAction<{ ticketId: string; incidentId: string }>) => {
+        //     const { ticketId, incidentId } = action.payload;
+        //
+        //     const t = state.items.find((x) => x.requestId === ticketId);
+        //     if (t) t.incidentId = incidentId;
+        //
+        //     if (state.current?.requestId === ticketId) {
+        //         state.current.incidentId = incidentId;
+        //     }
+        // }
     },
     extraReducers: (builder) => {
         builder
@@ -157,7 +157,18 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicketsThunk.fulfilled, (state, action) => {
                 state.isLoadingList = false;
-                state.items = (action.payload ?? []).filter(Boolean) ;
+                state.items = action.payload;
+                // const prevById = new Map(state.items.map(t => [t.requestId, t]));
+                //
+                // state.items = (action.payload ?? [])
+                //     .filter(Boolean)
+                //     .map((t) => {
+                //         const prev = prevById.get(t.requestId);
+                //         return {
+                //             ...t,
+                //             incidentId: t.incidentId ?? prev?.incidentId,
+                //         };
+                //     });
 
                 state.ticketsSyncing = false;
                 state.ticketsLastSyncAt = new Date().toISOString();
@@ -233,5 +244,5 @@ const ticketSlice = createSlice({
     }
 });
 
-export const { setFilterStatus, clearCurrentTicket, attachIncidentToTicket } = ticketSlice.actions;
+export const { setFilterStatus, clearCurrentTicket } = ticketSlice.actions;
 export const ticketReducer = ticketSlice.reducer;

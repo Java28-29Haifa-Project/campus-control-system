@@ -30,7 +30,7 @@ export const TICKET_ERROR_MESSAGES: Record<string, string> = {
 export const INCIDENT_ERROR_MESSAGES: Record<string, string> = {
     UNAUTHORIZED: "You must be logged in to work with incident",
     FORBIDDEN: "You don't have enough permissions",
-    NOT_FOUND: "Incident not found",
+    NOT_FOUND: "IncidentDetails not found",
     VALIDATION_ERROR: "Please check incident data",
     SERVER_ERROR: "Server error while working with incident",
     NETWORK_ERROR: "Network error. Please check your connection",

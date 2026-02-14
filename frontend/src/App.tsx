@@ -7,9 +7,7 @@ import HealthPage from "./pages/servicePages/health/HealthPage.tsx";
 import Ticket from "./pages/userPages/Ticket.tsx";
 import TicketSupport from "./pages/supportPages/TicketSupport.tsx";
 import CreateIncident from "./pages/supportPages/CreateIncident.tsx";
-import IncidentEngineer from "./pages/engineerPages/IncidentEngineer.tsx";
-import Incident from "./pages/engineerPages/Incident.tsx";
-import Alarm from "./pages/adminPages/Alarm.tsx";
+import IncidentDetails from "./pages/engineerPages/IncidentDetails.tsx";
 import Logs from "./pages/adminPages/Logs.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import LoginForm from "./components/LoginForm.tsx";
@@ -21,6 +19,7 @@ import TicketDetails from "./pages/userPages/TicketDetails.tsx";
 import RegisterForm from "./components/RegisterForm.tsx";
 import TicketSupportDetails from "./pages/supportPages/TicketSupportDetails.tsx";
 import SupportLayout from "./layouts/SupportLayout.tsx";
+import IncidentTable from "./pages/engineerPages/IncidentsTable.tsx";
 
 function App() {
 
@@ -58,9 +57,9 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>
-                    <Route path={Paths.INCIDENT} element={<Incident/>}/>
-                    <Route path={Paths.INCIDENT_MY} element={<IncidentEngineer/>}/>
-                    <Route path={Paths.ALARM} element={<Alarm/>}/>
+                    <Route path={Paths.INCIDENT} element={<IncidentTable/>}/>
+                    <Route path={Paths.INCIDENT_DETAILS} element={<IncidentDetails/>}/>
+                    {/*<Route path={Paths.ALARM} element={<Alarm/>}/>*/}
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

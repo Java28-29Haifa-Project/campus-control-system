@@ -1,9 +1,10 @@
 
 export const enum IncidentStatus {
-    Open = 'OPEN',
-    InProgress = 'IN_PROGRESS',
-    Resolved = 'RESOLVED',
-    Closed = 'CLOSED'
+    New = 'new',
+    Assign = 'assigned',
+    InProgress = 'in_progress',
+    Resolved = 'resolved',
+    Closed = 'closed'
 };
 export const enum IncidentImpact {
     Low = 'low',
@@ -16,10 +17,10 @@ export const enum IncidentUrgencies {
     High = 'high'
 }
 export const enum IncidentPriority {
-    P1 = 'P1',
-    P2 = 'P2',
-    P3 = 'P3',
-    P4 = 'P4'
+    P1 = 4,
+    P2 = 3,
+    P3 = 2,
+    P4 = 1
 }
 
 export interface Incident {

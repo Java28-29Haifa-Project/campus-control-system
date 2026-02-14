@@ -1,6 +1,6 @@
 
 
-const Incident = () => {
+const IncidentDetails = () => {
     return (
         <div>
             <h1>Incident page</h1>
@@ -8,4 +8,4 @@ const Incident = () => {
     );
 };
 
-export default Incident;
+export default IncidentDetails;

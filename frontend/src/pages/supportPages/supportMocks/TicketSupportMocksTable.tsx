@@ -81,7 +81,7 @@ const TicketSupportMocksTable: React.FC = () => {
                 ),
             },
             {
-                header: "Incident",
+                header: "IncidentDetails",
                 id: "incident",
                 size:150,
                 cell: ({ row }) => {
