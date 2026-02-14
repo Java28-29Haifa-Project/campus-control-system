@@ -91,8 +91,12 @@ export default logger;
 import { Request, Response, NextFunction } from 'express';
 
 export function requestLoggerMiddleware(req: Request, res: Response, next: NextFunction) {
+    if (req.path === '/health') {
+        return next();
+    }
     const startTime = Date.now();
     const requestId = (req as any).requestId;
+
 
     logger.info('Request started', {
         method: req.method,

@@ -1,0 +1,28 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowAccountPublish",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::757434564846:root"
+      },
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+    },
+    {
+      "Sid": "AllowCloudWatchAlarmsFromAuditService",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudwatch.amazonaws.com"
+      },
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "263548466757"
+        }
+      }
+    }
+  ]
+}
