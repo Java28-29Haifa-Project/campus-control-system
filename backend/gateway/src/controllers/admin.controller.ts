@@ -1,5 +1,4 @@
 import {Request, Response, NextFunction} from 'express';
-// import { pool } from '../config/database.js';
 import {HttpError} from '../errors/http-error.js';
 import Logger from '../utils/logger.js';
 import {auditClient} from '../services/auditClient.js';
