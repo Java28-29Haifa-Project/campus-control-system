@@ -29,6 +29,7 @@ import {
 } from './errors/error-handler.js';
 
 import Logger, { requestLoggerMiddleware } from './utils/logger.js';
+import {adminRoutes} from "./routes/admin.routes.js";
 
 export const launchServer = () => {
     const app = express();
@@ -111,18 +112,25 @@ export const launchServer = () => {
         incidentRoutes
     );
 
-    app.use('/monitoring',
-        authMiddleware,
-        requireRole('ADMIN'),
-        readRateLimiter, // Monitoring is read-only
-        monitoringRoutes
-    );
+    // app.use('/monitoring',
+    //     authMiddleware,
+    //     requireRole('ADMIN'),
+    //     readRateLimiter, // Monitoring is read-only
+    //     monitoringRoutes
+    // );
 
     app.use('/audit',
         authMiddleware,
         requireRole('ADMIN'),
-        writeRateLimiter, // Audit is write-only (sending events)
+        readRateLimiter,
         auditRoutes
+    );
+
+    app.use('/admin',
+        authMiddleware,
+        requireRole('ADMIN'),
+        readRateLimiter,
+        adminRoutes
     );
 
     // ==================== 404 Handler ====================
