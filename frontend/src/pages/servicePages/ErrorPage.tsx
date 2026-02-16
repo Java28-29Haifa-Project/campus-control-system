@@ -1,34 +1,55 @@
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {Paths} from "../../utils/types.ts";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Paths } from "../../utils/types.ts";
+import ThemedLayout from "../../components/ThemedLayout";
+import '../../styles/forms.css';
 
 const ErrorPage = () => {
-
-    const { state } = useLocation();
     const navigate = useNavigate();
+    const { state } = useLocation();
 
     const code = state?.code ?? 404;
 
     return (
-        <div className='container'>
-            {code === 404? <h1 style={{color:"yellow"}}>404 | Not found</h1> :
-                <div style={{color:"yellow"}}>
-                    <h1>403 – Forbidden</h1>
-                    <p>You don't have permission to access this page.</p>
+
+        <ThemedLayout imageName="Dorfic">
+
+
+            <div className="login-wrapper" style={{textAlign: 'center', alignItems: 'center'}}>
+
+
+                <h1 style={{fontSize: '80px', margin: '0', lineHeight: '1'}}>
+                    {code}
+                </h1>
+
+                <h2 style={{marginTop: '10px', textTransform: 'uppercase', opacity: 0.9}}>
+                    {code === 404 ? "Page Not Found" : "Access Denied"}
+                </h2>
+
+                <p style={{ opacity: 0.7, marginBottom: '30px', fontSize: '16px' }}>
+                    {code === 404
+                        ? "“OopS! u r lost in space lol 0_x"
+                        : "Sorry, you don't have permission to be here."}
+                </p>
+
+
+                <div className="error-actions">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="error-btn secondary"
+                    >
+                        Go Back
+                    </button>
+
+                    <button
+                        onClick={() => navigate(Paths.HOME)}
+                        className="error-btn"
+                    >
+                        Home
+                    </button>
                 </div>
-                }
-                <br/>
-            <div style={{ marginTop: 16 }}>
-                <button onClick={() => navigate(-1)}>Back</button>{" "}
-                <Link to={Paths.HOME}
-                      style={{
-                          color:"yellow",
-                          fontSize:"30px",
-                          border:"1px solid yellow",
-                          padding: "10px"}}
-                >
-                    Go to Home</Link>
+
             </div>
-        </div>
+        </ThemedLayout>
     );
 };
 

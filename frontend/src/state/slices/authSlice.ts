@@ -1,7 +1,11 @@
-import type {LoginRequest, User} from "../../types/authTypes";
-import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
-import {getCurrentUser, login, refreshToken} from "../../api/authApi.ts";
+import type {LoginData, LoginRequest, User} from "../../types/authTypes";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {getCurrentUser, login, logout, refreshToken, register} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
+
+import {mockUser} from "../../mocks/authMocks.ts";
+
+const isMockAuth = import.meta.env.VITE_MOCK_AUTH === 'true';
 
 export type AuthStatus = "idle" | "loading" | "succeeded" | "failed";
 
@@ -12,6 +16,7 @@ export interface AuthState {
     isLoading: boolean,
     error: string | null,
 }
+
 const initialState: AuthState = {
     user: null,
     isAuthenticated: false,
@@ -20,6 +25,34 @@ const initialState: AuthState = {
     error: null,
 }
 
+
+export const registerThunk = createAsyncThunk <
+    User,
+    LoginData,
+    { rejectValue: string }
+> (
+    "auth/register",
+    async (loginData: LoginData, {rejectWithValue}) => {
+        if (isMockAuth) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            return {
+                ...mockUser,
+                username: loginData.name,
+                email: loginData.email
+            };
+        }
+
+        try{
+            return await register(loginData);
+        } catch (err){
+            console.log("Register failed", err);
+            return rejectWithValue("Backend is unavailable");
+        }
+    }
+);
+
+
 export const loginThunk = createAsyncThunk <
     User,
     LoginRequest,
@@ -27,29 +60,48 @@ export const loginThunk = createAsyncThunk <
 >(
     "auth/login",
     async (loginData: LoginRequest, { rejectWithValue }) => {
+
+        if (isMockAuth) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+
+            return mockUser;
+        }
+
         try {
             return await login(loginData);
         } catch (err) {
             console.log("loginThunk error ", err);
-
             if( err instanceof ApiError) {
                 const messageFromCode = LOGIN_ERROR_MESSAGES[err.code];
-                if (messageFromCode) {
-                    return rejectWithValue(messageFromCode);
-                }
-                if(err.status === 401) {
-                    return rejectWithValue(LOGIN_ERROR_MESSAGES.UNAUTHORIZED);
-                }
-                else if(err.status >= 500) {
-                    return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
-                }
-                // else
-                //     return rejectWithValue("Unexpected error");
+                if (messageFromCode) return rejectWithValue(messageFromCode);
+                if(err.status === 401) return rejectWithValue(LOGIN_ERROR_MESSAGES.UNAUTHORIZED);
+                if(err.status >= 500) return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
             }
             return rejectWithValue("Backend is unavailable");
         }
     }
 );
+
+
+export const logoutThunk = createAsyncThunk<
+    void,
+    void,
+    {rejectValue: string}
+> (
+    "auth/logout",
+    async (_, { rejectWithValue } ) => {
+        if (isMockAuth) return;
+
+        try {
+            await logout();
+        } catch (err) {
+            console.log("logout thunk error ", err);
+            return rejectWithValue("Backend is unavailable");
+        }
+    }
+)
+
 
 export const verifyTokenThunk = createAsyncThunk<
     User,
@@ -58,26 +110,24 @@ export const verifyTokenThunk = createAsyncThunk<
 >(
     "auth/verify",
     async (_, { rejectWithValue }) => {
+
+        if (isMockAuth) {
+
+            return mockUser;
+        }
+
         try {
             return await getCurrentUser();
         } catch (err) {
-            console.log("verifyTokenThunk error ", err);
-
             if( err instanceof ApiError){
                 if (err.status === 401){
                     try {
                         await refreshToken();
                         return await getCurrentUser();
-                    } catch (e) {
-                        console.log("verifyTokenThunk error after refresh", e);
+                    } catch {
                         return rejectWithValue(LOGIN_ERROR_MESSAGES.UNAUTHORIZED);
                     }
                 }
-                if(err.status >= 500){
-                    return rejectWithValue(LOGIN_ERROR_MESSAGES.SERVER_ERROR);
-                }
-                // else
-                //     return rejectWithValue("Unexpected error");
             }
             return rejectWithValue("Backend is unavailable");
         }
@@ -88,59 +138,62 @@ export const verifyTokenThunk = createAsyncThunk<
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {
-        logout: (state) => {
-            Object.assign(state, initialState);
-        }
-    },
+    reducers: {},
     extraReducers: (builder) => {
-        builder
-            .addCase(loginThunk.pending, (state) => {
-                state.isLoading = true;
-                state.isVerified = "loading";
-                state.error = null;
-            })
-            .addCase(loginThunk.fulfilled, (state, action: PayloadAction<User>) => {
-                state.isLoading = false;
-                state.isAuthenticated = true;
-                state.isVerified = "succeeded";
-                state.user = action.payload;
-                state.error = null;
-            })
-            .addCase(loginThunk.rejected, (state, action) => {
-                state.isLoading = false;
-                state.isAuthenticated = false;
-                state.isVerified = "failed";
-                state.user = null;
-                state.error = action.payload ?? action.error.message ?? "Unexpected error";
-            })
-            .addCase(verifyTokenThunk.pending, (state) => {
-                state.isLoading = true;
-                state.isVerified = "loading";
-                state.error = null;
-            })
-            .addCase(verifyTokenThunk.fulfilled, (state, action: PayloadAction<User>) => {
-                state.isLoading = false;
-                state.isAuthenticated = true;
-                state.isVerified = "succeeded";
-                state.user = action.payload;
-                state.error = null;
-            })
-            .addCase(verifyTokenThunk.rejected, (state, action) => {
-                if((action.payload ?? "") === LOGIN_ERROR_MESSAGES.UNAUTHORIZED) {
-                    state.user = null;
-                    state.isAuthenticated = false;
-                    state.isLoading = false;
-                    state.isVerified = "failed";
-                    state.error = LOGIN_ERROR_MESSAGES.UNAUTHORIZED;
-                }
-                state.isVerified = "failed";
-                state.isLoading = false;
-                state.error = action.payload ?? action.error.message ?? null;
-            })
+
+        builder.addCase(registerThunk.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        });
+        builder.addCase(registerThunk.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.isAuthenticated = true;
+            state.user = action.payload;
+            state.error = null;
+        });
+        builder.addCase(registerThunk.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload ?? "Registration failed";
+        });
+
+
+        builder.addCase(loginThunk.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        });
+        builder.addCase(loginThunk.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.isAuthenticated = true;
+            state.user = action.payload;
+            state.error = null;
+        });
+        builder.addCase(loginThunk.rejected, (state, action) => {
+            state.isLoading = false;
+            state.isAuthenticated = false;
+            state.error = action.payload ?? "Login failed";
+        });
+
+
+        builder.addCase(logoutThunk.fulfilled, (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+        });
+
+
+        builder.addCase(verifyTokenThunk.pending, (state) => {
+            state.isLoading = true;
+        });
+        builder.addCase(verifyTokenThunk.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.isAuthenticated = true;
+            state.user = action.payload;
+        });
+        builder.addCase(verifyTokenThunk.rejected, (state) => {
+            state.isLoading = false;
+            state.isAuthenticated = false;
+            state.user = null;
+        });
     }
 })
-export const { logout } = authSlice.actions;
+
 export const authReducer = authSlice.reducer;
-
-

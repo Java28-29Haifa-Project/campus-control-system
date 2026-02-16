@@ -1,26 +1,52 @@
+export const enum TicketStatus {
+    New = 'new',
+    Rejected = 'rejected',
+    InService = 'in_service',
+    Done = 'done'
+};
 
-export type TicketStatus = "NEW" | "REJECTED" | "IN_SERVICE" | "DONE";
-export type Category = "ELECTRICAL" | "PLUMBING" | "GENERAL";
-export type UserPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENCY";
+export const enum Category {
+    Plumbing = 'plumbing',
+    Electrical = 'electrical',
+    Hvac = 'hvac',
+    Gas = 'gas',
+    Fire_safety = 'fire_safety',
+    Elevatory = 'elevators',
+    Access = 'access',
+    Network = 'network',
+    Infrastructure = 'infrastructure',
+    Other = 'other',
+};
+
+export const enum UserPriority {
+    Low = 'low',
+    Medium = 'medium',
+    High = 'high',
+
+};
 
 export interface Ticket {
-    id: string;
+    requestId: string;
+    requestNumber: string;
     userId: string;
     subject: string;
-    description: string;
+    description?: string;
     status: TicketStatus;
     category: Category;
-    createdAt: string;
-    updatedAt: string;
     userReportedPriority: UserPriority;
+    createdAt: string;
+    updatedAt?: string;
+
+    incidentId?: string | null;
 }
 
 export interface TicketRequest {
     subject: string;
-    description: string;
+    description?: string;
     category: Category;
     userReportedPriority: UserPriority;
 }
+
 export interface TicketResponse {
     ticket: Ticket;
 }

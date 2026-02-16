@@ -1,13 +1,8 @@
 import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
-
-import {logout} from "../state/slices/authSlice.ts";
-
+import {logoutThunk} from "../state/slices/authSlice.ts";
 import { useTheme } from "../context/ThemeContext";
-
 import dorficDay from "../assets/images/DorficDay.png";
-
 import dorficNight from "../assets/images/DorficNight.png";
-
 import confetti from 'canvas-confetti';
 
 const Header = () => {
@@ -35,7 +30,6 @@ const Header = () => {
 
     return (
         <header className="header">
-
             <div className="header-left">
                 <img
                     src={currentLogo}
@@ -44,7 +38,6 @@ const Header = () => {
                     onClick={fireConfetti}
                 />
             </div>
-
 
             <div className="header-user-panel">
                 <div style={{
@@ -56,12 +49,12 @@ const Header = () => {
                     whiteSpace: 'nowrap'
                 }}>
 
-                    {auth ? <span>Hello, Fronteeeend!</span> : <span>Guest</span>}
+                    {auth ? <span>Hello, {auth.username || auth.email}!</span> : <span>Guest</span>}
                 </div>
 
                 {isAuthenticated && (
                     <button
-                        onClick={() => dispatch(logout())}
+                        onClick={() => dispatch(logoutThunk())}
                         className="juicy-btn"
                     >
                         Logout

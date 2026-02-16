@@ -2,7 +2,7 @@
     min-height: calc(100vh - 60px);
     padding: 80px 20px 24px;
     display: flex;
-    align-items: center;     /* можно flex-start, если не хочешь по центру */
+    align-items: center;
     justify-content: center;
     box-sizing: border-box;
 }

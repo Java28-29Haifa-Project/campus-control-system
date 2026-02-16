@@ -1,7 +1,3 @@
-export type RouteType = {
-    path: Path,
-    title: string
-}
 export const Paths = {
     HOME: '/',
     TICKET: '/ticket',
@@ -17,6 +13,15 @@ export const Paths = {
     LOGS: '/logs',
     HEALTH: '/health',
 } as const;
+
 export type Path = typeof Paths[keyof typeof Paths];
+
+
+export type RouteType = {
+    path: Path;
+    title: string;
+    iconDay?: string;
+    iconNight?: string;
+}
 
 

@@ -1,10 +1,12 @@
 import * as React from "react";
-import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
-
-type NavItem = {
-    path: string;
+export type NavItem = {
+    id: string;
     title: string;
+    iconDay?: string;
+    iconNight?: string;
+    component?: React.ReactNode;
 }
 
 type Props = {
@@ -14,35 +16,54 @@ type Props = {
 };
 
 const Navbar: React.FC<Props> = ({ items, onScroll, activeId }) => {
-    const [isOpen, setIsOpen] = useState(true);
+    const { navPosition, navScale, isNavOpen, theme } = useTheme();
 
     const handleClick = (id: string) => {
-        if (onScroll) {
-            onScroll(id);
-        }
+        if (onScroll) onScroll(id);
     };
 
     return (
-        <nav className={`navbar ${isOpen ? "" : "closed"}`}>
-            <button
-                className="navbar-toggle"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                {isOpen ? ">" : "<"}
-            </button>
-
+        <nav
+            className={`navbar ${navPosition} ${isNavOpen ? "open" : "closed"}`}
+            style={{
+                '--nav-scale': navScale,
+                transform: (navPosition === 'bottom' || navPosition === 'top')
+                    ? `translateX(-50%) scale(${navScale})`
+                    : `translateY(-50%) scale(${navScale})`
+            } as React.CSSProperties}
+        >
             <div className="navbar-items">
-                {items.map(item => (
-                    <div
-                        key={item.path}
+                {items.map(item => {
+                    const currentIcon = theme === 'day' ? item.iconDay : item.iconNight;
 
-                        className={`navbar-link ${activeId === item.path ? "active" : ""}`}
-                        onClick={() => handleClick(item.path)}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        {item.title}
-                    </div>
-                ))}
+
+                    const isNewTicket = item.id.includes('/new') || item.title === "NEW TICKET";
+
+                    return (
+                        <div
+                            key={item.id}
+                            className={`navbar-link ${activeId === item.id ? "active" : ""}`}
+                            onClick={() => handleClick(item.id)}
+                        >
+
+                            <span className="nav-text">{item.title}</span>
+
+
+                            {currentIcon && (
+                                <img
+                                    src={currentIcon}
+                                    alt={item.title}
+                                    className="mobile-icon"
+                                    style={{
+
+                                        transform: isNewTicket ? 'rotate(180deg)' : 'none',
+                                        transition: 'transform 0.3s ease'
+                                    }}
+                                />
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </nav>
     )

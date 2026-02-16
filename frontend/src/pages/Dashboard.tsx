@@ -3,7 +3,13 @@ import ThemedLayout from "../components/ThemedLayout";
 const Dashboard = () => {
     return (
         <ThemedLayout imageName="Home">
-            <div style={{ textAlign: 'left', width: '100%' }}>
+            <div style={{
+                textAlign: 'center',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
                 <h1 style={{
                     fontSize: '4rem',
                     fontWeight: '900',
@@ -17,7 +23,8 @@ const Dashboard = () => {
                     backgroundClip: 'text',
 
                     display: 'inline-block',
-                    lineHeight: 1
+                    lineHeight: 1.2,
+                    padding: '10px 0'
                 }}>
                     WELCOME!
                 </h1>
