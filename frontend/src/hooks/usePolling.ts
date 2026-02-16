@@ -1,5 +1,4 @@
-
-import { useEffect } from "react";
+import {useEffect, useRef} from "react";
 
 type Args = {
     enabled: boolean;
@@ -9,12 +8,19 @@ type Args = {
 };
 
 export function usePolling({ enabled, intervalMs, isSyncing, tick }: Args) {
+    const syncingRef = useRef(isSyncing);
+
+
+    useEffect(() => {
+        syncingRef.current = isSyncing;
+    }, [isSyncing]);
+
     useEffect(() => {
         if (!enabled) return;
 
         const run = () => {
             if (document.visibilityState !== "visible") return;
-            if (isSyncing) return;
+            if (syncingRef.current) return;
             tick();
         };
 
@@ -22,6 +28,5 @@ export function usePolling({ enabled, intervalMs, isSyncing, tick }: Args) {
 
         const id = window.setInterval(run, intervalMs);
         return () => window.clearInterval(id);
-    }, [enabled, intervalMs, isSyncing, tick]);
+    }, [enabled, intervalMs, tick]);
 }
-

@@ -8,11 +8,12 @@ function formatLastSync(iso: string | null) {
 
     const diffSec = Math.floor((now - date.getTime()) / 1000);
 
-    let ago = "";
-    if (diffSec < 5) ago = "just now";
-    else if (diffSec < 60) ago = `${diffSec} sec ago`;
-    else if (diffSec < 3600) ago = `${Math.floor(diffSec / 60)} min ago`;
-    else ago = `${Math.floor(diffSec / 3600)} h ago`;
+    const ago =
+        diffSec < 60
+            ? `${diffSec} sec ago`
+            : diffSec < 3600
+                ? `${Math.floor(diffSec / 60)} min ago`
+                : `${Math.floor(diffSec / 3600)} h ago`;
 
     return {
         time: date.toLocaleTimeString(),
@@ -34,7 +35,6 @@ export const PollingInline: React.FC<Props> = ({
                                                    lastSyncAt,
                                                    onRefresh,
                                                }) => {
-    const {time, ago} = formatLastSync(lastSyncAt);
 
     const [, force] = useState(0);
 
@@ -46,6 +46,7 @@ export const PollingInline: React.FC<Props> = ({
         return () => clearInterval(id);
     }, []);
 
+    const {time, ago} = formatLastSync(lastSyncAt);
     return (
         <span
             style={{
