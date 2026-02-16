@@ -18,10 +18,6 @@ type TableTabStackProps<TData> = {
     renderTopRight?: (table: ReturnType<typeof useReactTable<TData>>) => React.ReactNode;
 
     title?: string | React.ReactNode;
-
-    actionsHeader?: React.ReactNode;
-    actionsWidth?: number;
-    renderRowActions?: (row: Row<TData>) => React.ReactNode;
 };
 
 function TableTanStack<TData>({
@@ -33,9 +29,6 @@ function TableTanStack<TData>({
                                             getRowClassName,
                                             renderTopRight,
                                             title,
-                                  actionsHeader = "Actions",
-                                  actionsWidth = 120,
-                                  renderRowActions,
                                         }: TableTabStackProps<TData>) {
 
     const [columnFilters, setColumnFilters] =
@@ -50,8 +43,6 @@ function TableTanStack<TData>({
         onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
     });
-
-    const hasActions = Boolean(renderRowActions);
 
     return (
         <div className="support-table-page">
@@ -85,12 +76,6 @@ function TableTanStack<TData>({
                                     />
                                 </th>
                             ))}
-
-                            {hasActions && (
-                                <th style={{ width: actionsWidth, whiteSpace: "nowrap" }}>
-                                    {actionsHeader}
-                                </th>
-                            )}
                         </tr>
                     ))}
                     </thead>
@@ -131,16 +116,6 @@ function TableTanStack<TData>({
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </td>
                                 ))}
-
-                                {hasActions && (
-                                    <td
-                                        style={{ width: actionsWidth }}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onKeyDown={(e) => e.stopPropagation()}
-                                    >
-                                        {renderRowActions?.(row)}
-                                    </td>
-                                )}
                             </tr>
                         );
                     })}

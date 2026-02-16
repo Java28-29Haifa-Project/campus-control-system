@@ -14,19 +14,13 @@ const STATUS_OPTIONS: TicketStatus[] = [
     TicketStatus.InService,
     TicketStatus.Rejected,
 ];
-type Props = {
-    detailsBasePath: string;
-};
 
-const TicketSupportTable:React.FC<Props> = ({ detailsBasePath}) => {
+const TicketSupportTable:React.FC = () => {
 
     const { items } = useAppSelector((state) => state.ticket);
 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-
-    const isEditableTicket = (t: Ticket) =>
-        t.status === TicketStatus.New;
 
     const handleStatusChange = useCallback(
         (ticket: Ticket, newStatus: TicketStatus) => {
@@ -37,20 +31,6 @@ const TicketSupportTable:React.FC<Props> = ({ detailsBasePath}) => {
             })
         );
     }, [dispatch]);
-
-    const handleClose = useCallback(
-        (ticket: Ticket) => {
-            if (ticket.status === TicketStatus.Done) return;
-
-            dispatch(
-                updateTicketThunk({
-                    id: ticket.requestId,
-                    updates: { status: TicketStatus.Done },
-                })
-            );
-        },
-        [dispatch]
-    );
 
     const columns = useMemo<ColumnDef<Ticket>[]>(
         () => [
@@ -198,42 +178,12 @@ const TicketSupportTable:React.FC<Props> = ({ detailsBasePath}) => {
                     statusOptions={STATUS_OPTIONS}
                 />
             )}
-
-            actionsHeader="Actions"
-            actionsWidth={120}
-            renderRowActions={(row) => {
-                const t = row.original;
-
-                if (t.status === TicketStatus.Done) return <span className="muted-text">—</span>;
-
-                const disabled =
-                    t.status === TicketStatus.InService || t.status === TicketStatus.Rejected;
-
-                return (
-                    <button
-                        type="button"
-                        className="secondary-btn table-btn"
-                        disabled={disabled}
-                        title={disabled ? "Ticket is locked" : "Close ticket"}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (disabled) return;
-                            handleClose(t);
-                        }}
-                    >
-                        Close
-                    </button>
-                );
-            }}
-
-            isRowClickable={(row) => isEditableTicket(row.original)}
-            getRowClassName={(row) =>
-                !isEditableTicket(row.original) ? "row-disabled" : ""
-            }
-            onRowClick={(row) =>
-                navigate(`${detailsBasePath}/${row.original.requestId}`)
-            }
+            isRowClickable={(row) =>  row.original.status !== TicketStatus.InService &&
+                row.original.status !== TicketStatus.Rejected}
+            getRowClassName={(row) => (
+            row.original.status === TicketStatus.InService ||
+            row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
+            onRowClick={(row) => navigate(`/support/ticket/${row.original.requestId}`)}
         />
 
     );

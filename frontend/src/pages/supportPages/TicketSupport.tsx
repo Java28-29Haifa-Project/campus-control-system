@@ -1,18 +1,13 @@
 import TicketSupportTable from "./TicketSupportTable.tsx";
 import TicketSupportMocksTable from "./supportMocks/TicketSupportMocksTable.tsx";
-import React from "react";
 
-type Props = {
-    detailsBasePath: string;
-};
-
-const TicketSupport:React.FC<Props> = ({detailsBasePath}) => {
+const TicketSupport = () => {
 
     //TODO delete mocks
     const useMockTickets = import.meta.env.VITE_USE_MOCK_TICKETS === 'true';
     return (
         <div >
-            {useMockTickets? <TicketSupportMocksTable/> : <TicketSupportTable detailsBasePath={detailsBasePath} />}
+            {useMockTickets? <TicketSupportMocksTable/> : <TicketSupportTable />}
         </div>
     );
 };
