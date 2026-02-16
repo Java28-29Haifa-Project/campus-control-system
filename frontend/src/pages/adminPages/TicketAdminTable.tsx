@@ -141,8 +141,9 @@ const TicketAdminTable: React.FC = () => {
                     statusOptions={ADMIN_STATUS_FILTERS}
                 />
             )}
-            isRowClickable={() => false}
-            getRowClassName={() => ""}
+            isRowClickable={(row) => row.original.status !== TicketStatus.Rejected}
+            getRowClassName={(row) => (
+                row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
             onRowClick={() => {}}
         />
     );
