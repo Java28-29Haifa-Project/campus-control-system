@@ -47,8 +47,8 @@ const Dashboard = () => {
                 <>
                     <p>Admin area:</p>
                     <ul>
-                        <li><Link to={Paths.TICKET_SUPPORT}>Support Tickets</Link></li>
-                        <li><Link to={Paths.INCIDENT}>Incidents</Link></li>
+                        <li><Link to={Paths.TICKET_ADMIN}>Admin Tickets</Link></li>
+                        <li><Link to={Paths.INCIDENT_ADMIN}>Admin Incidents</Link></li>
                         <li><Link to={Paths.LOGS}>Logs</Link></li>
                         <li><Link to={Paths.ALARM}>Alarms</Link></li>
                         <li><Link to={Paths.HEALTH}>Health</Link></li>
