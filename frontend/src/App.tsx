@@ -50,7 +50,7 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
                     <Route element={<SupportLayout />}>
                         <Route path={Paths.DASHBOARD_SUPPORT} element={<Dashboard/>}/>
-                        <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport/>}/>
+                        <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport detailsBasePath={Paths.TICKET_SUPPORT} />}/>
                         <Route path={Paths.INCIDENT_SUPPORT_NEW} element={<CreateIncident/>}/>
                         <Route path={Paths.TICKET_SUPPORT_DETAILS} element={<TicketSupportDetails/>}/>
                     </Route>
@@ -59,10 +59,11 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>
                     <Route path={Paths.INCIDENT} element={<IncidentTable/>}/>
                     <Route path={Paths.INCIDENT_DETAILS} element={<IncidentDetails/>}/>
-                    {/*<Route path={Paths.ALARM} element={<Alarm/>}/>*/}
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+                    <Route path={Paths.TICKET_ADMIN} element={<TicketSupport detailsBasePath={Paths.TICKET_ADMIN}/>}/>
+                    <Route path={Paths.INCIDENT_ADMIN} element={<IncidentTable/>}/>
                     <Route path={Paths.LOGS} element={<Logs/>}/>
                     <Route path={Paths.HEALTH} element={<HealthPage/>}/>
                 </Route>
