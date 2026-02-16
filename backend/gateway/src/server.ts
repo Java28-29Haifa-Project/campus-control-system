@@ -77,6 +77,14 @@ export const launchServer = () => {
             return res.status(404).end();
         }
 
+        if (
+            path.startsWith('/actuator') ||
+            path.startsWith('/wp') ||
+            path.startsWith('/php')
+        ) {
+            return res.status(204).end();
+        }
+
         next();
     });
     // ==================== Security Middleware ====================

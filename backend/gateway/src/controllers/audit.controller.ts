@@ -12,22 +12,21 @@ class AuditController {
     async getLogs(req: Request, res: Response, next: NextFunction) {
         try {
             const {
-                entity,
                 entityId,
-                action,
                 userId,
                 role,
                 dateFrom,
                 dateTo,
+
                 page = '1',
                 limit = '10'
             } = req.query;
 
             const filters: any = {};
 
-            if (entity) filters.entity = entity;
+            // if (entity) filters.entity = entity;
             if (entityId) filters.entityId = entityId;
-            if (action) filters.action = action;
+            // if (action) filters.action = action;
             if (userId) filters.userId = userId;
             if (role) filters.role = role;
             if (dateFrom) filters.dateFrom = dateFrom;
