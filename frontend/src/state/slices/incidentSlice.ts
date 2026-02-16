@@ -149,13 +149,13 @@ export const updateIncidentPriorityThunk = createAsyncThunk<
 );
 export const addIncidentCommentThunk = createAsyncThunk<
     { incidentId: string; comment: CommentIncident },
-    { incidentId: string; commentText: string },
+    { incidentId: string; text: string },
     { rejectValue: string }
 >(
     "incident/addComment",
-    async ({ incidentId, commentText }, { rejectWithValue }) => {
+    async ({ incidentId, text }, { rejectWithValue }) => {
         try {
-            const comment = await addIncidentCommentApi(incidentId, {commentText} );
+            const comment = await addIncidentCommentApi(incidentId, {text} );
             return { incidentId, comment };
         } catch (e) {
             if (e instanceof ApiError) {
@@ -339,8 +339,8 @@ const incidentSlice = createSlice({
                 const inc = state.incidents.find(i => i.incidentId === incidentId);
                 if (!inc) return;
 
-                inc.comment ??= [];
-                inc.comment.unshift(comment);
+                inc.comments ??= [];
+                inc.comments.unshift(comment);
             })
             .addCase(addIncidentCommentThunk.rejected, (state, action) => {
                 const id = action.meta.arg.incidentId;

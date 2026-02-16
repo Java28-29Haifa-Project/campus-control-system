@@ -38,9 +38,9 @@ const IncidentDetailsPage: React.FC = () => {
     }, [dispatch, id]);
 
     const commentsSorted = useMemo(() => {
-        const arr = currentInc?.comment ?? [];
+        const arr = currentInc?.comments ?? [];
         return [...arr].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
-    }, [currentInc?.comment]);
+    }, [currentInc?.comments]);
 
     const onSubmitComment = useCallback(async () => {
         if (!currentInc) return;
@@ -52,7 +52,7 @@ const IncidentDetailsPage: React.FC = () => {
             await dispatch(
                 addIncidentCommentThunk({
                     incidentId: currentInc.incidentId,
-                    commentText: trimmed,
+                    text: trimmed,
                 })
             ).unwrap();
 

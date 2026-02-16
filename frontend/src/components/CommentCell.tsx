@@ -29,11 +29,11 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
     const panelRef = useRef<HTMLDivElement | null>(null);
 
     const comments = useMemo<CommentIncident[]>(() => {
-        const arr = incident.comment ?? [];
+        const arr = incident.comments ?? [];
         return [...arr].sort((a, b) =>
             (b.createdAt ?? "").localeCompare(a.createdAt ?? "")
         );
-    }, [incident.comment]);
+    }, [incident.comments]);
 
     const close = () => {
         setOpen(false);
@@ -54,7 +54,7 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
             await dispatch(
                 addIncidentCommentThunk({
                     incidentId: incident.incidentId,
-                    commentText: trimmed,
+                    text: trimmed,
                 })
             ).unwrap();
 

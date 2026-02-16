@@ -41,7 +41,7 @@ export const updateIncidentPriorityApi = async (id: string, updates: Partial<Inc
         body: updates,
     });
 }
-export const addIncidentCommentApi = async (id: string, body: { commentText: string }): Promise<CommentIncident> => {
+export const addIncidentCommentApi = async (id: string, body: { text: string }): Promise<CommentIncident> => {
     return request<CommentIncident>(`/incidents/${id}/comments`, {
         method: "POST",
         body,

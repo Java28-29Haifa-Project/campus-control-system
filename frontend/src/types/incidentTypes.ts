@@ -43,7 +43,7 @@ export interface Incident {
     createdAt: string;
     updatedAt: string;
     assignedBy?: string;
-    comment?: CommentIncident[];
+    comments?: CommentIncident[];
 }
 export type CreateIncidentRequest = {
     ticketIds: string[];
