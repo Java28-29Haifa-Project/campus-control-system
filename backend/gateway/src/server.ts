@@ -42,6 +42,43 @@ export const launchServer = () => {
 
 
     app.use(requestIdMiddleware);
+
+    // ==================== Bot Filter ====================
+    app.use((req, res, next) => {
+        const path = req.path.toLowerCase();
+
+        const badPatterns = [
+            '/',
+            '/favicon.ico',
+            '/heapdump',
+            '/actuator',
+            '/actuator/heapdump',
+            '/config',
+            '/wp-admin',
+            '/phpmyadmin',
+            '/server-status',
+            '.git',
+            'wp-',
+            'phpunit',
+            'eval-stdin',
+            'vendor',
+            'reportserver',
+            '.env',
+            'boaform',
+            'hudson',
+            'jmx-console'
+        ];
+
+        if (path.startsWith('/health')) {
+            return next();
+        }
+
+        if (badPatterns.some(p => path.includes(p))) {
+            return res.status(404).end();
+        }
+
+        next();
+    });
     // ==================== Security Middleware ====================
 
     app.use(helmet({
@@ -65,33 +102,7 @@ export const launchServer = () => {
     // ==================== Request Sanitization ====================
     app.use(sanitizeRequest);
 
-    // ==================== Bot Filter ====================
-    app.use((req, res, next) => {
-        const path = req.path.toLowerCase();
 
-        const badPatterns = [
-            '.git',
-            'wp-',
-            'phpunit',
-            'eval-stdin',
-            'vendor',
-            'reportserver',
-            '.env',
-            'boaform',
-            'hudson',
-            'jmx-console'
-        ];
-
-        if (path.startsWith('/health')) {
-            return next();
-        }
-
-        if (badPatterns.some(p => path.includes(p))) {
-            return res.status(404).end();
-        }
-
-        next();
-    });
 
 
     // ==================== Logging ====================
