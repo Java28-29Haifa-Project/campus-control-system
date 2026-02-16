@@ -20,6 +20,7 @@ import RegisterForm from "./components/RegisterForm.tsx";
 import TicketSupportDetails from "./pages/supportPages/TicketSupportDetails.tsx";
 import SupportLayout from "./layouts/SupportLayout.tsx";
 import IncidentTable from "./pages/engineerPages/IncidentsTable.tsx";
+import TicketAdminTable from "./pages/adminPages/TicketAdminTable.tsx";
 
 function App() {
 
@@ -50,7 +51,7 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
                     <Route element={<SupportLayout />}>
                         <Route path={Paths.DASHBOARD_SUPPORT} element={<Dashboard/>}/>
-                        <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport detailsBasePath={Paths.TICKET_SUPPORT} />}/>
+                        <Route path={Paths.TICKET_SUPPORT} element={<TicketSupport />}/>
                         <Route path={Paths.INCIDENT_SUPPORT_NEW} element={<CreateIncident/>}/>
                         <Route path={Paths.TICKET_SUPPORT_DETAILS} element={<TicketSupportDetails/>}/>
                     </Route>
@@ -62,7 +63,7 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-                    <Route path={Paths.TICKET_ADMIN} element={<TicketSupport detailsBasePath={Paths.TICKET_ADMIN}/>}/>
+                    <Route path={Paths.TICKET_ADMIN} element={<TicketAdminTable/>}/>
                     <Route path={Paths.INCIDENT_ADMIN} element={<IncidentTable/>}/>
                     <Route path={Paths.LOGS} element={<Logs/>}/>
                     <Route path={Paths.HEALTH} element={<HealthPage/>}/>
