@@ -47,46 +47,42 @@ export const launchServer = () => {
     app.use((req, res, next) => {
         const path = req.path.toLowerCase();
 
-        const badPatterns = [
+        const blockExact = [
             '/',
             '/favicon.ico',
             '/heapdump',
-            '/actuator',
-            '/actuator/heapdump',
-            '/config',
-            '/wp-admin',
-            '/phpmyadmin',
-            '/server-status',
-            '.git',
-            'wp-',
-            'phpunit',
-            'eval-stdin',
-            'vendor',
-            'reportserver',
-            '.env',
-            'boaform',
-            'hudson',
-            'jmx-console'
+            '/server-status'
         ];
 
-        if (path.startsWith('/health')) {
-            return next();
-        }
-
-        if (badPatterns.some(p => path.includes(p))) {
-            return res.status(404).end();
+        if (blockExact.includes(path)) {
+            return res.status(204).end();
         }
 
         if (
             path.startsWith('/actuator') ||
             path.startsWith('/wp') ||
-            path.startsWith('/php')
+            path.startsWith('/php') ||
+            path.startsWith('/.git') ||
+            path.startsWith('/vendor')
         ) {
+            return res.status(204).end();
+        }
+
+        const badPatterns = [
+            'phpunit',
+            'eval-stdin',
+            '.env',
+            'jmx-console',
+            'boaform'
+        ];
+
+        if (badPatterns.some(p => path.includes(p))) {
             return res.status(204).end();
         }
 
         next();
     });
+
     // ==================== Security Middleware ====================
 
     app.use(helmet({
