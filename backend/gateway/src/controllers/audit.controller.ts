@@ -15,41 +15,26 @@ class AuditController {
                 entityId,
                 userId,
                 role,
-                dateFrom,
-                dateTo,
-
-                page = '1',
-                limit = '10'
+                startDate,
+                endDate,
+                page = '1'
             } = req.query;
 
-            const filters: any = {};
+            const payload: any = {};
 
-            // if (entity) filters.entity = entity;
-            if (entityId) filters.entityId = entityId;
-            // if (action) filters.action = action;
-            if (userId) filters.userId = userId;
-            if (role) filters.role = role;
-            if (dateFrom) filters.dateFrom = dateFrom;
-            if (dateTo) filters.dateTo = dateTo;
+            if (entityId) payload.entityId = entityId;
+            if (userId) payload.userId = userId;
+            if (role) payload.role = role;
+            if (startDate) payload.startDate = startDate;
+            if (endDate) payload.endDate = endDate;
 
             const pageNum = parseInt(page as string) || 1;
-            const limitNum = Math.min(parseInt(limit as string) || 10, 100);
+            if (pageNum > 1) payload.page = pageNum;
 
             Logger.info('Querying audit logs', {
-                filters,
-                page: pageNum,
-                limit: limitNum,
+                payload,
                 requestedBy: req.user!.userId
             });
-
-            const payload = {
-                action: 'GET_LOGS',  // TODO: Decide action name
-                filters,
-                pagination: {
-                    page: pageNum,
-                    limit: limitNum
-                }
-            };
 
             const command = new InvokeCommand({
                 FunctionName: this.readerLambdaArn,
@@ -64,30 +49,32 @@ class AuditController {
 
             const result = JSON.parse(Buffer.from(response.Payload).toString());
 
-            if (result.statusCode && result.statusCode >= 400) {
-                const errorBody = typeof result.body === 'string'
-                    ? JSON.parse(result.body)
-                    : result.body;
-
+            if (result.errorMessage || result.errorType) {
                 Logger.error('Audit service returned error', {
-                    statusCode: result.statusCode,
-                    error: errorBody.error
+                    error: result.errorMessage || result.errorType
                 });
-
-                return next(new HttpError(result.statusCode, errorBody.error || 'Failed to query audit logs'));
+                return next(new HttpError(500, 'Failed to query audit logs'));
             }
 
-            const data = typeof result.body === 'string'
-                ? JSON.parse(result.body)
-                : (result.body || result);
+            const responseData = {
+                logs: result.currentPageItems || [],
+                pagination: result.pagination || {
+                    totalCount: 0,
+                    totalPages: 0,
+                    limit: 10,
+                    page: pageNum
+                }
+            };
 
             Logger.info('Audit logs retrieved', {
-                count: data.logs?.length || 0,
+                count: responseData.logs.length,
+                totalCount: responseData.pagination.totalCount,
                 page: pageNum,
                 requestedBy: req.user!.userId
             });
 
-            res.status(200).json(data);
+
+            res.status(200).json(responseData);
         } catch (error: any) {
             Logger.error('Failed to query audit logs', {
                 error: error.message,
@@ -107,7 +94,6 @@ class AuditController {
             });
 
             const payload = {
-                action: 'GET_BY_CORRELATION',  // TODO: Decide name
                 correlationId
             };
 
@@ -124,19 +110,31 @@ class AuditController {
 
             const result = JSON.parse(Buffer.from(response.Payload).toString());
 
-            if (result.statusCode && result.statusCode >= 400) {
-                const errorBody = typeof result.body === 'string'
-                    ? JSON.parse(result.body)
-                    : result.body;
-
-                return next(new HttpError(result.statusCode, errorBody.error || 'Failed to query audit logs'));
+            if (result.errorMessage || result.errorType) {
+                Logger.error('Audit service returned error', {
+                    error: result.errorMessage || result.errorType,
+                    correlationId
+                });
+                return next(new HttpError(500, 'Failed to query audit logs'));
             }
 
-            const data = typeof result.body === 'string'
-                ? JSON.parse(result.body)
-                : (result.body || result);
+            const responseData = {
+                logs: result.currentPageItems || [],
+                pagination: result.pagination || {
+                    totalCount: 0,
+                    totalPages: 0,
+                    limit: 10,
+                    page: 1
+                }
+            };
 
-            res.status(200).json(data);
+            Logger.info('Audit logs by correlation retrieved', {
+                count: responseData.logs.length,
+                correlationId,
+                requestedBy: req.user!.userId
+            });
+
+            res.status(200).json(responseData);
         } catch (error: any) {
             Logger.error('Failed to query audit logs by correlation', {
                 error: error.message,
