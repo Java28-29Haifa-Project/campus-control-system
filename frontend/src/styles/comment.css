@@ -65,3 +65,44 @@
     margin-top: 10px;
 }
 
+.comment-list {
+    display: flex;
+    flex-direction: column;   /* 🔥 каждая запись с новой строки */
+    gap: 4px;                 /* небольшой отступ */
+}
+
+/* одна строка комментария */
+.comment-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+/* meta */
+.comment-meta {
+    font-size: 12px;
+    color: #8b8b8b;
+    white-space: nowrap;
+}
+
+/* текст */
+.comment-text-inline {
+    font-size: 14px;
+    font-weight: 600;
+    color: #eaeaea;
+}
+.more-btn {
+    border: none;
+    background: transparent;
+    color: #9aa4ff;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+}
+
+.more-btn:hover {
+    text-decoration: underline;
+}
+
+

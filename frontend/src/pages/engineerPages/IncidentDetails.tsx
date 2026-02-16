@@ -115,46 +115,18 @@ const IncidentDetailsPage: React.FC = () => {
                 <h1>Incident details</h1>
 
                 <div className="mini-details">
-                    <div>
-                        <b>Incident ID:</b> {currentInc.incidentId}
-                    </div>
-
-                    <div>
-                        <b>Tickets:</b>{" "}
+                    <div> <b>Incident ID:</b> {currentInc.incidentId}</div>
+                    <div><b>Tickets:</b>{" "}
                         {currentInc.ticketIds?.length ? currentInc.ticketIds.join(", ") : "—"}
                     </div>
-
-                    <div>
-                        <b>Priority:</b> {currentInc.priority}
-                    </div>
-
-                    <div>
-                        <b>Status:</b> {currentInc.status}
-                    </div>
-
-                    <div>
-                        <b>Category:</b> {currentInc.category}
-                    </div>
-
-                    <div>
-                        <b>Description:</b> {currentInc.description}
-                    </div>
-
-                    <div>
-                        <b>Created by:</b> {currentInc.createdBy}
-                    </div>
-
-                    <div>
-                        <b>Assigned by:</b> {currentInc.assignedBy ?? "—"}
-                    </div>
-
-                    <div>
-                        <b>Created at:</b> {formatDateTime(currentInc.createdAt)}
-                    </div>
-
-                    <div>
-                        <b>Updated at:</b> {formatDateTime(currentInc.updatedAt)}
-                    </div>
+                    <div><b>Priority:</b> {currentInc.priority}</div>
+                    <div><b>Status:</b> {currentInc.status}</div>
+                    <div><b>Category:</b> {currentInc.category}</div>
+                    <div><b>Description:</b> {currentInc.description}</div>
+                    <div><b>Created by:</b> {currentInc.createdBy}</div>
+                    <div><b>Assigned by:</b> {currentInc.assignedBy ?? "—"}</div>
+                    <div><b>Created at:</b> {formatDateTime(currentInc.createdAt)}</div>
+                    <div><b>Updated at:</b> {formatDateTime(currentInc.updatedAt)}</div>
 
                     <div style={{marginTop: 14}}>
                         <div className="row-space">

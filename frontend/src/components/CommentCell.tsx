@@ -25,6 +25,7 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
 
     const [open, setOpen] = useState(false);
     const [text, setText] = useState("");
+    const [showAll, setShowAll] = useState(false);
 
     const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,19 +86,31 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
 
             {comments.length > 0 && (
                 <div className="comment-list">
-                    {comments.slice(0, 2).map((c) => (
-                        <div key={c.commentId} className="comment-item">
-                            <div className="comment-meta">
-                                <span className="comment-author">{c.createdBy}</span>
-                                <span className="comment-date">{formatDt(c.createdAt)}</span>
-                            </div>
-                            <div className="comment-text">{c.commentText}</div>
+                    {(showAll ? comments : comments.slice(0, 2)).map((c) => (
+                        <div key={c.commentId} className="comment-row">
+            <span className="comment-meta">
+                {c.createdBy} • {formatDt(c.createdAt)}:
+            </span>
+
+                            <span className="comment-text-inline">
+                {c.commentText}
+            </span>
                         </div>
                     ))}
+
                     {comments.length > 2 && (
-                        <div className="muted-text">+{comments.length - 2} more…</div>
+                        <button
+                            type="button"
+                            className="more-btn"
+                            onClick={() => setShowAll((v) => !v)}
+                        >
+                            {showAll
+                                ? "Hide"
+                                : `+${comments.length - 2} more…`}
+                        </button>
                     )}
                 </div>
+
 
             )}
 
@@ -139,6 +152,10 @@ export const CommentCell: React.FC<Props> = ({ incident }) => {
                             onChange={(e) => setText(e.target.value)}
                             placeholder="Write a comment…"
                             rows={4}
+                            onKeyDown={(e) => {
+                                e.stopPropagation();
+                            }}
+                            onKeyDownCapture={(e) => e.stopPropagation()}
                         />
 
                         {addError && <div className="error-text">{String(addError)}</div>}
