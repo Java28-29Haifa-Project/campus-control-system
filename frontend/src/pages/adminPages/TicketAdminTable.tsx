@@ -40,6 +40,7 @@ const TicketAdminTable: React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "requestId",
+                minSize: 200,
                 cell: ({ getValue }) => {
                     return getValue() as string;
                 },
