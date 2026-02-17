@@ -122,21 +122,28 @@ export const IncidentAdminTable: React.FC = () => {
             {
                 header: "ID",
                 accessorKey: "incidentId",
+                minSize: 200,
                 cell: ({ getValue }) => {
                     const value = (getValue() ?? "") as string;
                     return value.length > 4 ? "…" + value.slice(value.length - 5, value.length - 1) : value;
                 },
             },
             {
-                header: "Description",
-                accessorKey: "description",
-                minSize: 400,
-                cell: ({ getValue }) => {
-                    const value = (getValue() ?? "") as string;
-                    return value.length > 80 ? value.slice(0, 80) + "…" : value;
-                },
+                header: "ID's Ticket",
+                accessorKey: "ticketIds",
+                minSize: 200,
+                cell: ({ getValue }) => getValue(),
             },
-            { header: "Category", accessorKey: "category" },
+            // {
+            //     header: "Description",
+            //     accessorKey: "description",
+            //     minSize: 400,
+            //     cell: ({ getValue }) => {
+            //         const value = (getValue() ?? "") as string;
+            //         return value.length > 80 ? value.slice(0, 80) + "…" : value;
+            //     },
+            // },
+            // { header: "Category", accessorKey: "category" },
 
             {
                 id: "priority",
@@ -213,7 +220,7 @@ export const IncidentAdminTable: React.FC = () => {
             },
 
             {
-                id: "close",
+                id: "adminAction",
                 header: "Close",
                 minSize: 120,
                 cell: ({ row }) => {
@@ -253,35 +260,35 @@ export const IncidentAdminTable: React.FC = () => {
                 },
             },
 
-            {
-                header: "Comments",
-                accessorKey: "comments",
-                minSize: 400,
-                cell: ({ row }) => {
-                    const comments = row.original.comments ?? [];
-
-                    if (!comments.length) {
-                        return <span className="muted-text">No comments</span>;
-                    }
-
-                    return (
-                        <div className="comment-list">
-                            {comments.map((c) => (
-                                <div key={c.commentId} className="comment-item">
-                                    <div className="comment-text">{c.commentText}</div>
-
-                                    <div className="comment-meta">
-                                        {c.createdBy} •{" "}
-                                        {c.createdAt
-                                            ? new Date(c.createdAt).toLocaleString()
-                                            : "—"}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    );
-                },
-            }
+            // {
+            //     header: "Comments",
+            //     accessorKey: "comments",
+            //     minSize: 400,
+            //     cell: ({ row }) => {
+            //         const comments = row.original.comments ?? [];
+            //
+            //         if (!comments.length) {
+            //             return <span className="muted-text">No comments</span>;
+            //         }
+            //
+            //         return (
+            //             <div className="comment-list">
+            //                 {comments.map((c) => (
+            //                     <div key={c.commentId} className="comment-item">
+            //                         <div className="comment-text">{c.commentText}</div>
+            //
+            //                         <div className="comment-meta">
+            //                             {c.createdBy} •{" "}
+            //                             {c.createdAt
+            //                                 ? new Date(c.createdAt).toLocaleString()
+            //                                 : "—"}
+            //                         </div>
+            //                     </div>
+            //                 ))}
+            //             </div>
+            //         );
+            //     },
+            // }
 
         ],
         [handlePriorityChange, handleStatusChange, handleClose]
@@ -308,11 +315,7 @@ export const IncidentAdminTable: React.FC = () => {
             )}
 
             isRowClickable={() => false}
-            getRowClassName={(row) =>
-                row.original.status === IncidentStatus.Resolved
-                    ? "row-disabled"
-                    : ""
-            }
+            getRowClassName={() => ""}
         />
     );
 };
