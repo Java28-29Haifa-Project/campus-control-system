@@ -8,7 +8,6 @@ import Ticket from "./pages/userPages/Ticket.tsx";
 import TicketSupport from "./pages/supportPages/TicketSupport.tsx";
 import CreateIncident from "./pages/supportPages/CreateIncident.tsx";
 import IncidentDetails from "./pages/engineerPages/IncidentDetails.tsx";
-import Logs from "./pages/adminPages/Logs.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import LoginForm from "./components/LoginForm.tsx";
 import AuthVerify from "./pages/servicePages/AuthVerify.tsx";
@@ -22,6 +21,7 @@ import SupportLayout from "./layouts/SupportLayout.tsx";
 import IncidentTable from "./pages/engineerPages/IncidentsTable.tsx";
 import TicketAdminTable from "./pages/adminPages/TicketAdminTable.tsx";
 import IncidentAdminTable from "./pages/adminPages/IncidentAdminTable.tsx";
+import Audit from "./pages/adminPages/Audit.tsx";
 
 function App() {
 
@@ -66,7 +66,7 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
                     <Route path={Paths.TICKET_ADMIN} element={<TicketAdminTable/>}/>
                     <Route path={Paths.INCIDENT_ADMIN} element={<IncidentAdminTable/>}/>
-                    <Route path={Paths.LOGS} element={<Logs/>}/>
+                    <Route path={Paths.AUDIT} element={<Audit/>}/>
                     <Route path={Paths.HEALTH} element={<HealthPage/>}/>
                 </Route>
 

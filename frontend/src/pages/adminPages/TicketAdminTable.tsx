@@ -41,10 +41,7 @@ const TicketAdminTable: React.FC = () => {
                 header: "ID",
                 accessorKey: "requestId",
                 cell: ({ getValue }) => {
-                    const value = (getValue() ?? "") as string;
-                    return value.length > 4
-                        ? "…" + value.slice(value.length - 5, value.length - 1)
-                        : value;
+                    return getValue() as string;
                 },
             },
             { header: "Title", accessorKey: "subject" },
@@ -57,8 +54,8 @@ const TicketAdminTable: React.FC = () => {
                     return value.length > 80 ? value.slice(0, 80) + "…" : value;
                 },
             },
-            { header: "Category", accessorKey: "category" },
-            { header: "Priority", accessorKey: "userReportedPriority" },
+            // { header: "Category", accessorKey: "category" },
+            // { header: "Priority", accessorKey: "userReportedPriority" },
 
             {
                 id: "status",
@@ -77,7 +74,7 @@ const TicketAdminTable: React.FC = () => {
 
             {
                 id: "adminActions",
-                header: "",
+                header: "Close",
                 minSize: 160,
                 cell: ({ row }) => {
                     const ticket = row.original;
@@ -145,8 +142,10 @@ const TicketAdminTable: React.FC = () => {
                 />
             )}
 
-            isRowClickable={() => false}
-            getRowClassName={() => ""}
+            isRowClickable={(row) =>
+                row.original.status !== TicketStatus.Rejected}
+            getRowClassName={(row) => (
+                row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
             onRowClick={() => {}}
         />
     );

@@ -18,6 +18,7 @@ export const Paths = {
     // INCIDENT_MY: '/incident/my',
     TICKET_ADMIN: '/admin/ticket',
     INCIDENT_ADMIN: '/admin/incident',
+    AUDIT: '/admin/audit',
     PROFILE: '/profile',
     DASHBOARD: '/dashboard',
     ALARM: '/alarm',
