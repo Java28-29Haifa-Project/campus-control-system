@@ -1,59 +1,59 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
-import {DynamoDBClient} from '@aws-sdk/client-dynamodb';
-import {DynamoDBDocumentClient, QueryCommand} from '@aws-sdk/lib-dynamodb';
+import {MongoClient} from "mongodb";
+import {ReaderEvent} from "./types";
 
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+let cachedClient: MongoClient | null = null;
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+async function connectToDatabase(): Promise<MongoClient> {
+  if (cachedClient) return cachedClient;
+  const client = new MongoClient(process.env.MONGODB_URI!);
+  await client.connect();
+  cachedClient = client;
+  return client;
+}
+
+export const handler = async (event: ReaderEvent) => {
   try {
-    const tableName = process.env.TABLE_NAME;
-    const rawNextKey = event.queryStringParameters?.nextPageKey;
-    let exclusiveStartKey = undefined;
+    const client = await connectToDatabase();
+    const db = client.db("campus-control-db");
 
-    if (rawNextKey) {
-      try {
-        exclusiveStartKey = JSON.parse(Buffer.from(rawNextKey, 'base64').toString());
-      } catch (e) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({message: 'Invalid nextPageKey'})
-        };
+    const query: any = {};
+    const filters = ["userId", "role", "entityId"];
+
+    filters.forEach(field => {
+      if (event[field as keyof ReaderEvent]) {
+        query[field] = event[field as keyof ReaderEvent];
       }
+    });
+    if (event.startDate || event.endDate) {
+      query.timestamp = {};
+      if (event.startDate) query.timestamp.$gte = new Date(event.startDate);
+      if (event.endDate) query.timestamp.$lte = new Date(event.endDate);
     }
 
-    const response = await docClient.send(new QueryCommand({
-      TableName: tableName,
-      KeyConditionExpression: 'logType = :pk',
-      ExpressionAttributeValues: {
-        ':pk': 'AUDIT'
-      },
-      ScanIndexForward: false,
-      Limit: 50,
-      ExclusiveStartKey: exclusiveStartKey
-    }));
+    const lim = process.env.LIMIT ? parseInt(process.env.LIMIT) : 10;
+    const skipNum = event.page ? (Number(event.page) - 1) * lim : 0;
 
-    let nextPageKey = null;
-    if (response.LastEvaluatedKey) {
-      nextPageKey = Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64');
-    }
+    const totalCount = await db.collection("audit").countDocuments(query);
 
+    const currentPageItems = await db.collection("audit")
+      .find(query)
+      .sort({timestamp: -1})
+      .skip(skipNum)
+      .limit(lim)
+      .toArray();
+
+    console.log(`Log was read successfully. Found ${currentPageItems.length} entries`);
     return {
-      statusCode: 200,
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        items: response.Items || [],
-        count: response.Count,
-        nextPageKey: nextPageKey,
-      })
-    }
-  } catch (error) {
-    console.error('Reader Error: ', error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: 'Internal Server Error',
-      })
+      currentPageItems,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / lim),
+        limit: lim,
+        page: Number(event.page) || 1,
+      }
     };
+  } catch (error) {
+    console.error("Reader Error:", error);
+    throw new Error("Internal Server Error");
   }
 }

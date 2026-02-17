@@ -1,33 +1,23 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+Parameters:
+  MongoUriParam:
+    Type: String
+    Description: "MongoDB Connection String"
+    NoEcho: true
+
 Globals:
   Function:
     Timeout: 15
-    Runtime: nodejs18.x
-    MemorySize: 128
+    Runtime: nodejs20.x
+    MemorySize: 256
     Environment:
       Variables:
-        TABLE_NAME: !Ref AuditTable
+        MONGODB_URI: !Ref MongoUriParam
+        LIMIT: "10"
 
 Resources:
-  AuditTable:
-    Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    Properties:
-      TableName: AuditLogs
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: logType
-          AttributeType: S
-        - AttributeName: timestamp
-          AttributeType: S
-      KeySchema:
-        - AttributeName: logType
-          KeyType: HASH
-        - AttributeName: timestamp
-          KeyType: RANGE
-
   AuditQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -48,8 +38,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              # добавить id аккаунта Михаила
-              AWS: "arn:aws:iam::ID_Михаила:root"
+              # уточнить id аккаунта Михаила
+              AWS: "arn:aws:iam::757434564846:root"
             Action: "sqs:SendMessage"
             Resource: !GetAtt AuditQueue.Arn
 
@@ -72,9 +62,8 @@ Resources:
           Properties:
             Queue: !GetAtt AuditQueue.Arn
             BatchSize: 10
-      Policies:
-        - DynamoDBWritePolicy:
-            TableName: !Ref AuditTable
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
 
   ReaderFunction:
     Type: AWS::Serverless::Function
@@ -83,17 +72,95 @@ Resources:
     Properties:
       CodeUri: .
       Handler: src/reader.handler
-      Events:
-        GetLogsCall:
-          Type: Api
-          Properties:
-            Path: /logs
-            Method: get
-      Policies:
-        - DynamoDBReadPolicy:
-            TableName: !Ref AuditTable
+
+  ReaderCrossAccountPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ReaderFunction
+      Principal: "757434564846"
+
+  AuditDLQAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "Audit-Service-DLQ-Messages"
+      AlarmDescription: "Alerts when messages appear in Audit-Service Dead Letter Queue"
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt AuditDLQ.QueueName
+      # вот это все равно может не сработать при деплое.
+      AlarmActions:
+        - "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+      TreatMissingData: notBreaching
+
+  WriterFailAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "Audit-Service-Writer-Error"
+      AlarmDescription: "Alerts on Audit Writer function fails"
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref WriterFunction
+      AlarmActions:
+        - "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+      TreatMissingData: notBreaching
+
+  WriterSlownessAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "Audit-Writer-High-Latency"
+      AlarmDescription: "Alerts on Writer Function abnormally long execution duration"
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      ExtendedStatistic: p90
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 10000
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref WriterFunction
+      AlarmActions:
+        - "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+      TreatMissingData: notBreaching
+
+  ReaderFailAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "Audit-Reader-Function-Error"
+      AlarmDescription: "Alerts on Reader function fail"
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ReaderFunction
+      AlarmActions:
+        - "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+      TreatMissingData: notBreaching
 
 Outputs:
-  WebEndpoints:
-    Description: "Api Gateway endpoint"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/logs/"
+  QueueArn:
+    Description: "ARN for writing"
+    Value: !GetAtt AuditQueue.Arn
+  ReaderFunctionArn:
+    Description: "ARN for reading"
+    Value: !GetAtt ReaderFunction.Arn

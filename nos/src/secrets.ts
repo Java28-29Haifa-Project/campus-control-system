@@ -13,7 +13,6 @@ export interface ServiceConfig {
 let cachedConfig: ServiceConfig | null = null;
 
 export async function getServiceConfig(): Promise<ServiceConfig> {
-  // 1. Приоритет переменным окружения (для локальных тестов)
   if (process.env.MONGODB_URI && process.env.ADMIN_EMAIL) {
     return {
       mongodb_uri: process.env.MONGODB_URI,

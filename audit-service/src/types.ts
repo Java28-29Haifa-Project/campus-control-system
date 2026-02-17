@@ -1,20 +1,22 @@
 export type EntityType = 'Request' | 'Incident' | 'System';
-export type PerformedByType = 'USER' | 'SYSTEM';
-export type UserRole = 'USER' | 'SUPPORT' | 'ENGINEER' | 'ADMIN' | 'SYSTEM';
-
-export interface PerformedBy {
-  type: PerformedByType;
-  role: UserRole;
-  id: string | null;
-}
+export type Role = 'USER' | 'SUPPORT' | 'ENGINEER' | 'ADMIN' | 'SYSTEM';
 
 export interface AuditEvent {
-  logType: string;
   entity: EntityType;
   entityId: string;
+  role: Role;
+  userId: string | null;
   action: string;
-  performedBy: PerformedBy;
   timestamp: string;
-  details: Record<string, any>;
-  correlationId: string;
+  metadata: Record<string, any>;
+  correlationId: string; // uuid
+}
+
+export interface ReaderEvent {
+  userId?: string;
+  role?: string;
+  entityId?: string;
+  startDate?: string; // ISO формат
+  endDate?: string; // ISO формат
+  page?: number | string;
 }

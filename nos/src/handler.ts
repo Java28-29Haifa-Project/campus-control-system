@@ -1,11 +1,12 @@
 import {SQSEvent} from "aws-lambda";
-import {v4 as uuidv4} from 'uuid';
 import {CloudWatchAlarmPayload} from "./interfaces";
 import {LogLevel} from "../../backend/gateway/src/types/monitoring";
 import {log, saveToDatabase, sendNotification} from "./helpers";
 import {MongoClient} from "mongodb";
-import {createSystemIncidentPlaceholder} from "./createSystemIncidentPlaceholder";
 import {getServiceConfig} from "./secrets";
+import {InvokeCommand, LambdaClient} from "@aws-sdk/client-lambda";
+
+const INCIDENT_LAMBDA_NAME = process.env.INCIDENT_LAMBDA_NAME || 'arn:aws:lambda:us-east-1:757434564846:function:incident-service-lambda';
 
 let cachedClient = null;
 
@@ -26,6 +27,8 @@ async function connectToDatabase() {
   cachedClient = client;
   return client;
 }
+
+const lambdaClient = new LambdaClient({});
 
 export const handler = async (event: SQSEvent) => {
   let client: MongoClient | undefined;
@@ -62,17 +65,38 @@ export const handler = async (event: SQSEvent) => {
       if (alarm.NewStateValue === "ALARM") {
 
         try {
-          // ToDo переделать в соответствии методом incidentService
-          const incidentId = uuidv4();
-          const description = `[NOS_AUTO] Alarm: ${alarm.AlarmName}. Reason: ${alarm.NewStateReason}`;
-          const newIncident = await createSystemIncidentPlaceholder(incidentId,
-            [`ticket-nos-${incidentId}`], description);
-
-          incidentInfo = {
-            number: newIncident.incidentNumber,
-            priority: newIncident.priority
+          const invokeParams = {
+            FunctionName: INCIDENT_LAMBDA_NAME,
+            Payload: JSON.stringify({
+              action: "CREATE_INCIDENT",
+              data: {
+                ticketIds: [`nos-alarm-${alarm.AlarmName}`],
+                impact: 'critical',
+                urgency: 'high',
+                category: 'system',
+                description: `[NOS_AUTO] Alarm: ${alarm.AlarmName}. Reason: ${alarm.NewStateReason}`,
+                createdBy: "NOS_SERVICE",
+              }
+            }),
           };
-          log(LogLevel.INFO, "Incident created successfully", {incidentNumber: incidentInfo.number});
+
+          const command = new InvokeCommand(invokeParams);
+          const response = await lambdaClient.send(command);
+
+          const responsePayload = JSON.parse(new TextDecoder().decode(response.Payload));
+
+          if (responsePayload.statusCode === 201) {
+            const incidentData = responsePayload.body;
+            incidentInfo = {
+              number: incidentData.incidentId,
+              priority: String(incidentData.priority),
+            };
+            log(LogLevel.INFO, "Incident created successfully", {incidentId: incidentInfo.number});
+          } else {
+            const errorMsg = responsePayload.body?.error || "Unknown Incident Service Error";
+            throw new Error(`Incident Service returned ${responsePayload.statusCode}: ${errorMsg}`);
+          }
+
         } catch (e) {
           log(LogLevel.WARN,
             "Failed to create incident, but continuing with notification",

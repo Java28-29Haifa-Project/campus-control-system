@@ -1,32 +1,67 @@
-import { SQSEvent } from 'aws-lambda';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { AuditEvent } from './types';
+import {SQSBatchResponse, SQSEvent} from 'aws-lambda';
+import {MongoClient} from "mongodb";
+import {AuditEvent} from "./types";
 
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+let cachedClient: MongoClient | null = null;
 
-export const handler = async (event: SQSEvent) => {
-  const tableName = process.env.TABLE_NAME;
+async function connectToDatabase() {
+
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  const client = new MongoClient(process.env.MONGODB_URI!, {
+    maxPoolSize: 5,
+    connectTimeoutMS: 5000,
+    socketTimeoutMS: 5000,
+  });
+
+  await client.connect();
+  cachedClient = client;
+  return client;
+}
+
+
+export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
+  let client: MongoClient | undefined;
+
+  try {
+    client = await connectToDatabase();
+  } catch (error) {
+    console.error("Database connection error", error);
+    throw error;
+  }
+
+  const db = client.db("campus-control-db");
+  const failures: { itemIdentifier: string }[] = [];
 
   for (const record of event.Records) {
     try {
-      const payload = JSON.parse(record.body);
-      const auditLog: AuditEvent = {
-        ...payload,
-        logType: 'AUDIT',
-        timestamp: payload.timestamp || new Date().toISOString(),
-      };
+      const payload: AuditEvent = JSON.parse(record.body);
 
-      await docClient.send(new PutCommand({
-        TableName: tableName,
-        Item: auditLog,
-      }));
+      if (!payload || !payload.correlationId || !payload.entityId || !payload.action) {
+        throw new Error("Payload is empty or correlationId, entityId or action are missing");
+      }
 
-      console.log(`Log saved. CorrelationId: ${auditLog.correlationId}`);
+      const timestamp = payload.timestamp ? new Date(payload.timestamp) : new Date();
+      const auditLogItem = {...payload, timestamp};
+
+      const result = await db.collection("audit").updateOne(
+        {correlationId: payload.correlationId},
+        {$setOnInsert: auditLogItem},
+        {upsert: true},
+      );
+      console.log(`Log saved. CorrelationId: ${auditLogItem.correlationId}`);
     } catch (error) {
-      console.error('Failed to process record:', record.messageId, error);
-      throw error;
+      console.error(`Failed record ${record.messageId}:`, error);
+
+      failures.push({
+        itemIdentifier: record.messageId
+      });
     }
+  }
+
+  return {
+    batchItemFailures: failures,
   }
 }
