@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {TicketStatus, type Ticket} from "../../types/ticketTypes.ts";
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
-import {updateTicketThunk} from "../../state/slices/ticketSlice.ts";
+import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 import type {ColumnDef} from "@tanstack/react-table";
 import TableTanStack from "../../components/TableTanStack.tsx";
 import {TableFilters} from "../../components/TableFilters.tsx";
@@ -19,7 +19,6 @@ const TicketAdminTable: React.FC = () => {
 
     const closeTicket = useCallback(
         (ticket: Ticket) => {
-
             if (ticket.status === TicketStatus.Rejected) return;
 
             dispatch(
@@ -31,6 +30,10 @@ const TicketAdminTable: React.FC = () => {
         },
         [dispatch]
     );
+
+    useEffect(() => {
+        dispatch(fetchTicketsThunk());
+    }, [dispatch]);
 
     const columns = useMemo<ColumnDef<Ticket>[]>(() => {
         const cols: ColumnDef<Ticket>[] = [
@@ -141,9 +144,9 @@ const TicketAdminTable: React.FC = () => {
                     statusOptions={ADMIN_STATUS_FILTERS}
                 />
             )}
-            isRowClickable={(row) => row.original.status !== TicketStatus.Rejected}
-            getRowClassName={(row) => (
-                row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
+
+            isRowClickable={() => false}
+            getRowClassName={() => ""}
             onRowClick={() => {}}
         />
     );
