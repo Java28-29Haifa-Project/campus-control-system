@@ -123,10 +123,7 @@ export const IncidentAdminTable: React.FC = () => {
                 header: "ID",
                 accessorKey: "incidentId",
                 minSize: 200,
-                cell: ({ getValue }) => {
-                    const value = (getValue() ?? "") as string;
-                    return value.length > 4 ? "…" + value.slice(value.length - 5, value.length - 1) : value;
-                },
+                cell: ({ getValue }) => getValue(),
             },
             {
                 header: "ID's Ticket",
