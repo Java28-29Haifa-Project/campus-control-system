@@ -1,0 +1,8 @@
+{
+  "Records": [
+    {
+      "body": "{\"Message\": \"{\\\"AlarmName\\\": \\\"High-CPU-CRITICAL-Alarm\\\", \\\"NewStateValue\\\": \\\"ALARM\\\", \\\"NewStateReason\\\": \\\"Threshold Crossed: 1 out of the last 1 datapoints [95.0 (29/01/26 10:00:00)] was greater than or equal to the threshold (90.0).\\\"}\"}",
+      "eventSource": "aws:sqs"
+    }
+  ]
+}

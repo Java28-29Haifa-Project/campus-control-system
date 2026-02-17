@@ -1,0 +1,178 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AdminEmailParam:
+    Type: String
+    Description: "Email for notifications"
+    Default: "placeholder@example.com" # На GitHub улетит этот текст
+  MongoUriParam:
+    Type: String
+    NoEcho: true # Чтобы пароль не светился в консоли AWS
+    Description: "MongoDB Connection String"
+    Default: "mongodb://placeholder"
+  NosEmailSourceParam:
+    Type: String
+    Description: "Verified SES Sender Email"
+    Default: "no-reply@campus.com"
+  GateWayAlarmsArn:
+    Type: String
+    Default: "arn:aws:sns:us-east-1:757434564846:express-gateway-alarms"
+
+Resources:
+  NosServiceSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: "nos/service/config"
+      Description: "Secrets for NOS service including DB URI and Emails"
+      SecretString: !Sub |
+        {
+          "mongodb_uri": "${MongoUriParam}",
+          "admin_email": "${AdminEmailParam}",
+          "source_email": "${NosEmailSourceParam}"
+        }
+
+  NosQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: "nos-service-queue"
+      VisibilityTimeout: 120
+      RedrivePolicy: # Связываем с очередью брака
+        deadLetterTargetArn: !GetAtt NosDeadLetterQueue.Arn
+        maxReceiveCount: 3 # После 3-х неудачных попыток — в DLQ
+
+#  NosQueueSubscription:
+#    Type: AWS::SNS::Subscription
+#    Properties:
+#      TopicArn: !Ref GateWayAlarmsArn
+#      Endpoint: !GetAtt NosQueue.Arn
+#      Protocol: sqs
+#      RawMessageDelivery: true
+
+  NosQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [ !Ref NosQueue ]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCrossAccountSNS
+            Effect: Allow
+            Principal: { Service: "sns.amazonaws.com" }
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt NosQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref GateWayAlarmsArn
+
+  # DLQ
+  NosDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: "nos-service-dlq"
+
+  NosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Если handler.ts в той же папке, что и этот YAML
+      CodeUri: ../
+      Handler: nos/src/handler.handler
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          # Ссылаемся на параметр выше
+          CONFIG_SECRET_ARN: !Ref NosServiceSecret
+          MONGODB_URI: ""
+          ADMIN_EMAIL: ""
+          NOS_EMAIL_SOURCE: ""
+      Policies:
+        - SESCrudPolicy:
+            IdentityName: "*" # Позволяет слать через SES
+        - SQSPollerPolicy:
+            QueueName: !GetAtt NosQueue.QueueName # Позволяет читать из SQS
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref NosServiceSecret # Даем право на чтение конкретного секрета
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt NosQueue.Arn
+            BatchSize: 5
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - nos/src/handler.ts # Путь от CodeUri
+
+  NosTechnicalAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "nos-technical-alarms"
+      DisplayName: "NOS Service Technical Alarms"
+
+  NosTechnicalEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref NosTechnicalAlarmTopic
+      Endpoint: !Ref AdminEmailParam  # Тот же email, что и для основных алармов
+      Protocol: email
+
+  NosLambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "NOS-Lambda-Errors"
+      AlarmDescription: "Alerts when NOS Lambda function fails"
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 2
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref NosFunction
+      AlarmActions:
+        - !Ref NosTechnicalAlarmTopic
+      OKActions:
+        - !Ref NosTechnicalAlarmTopic
+      TreatMissingData: notBreaching
+
+  NosDLQAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "NOS-DLQ-Messages"
+      AlarmDescription: "Alerts when messages appear in NOS Dead Letter Queue"
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1            # Сколько периодов подряд
+      Threshold: 1                    # Порог: хотя бы 1 сообщение
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt NosDeadLetterQueue.QueueName
+      AlarmActions:
+        - !Ref NosTechnicalAlarmTopic
+      OKActions:
+        - !Ref NosTechnicalAlarmTopic
+      TreatMissingData: notBreaching
+
+Outputs:
+  NosQueueUrl:
+    Description: "URL created SQS Queue"
+    Value: !Ref NosQueue
+
+  NosTechnicalAlarmTopicArn:
+    Description: "ARN of Technical Alarms SNS Topic"
+    Value: !Ref NosTechnicalAlarmTopic

@@ -1,0 +1,8 @@
+{
+  "Records": [
+    {
+      "body": "{\"Message\": \"{\\\"AlarmName\\\": \\\"DATABASE-CLUSTER-CRITICAL-FAIL-ALARM\\\", \\\"NewStateValue\\\": \\\"ALARM\\\", \\\"NewStateReason\\\": \\\"Database cluster is unreachable and all health checks failed.\\\", \\\"StateChangeTime\\\": \\\"2026-02-02T15:00:00.000Z\\\"}\"}",
+      "eventSource": "aws:sqs"
+    }
+  ]
+}

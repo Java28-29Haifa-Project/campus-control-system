@@ -1,0 +1,10 @@
+{
+  "Records": [
+    {
+      "body": "{\"Message\": \"{\\\"AlarmName\\\":\\\"CPU-CRITICAL\\\",\\\"NewStateValue\\\":\\\"ALARM\\\",\\\"NewStateReason\\\":\\\"Too hot!\\\"}\"}"
+    },
+    {
+      "body": "{\"Message\": \"{\\\"AlarmName\\\":\\\"CPU-RECOVERY\\\",\\\"NewStateValue\\\":\\\"OK\\\",\\\"NewStateReason\\\":\\\"Everything is fine now\\\"}\"}"
+    }
+  ]
+}
