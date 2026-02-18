@@ -19,6 +19,7 @@ export const engineerNavItems:RouteType[] = [
 
 export const adminNavItem: RouteType[] = [
     {path: Paths.DASHBOARD, title: "Dashboard"},
+    {path: Paths.USER_ADMIN, title: "All users"},
     {path: Paths.TICKET_ADMIN, title: "All tickets"},
     {path: Paths.INCIDENT_ADMIN, title: "All incidents"},
     {path: Paths.AUDIT, title: "Audit"},
