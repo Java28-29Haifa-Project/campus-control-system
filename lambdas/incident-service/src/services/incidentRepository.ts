@@ -443,4 +443,29 @@ export class IncidentRepository {
         const result = await this.pool.query(query, [incidentId]);
         return result.rows;
     }
+
+    async deleteIncident(incidentId: string): Promise<void> {
+        try {
+
+            const query = `
+            DELETE FROM incidents
+            WHERE incident_id = $1
+            RETURNING incident_id
+        `;
+
+            const result = await this.pool.query(query, [incidentId]);
+
+            if (result.rows.length === 0) {
+                throw new Error('Incident not found');
+            }
+
+            console.log('Incident deleted from database:', incidentId);
+        } catch (error: any) {
+            console.error('Database error deleting incident:', error);
+            if (error.message === 'Incident not found') {
+                throw error;
+            }
+            throw this.mapDatabaseError(error);
+        }
+    }
 }
