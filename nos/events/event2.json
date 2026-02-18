@@ -1,0 +1,8 @@
+{
+  "Records": [
+    {
+      "body": "{\"Message\": \"{\\\"AlarmName\\\": \\\"New Alarm\\\", \\\"NewStateValue\\\": \\\"OK\\\", \\\"NewStateReason\\\": \\\"Threshold Crossed: 1 out of the last 1 datapoints [45.0 (02/02/26 13:20:00)] was not greater than or equal to the threshold (90.0).\\\", \\\"StateChangeTime\\\": \\\"2026-02-02T13:20:00.000Z\\\"}\"}",
+      "eventSource": "aws:sqs"
+    }
+  ]
+}
