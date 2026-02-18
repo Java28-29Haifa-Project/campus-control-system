@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import { incidentLambdaServiceAWS } from '../services/lambda-sdk/services/IncidentLambdaServiceAWS.js';
+import {Request, Response, NextFunction} from 'express';
+import {incidentLambdaServiceAWS} from '../services/lambda-sdk/services/IncidentLambdaServiceAWS.js';
 import {HttpError} from '../errors/http-error.js';
 import Logger from '../utils/logger.js';
-import { auditClient } from '../services/auditClient.js';
-import { createAuditEvent, IncidentActions } from '../types/audit.js';
-import { randomUUID } from 'crypto';
+import {auditClient} from '../services/auditClient.js';
+import {createAuditEvent, IncidentActions} from '../types/audit.js';
+import {randomUUID} from 'crypto';
 
 class IncidentController {
     async getIncidents(req: Request, res: Response, next: NextFunction) {
@@ -18,9 +18,9 @@ class IncidentController {
                 dateTo: req.query.dateTo ? new Date(req.query.dateTo as string) : undefined
             };
 
-            Logger.info('Fetching incidents', { userId: req.user!.userId, filters });
+            Logger.info('Fetching incidents', {userId: req.user!.userId, filters});
 
-            const incidents = await incidentLambdaServiceAWS.getIncidents({ filters });
+            const incidents = await incidentLambdaServiceAWS.getIncidents({filters});
 
             const filteredIncidents = req.user!.role === 'SUPPORT'
                 ? incidents.filter(incident => incident.category !== 'system')
@@ -40,9 +40,9 @@ class IncidentController {
         try {
             const incidentId = req.params.id as string;
 
-            Logger.info('Fetching incident', { incidentId, userId: req.user!.userId });
+            Logger.info('Fetching incident', {incidentId, userId: req.user!.userId});
 
-            const incident = await incidentLambdaServiceAWS.getIncidentById({ incidentId });
+            const incident = await incidentLambdaServiceAWS.getIncidentById({incidentId});
 
             if (incident.category === 'system' && req.user!.role === 'SUPPORT') {
                 Logger.warn('SUPPORT user attempted to access system incident', {
@@ -175,7 +175,7 @@ class IncidentController {
 
         try {
             const incidentId = req.params.id as string;
-            const { status } = req.body;
+            const {status} = req.body;
 
             Logger.info('Updating incident status', {
                 incidentId,
@@ -233,7 +233,7 @@ class IncidentController {
 
         try {
             const incidentId = req.params.id as string;
-            const { priority } = req.body;
+            const {priority} = req.body;
 
             Logger.info('Raising incident priority', {
                 incidentId,
@@ -291,7 +291,7 @@ class IncidentController {
 
         try {
             const incidentId = req.params.id as string;
-            const { text } = req.body;
+            const {text} = req.body;
 
             if (!text || text.trim().length === 0) {
                 return next(new HttpError(400, 'Comment text is required'));
@@ -333,6 +333,63 @@ class IncidentController {
             res.status(201).json(result);
         } catch (error: any) {
             Logger.error('Failed to add comment', {
+                error: error.message,
+                incidentId: req.params.id,
+                correlationId
+            });
+            next(new HttpError(error.statusCode || 500, error.message));
+        }
+    }
+
+    async deleteIncident(req: Request, res: Response, next: NextFunction) {
+        const correlationId = randomUUID();
+
+        try {
+            const incidentId = req.params.id as string;
+
+            Logger.info('Deleting incident', {
+                incidentId,
+                adminUserId: req.user!.userId,
+                correlationId
+            });
+
+            const incident = await incidentLambdaServiceAWS.getIncidentById({
+                incidentId
+            });
+
+            const result = await incidentLambdaServiceAWS.deleteIncident({
+                incidentId
+            });
+
+            Logger.info('Incident deleted successfully', {
+                incidentId,
+                incidentNumber: incident.incidentNumber,
+                adminUserId: req.user!.userId,
+                correlationId
+            });
+
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    incidentId,
+                    'incident_deleted',
+                    req.user!.userId,
+                    req.user!.role as any,
+                    {
+                        incidentNumber: incident.incidentNumber,
+                        priority: incident.priority,
+                        status: incident.status,
+                        category: incident.category,
+                        ticketIds: incident.ticketIds,
+                        deletedBy: req.user!.userId
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(200).json(result);
+        } catch (error: any) {
+            Logger.error('Failed to delete incident', {
                 error: error.message,
                 incidentId: req.params.id,
                 correlationId
