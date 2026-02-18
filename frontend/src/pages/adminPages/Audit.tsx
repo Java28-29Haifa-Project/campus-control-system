@@ -177,8 +177,29 @@ const Audit: React.FC = () => {
     }, []);
 
     return (
-        <div className="page">
-            <div className="page-header" style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
+        <div
+            className="page audit-page"
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                minHeight: "calc(100vh - var(--header-h, 60px))",
+                paddingBottom: 16,
+            }}
+        >
+
+            <div
+                className="page-header"
+                style={{
+                    position: "relative",
+                    zIndex: 2,
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flex: "0 0 auto",
+                }}
+            >
                 <div>
                     <h2 style={{ margin: 0 }}>Audit</h2>
                     <div className="muted-text">
@@ -188,22 +209,57 @@ const Audit: React.FC = () => {
                     </div>
                 </div>
 
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                    <button className="secondary-btn" type="button" onClick={() => quickRole("SUPPORT")}>SUPPORT</button>
-                    <button className="secondary-btn" type="button" onClick={() => quickRole("ENGINEER")}>ENGINEER</button>
-                    <button className="secondary-btn" type="button" onClick={() => quickRole("USER")}>USER</button>
-                    <button className="secondary-btn" type="button" onClick={() => quickRole("ADMIN")}>ADMIN</button>
+                <div
+                    style={{
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                        justifyContent: "flex-end",
+                    }}
+                >
+                    <button className="secondary-btn" type="button" onClick={() => quickRole("SUPPORT")}>
+                        SUPPORT
+                    </button>
+                    <button className="secondary-btn" type="button" onClick={() => quickRole("ENGINEER")}>
+                        ENGINEER
+                    </button>
+                    <button className="secondary-btn" type="button" onClick={() => quickRole("USER")}>
+                        USER
+                    </button>
+                    <button className="secondary-btn" type="button" onClick={() => quickRole("ADMIN")}>
+                        ADMIN
+                    </button>
 
-                    <button className="secondary-btn" type="button" onClick={quickToday}>Today</button>
-                    <button className="secondary-btn" type="button" onClick={quickLast24h}>Last 24h</button>
+                    <button className="secondary-btn" type="button" onClick={quickToday}>
+                        Today
+                    </button>
+                    <button className="secondary-btn" type="button" onClick={quickLast24h}>
+                        Last 24h
+                    </button>
 
-                    <button className="secondary-btn" type="button" onClick={clearAll}>Clear</button>
+                    <button className="secondary-btn" type="button" onClick={clearAll}>
+                        Clear
+                    </button>
                 </div>
             </div>
 
-            {/* Фильтры */}
-            <div className="card" style={{ padding: 12, marginTop: 12 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(140px, 1fr))", gap: 10 }}>
+
+            <div
+                className="card"
+                style={{
+                    position: "relative",
+                    zIndex: 2,
+                    padding: 12,
+                    flex: "0 0 auto",
+                }}
+            >
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(6, minmax(140px, 1fr))",
+                        gap: 10,
+                    }}
+                >
                     <label className="field">
                         <div className="muted-text">entityId</div>
                         <input
@@ -226,7 +282,7 @@ const Audit: React.FC = () => {
                         <div className="muted-text">role</div>
                         <select
                             value={query.role ?? ""}
-                            onChange={(e) => dispatch(setAuditQuery({ role: e.target.value as AuditRole}))}
+                            onChange={(e) => dispatch(setAuditQuery({ role: e.target.value as any }))}
                         >
                             {ROLE_OPTIONS.map((r) => (
                                 <option key={r || "ALL"} value={r}>
@@ -258,7 +314,12 @@ const Audit: React.FC = () => {
                         <button className="primary-btn" type="button" onClick={runSearch} disabled={isLoading}>
                             {isLoading ? "Loading..." : "Search"}
                         </button>
-                        <button className="secondary-btn" type="button" onClick={() => dispatch(fetchAuditLogsThunk(query))} disabled={isLoading}>
+                        <button
+                            className="secondary-btn"
+                            type="button"
+                            onClick={() => dispatch(fetchAuditLogsThunk(query))}
+                            disabled={isLoading}
+                        >
                             Refresh
                         </button>
                     </div>
@@ -267,23 +328,44 @@ const Audit: React.FC = () => {
                 {error && <div style={{ marginTop: 10, color: "salmon" }}>{error}</div>}
             </div>
 
-            <div style={{ marginTop: 12 }}>
-                <TableTanStack<AuditLog>
-                    data={logs}
-                    columns={columns}
-                    title="Audit Logs"
-                />
+
+            <div
+                className="audit-table-wrap"
+                style={{
+                    flex: "1 1 auto",
+                    minHeight: 0,
+                    overflow: "auto",
+                    position: "relative",
+                    zIndex: 0,
+                }}
+            >
+                <TableTanStack<AuditLog> data={logs} columns={columns} title="Audit Logs" />
             </div>
 
 
-            <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", marginTop: 12 }}>
-                <button className="secondary-btn" type="button" onClick={goPrev} disabled={isLoading || (query.page ?? 1) <= 1}>
+            <div
+                style={{
+                    position: "relative",
+                    zIndex: 2,
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    flex: "0 0 auto",
+                }}
+            >
+                <button
+                    className="secondary-btn"
+                    type="button"
+                    onClick={goPrev}
+                    disabled={isLoading || (query.page ?? 1) <= 1}
+                >
                     Prev
                 </button>
 
                 <span className="muted-text">
-          Page {query.page ?? 1} / {pagination?.totalPages ?? "—"}
-        </span>
+        Page {query.page ?? 1} / {pagination?.totalPages ?? "—"}
+      </span>
 
                 <button
                     className="secondary-btn"
@@ -296,6 +378,7 @@ const Audit: React.FC = () => {
             </div>
         </div>
     );
+
 };
 
 export default Audit;
