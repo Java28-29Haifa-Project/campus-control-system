@@ -22,6 +22,7 @@ import IncidentTable from "./pages/engineerPages/IncidentsTable.tsx";
 import TicketAdminTable from "./pages/adminPages/TicketAdminTable.tsx";
 import IncidentAdminTable from "./pages/adminPages/IncidentAdminTable.tsx";
 import Audit from "./pages/adminPages/Audit.tsx";
+import UserAdminTable from "./pages/adminPages/UserAdminTable.tsx";
 
 function App() {
 
@@ -64,6 +65,7 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+                    <Route path={Paths.USER_ADMIN} element={<UserAdminTable/>}/>
                     <Route path={Paths.TICKET_ADMIN} element={<TicketAdminTable/>}/>
                     <Route path={Paths.INCIDENT_ADMIN} element={<IncidentAdminTable/>}/>
                     <Route path={Paths.AUDIT} element={<Audit/>}/>

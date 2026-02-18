@@ -3,6 +3,7 @@ import {authReducer} from "./slices/authSlice.ts";
 import {ticketReducer} from "./slices/ticketSlice.ts";
 import {incidentReducer} from "./slices/incidentSlice.ts";
 import {auditReducer} from "./slices/auditSlice.ts";
+import {userReducer} from "./slices/userSlice.ts";
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
         ticket: ticketReducer,
         incident: incidentReducer,
         audit: auditReducer,
+        userAdmin: userReducer,
     },
 })
 

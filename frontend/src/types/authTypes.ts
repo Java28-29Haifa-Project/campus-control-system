@@ -1,9 +1,17 @@
+export type UserRole = "USER" | "SUPPORT" | "ENGINEER" | "ADMIN";
 export type User = {
     userId: string;
     username?: string;
     email: string;
-    role: 'USER' | 'ADMIN' | 'SUPPORT' | 'ENGINEER';
+    role: UserRole;
 };
+export interface AdminUser {
+    user_id: string;
+    email: string;
+    role: UserRole;
+    created_at?: string;
+    updated_at?: string;
+}
 
 export type LoginRequest = {
     email: string;

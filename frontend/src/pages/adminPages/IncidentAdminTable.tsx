@@ -131,16 +131,16 @@ export const IncidentAdminTable: React.FC = () => {
                 minSize: 200,
                 cell: ({ getValue }) => getValue(),
             },
-            // {
-            //     header: "Description",
-            //     accessorKey: "description",
-            //     minSize: 400,
-            //     cell: ({ getValue }) => {
-            //         const value = (getValue() ?? "") as string;
-            //         return value.length > 80 ? value.slice(0, 80) + "…" : value;
-            //     },
-            // },
-            // { header: "Category", accessorKey: "category" },
+            {
+                header: "Description",
+                accessorKey: "description",
+                minSize: 400,
+                cell: ({ getValue }) => {
+                    const value = (getValue() ?? "") as string;
+                    return value.length > 80 ? value.slice(0, 80) + "…" : value;
+                },
+            },
+            { header: "Category", accessorKey: "category" },
 
             {
                 id: "priority",

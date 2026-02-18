@@ -17,6 +17,7 @@ export const Paths = {
     INCIDENT_NEW: '/incident/new/:ticketId',
     // INCIDENT_MY: '/incident/my',
     TICKET_ADMIN: '/admin/ticket',
+    USER_ADMIN: '/admin/user',
     INCIDENT_ADMIN: '/admin/incident',
     AUDIT: '/admin/audit',
     PROFILE: '/profile',
