@@ -135,12 +135,6 @@ WHERE tablename IN ('requests', 'incidents')
 ORDER BY tablename, indexname;
 
 
--- Clear old test data (optional)
--- DELETE FROM incident_requests WHERE incident_id LIKE 'inc_%';
--- DELETE FROM incidents WHERE incident_id LIKE 'inc_%';
--- DELETE FROM requests WHERE request_id LIKE 'req_%';
-
--- Insert updated sample requests with new categories
 INSERT INTO requests (request_id, request_number, user_id, category, subject, description, user_reported_priority, status, created_by) VALUES
                                                                                                                                            ('req_new_001', 'REQ-20260131-0001', 'user_001', 'network', 'Wi-Fi not working in office', 'Cannot connect to wi-fi access point in building A', 'high', 'new', 'user_001'),
                                                                                                                                            ('req_new_002', 'REQ-20260131-0002', 'user_001', 'hvac', 'Air conditioning too cold', 'Temperature too low in conference room', 'medium', 'new', 'user_001'),
@@ -148,14 +142,12 @@ INSERT INTO requests (request_id, request_number, user_id, category, subject, de
                                                                                                                                            ('req_new_004', 'REQ-20260131-0004', 'user_001', 'access', 'Door lock not working', 'Emergency exit door lock broken', 'high', 'in_service', 'user_001')
     ON CONFLICT (request_id) DO NOTHING;
 
--- Insert updated sample incidents with new structure
 INSERT INTO incidents (incident_id, priority, status, category, description, created_by, assigned_by) VALUES
                                                                                                           ('inc_new_001', 1, 'in_progress', 'network', 'Multiple users reporting wi-fi issues in building A', 'support_001', 'engineer_001'),
                                                                                                           ('inc_new_002', 2, 'assigned', 'elevators', 'Elevator maintenance required', 'support_001', 'engineer_001'),
                                                                                                           ('inc_new_003', 3, 'new', 'hvac', 'Temperature regulation issues', 'support_001', NULL)
     ON CONFLICT (incident_id) DO NOTHING;
 
--- Link incidents to requests
 INSERT INTO incident_requests (incident_id, request_id) VALUES
                                                             ('inc_new_001', 'req_new_001'),
                                                             ('inc_new_002', 'req_new_003'),
@@ -163,7 +155,6 @@ INSERT INTO incident_requests (incident_id, request_id) VALUES
     ON CONFLICT (incident_id, request_id) DO NOTHING;
 
 
--- Count records
 SELECT 'users' as table_name, COUNT(*) as count FROM users
 UNION ALL
 SELECT 'requests', COUNT(*) FROM requests
@@ -173,7 +164,6 @@ UNION ALL
 SELECT 'incident_requests', COUNT(*) FROM incident_requests
 ORDER BY table_name;
 
--- Show sample data
 SELECT
     request_id,
     category,

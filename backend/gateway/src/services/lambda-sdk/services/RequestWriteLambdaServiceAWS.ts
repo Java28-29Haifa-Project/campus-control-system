@@ -119,7 +119,6 @@ class RequestWriteLambdaServiceAWS implements IRequestWriteLambdaService {
             'network',
             'infrastructure',
             'other'
-            // 'system' not allowed for users
         ];
         const validPriorities = ['low', 'medium', 'high', 'urgent'];
 

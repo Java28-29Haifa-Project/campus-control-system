@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { authLambdaServiceMock } from '../services/lambda-sdk/mocks/AuthLambdaServiceMock.js';
-// import { incidentLambdaServiceMock } from '../services/lambda-sdk/mocks/IncidentLambdaServiceMock.js';
 import { monitoringLambdaServiceMock } from '../services/lambda-sdk/mocks/MonitoringLambdaServiceMock.js';
 import { auditLambdaServiceMock } from '../services/lambda-sdk/mocks/AuditLambdaServiceMock.js';
-// import { requestLambdaServiceMock } from '../services/lambda-sdk/mocks/RequestLambdaServiceMock.js';
 
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { InvocationType } from '@aws-sdk/client-lambda';
@@ -11,18 +9,6 @@ import {incidentLambdaServiceAWS} from "../services/lambda-sdk/services/Incident
 
 
 class HealthController {
-
-    // async getGatewayHealth(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         res.status(200).send({
-    //             service: 'gateway',
-    //             status: 'ok',
-    //             timestamp: new Date().toISOString()
-    //         });
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
 
     private readonly lambdaClient: LambdaClient;
 
@@ -72,14 +58,6 @@ class HealthController {
     getLambdaAsync = (req: Request, res: Response, next: NextFunction) =>
         this.callLambda(req, res, next, 'Event');
 
-    // getRequestLambdaHealth = async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-    //         const result = await requestLambdaServiceMock.healthCheck();
-    //         res.status(200).send(result);
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
 
     getAuthLambdaHealth = async (req: Request, res: Response, next: NextFunction) => {
         try {

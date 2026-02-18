@@ -86,6 +86,17 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
         });
     }
 
+    async deleteIncident(data: {
+        incidentId: string;
+    }): Promise<any> {
+        return this.invoke({
+            action: 'DELETE_INCIDENT',
+            data: {
+                incidentId: data.incidentId
+            }
+        });
+    }
+
     async healthCheck(): Promise<any> {
         return this.invoke({
             action: 'HEALTH_CHECK',

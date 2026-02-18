@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-// ==================== Ticket Validation Schemas ====================
 
 export const RequestValidationSchemas = {
     createRequest: z.object({
@@ -16,7 +15,6 @@ export const RequestValidationSchemas = {
             'network',
             'infrastructure',
             'other'
-            // 'system' NOT allowed for users - only notification MS
         ]),
         subject: z.string().min(5).max(500),
         userReportedPriority: z.enum(['low', 'medium', 'high', 'urgent']),
@@ -43,12 +41,10 @@ export const RequestValidationSchemas = {
     }),
 
     updateStatusBySupport: z.object({
-        // Support should not be able to set status back to 'new'
         status: z.enum(['rejected', 'in_service', 'done'])
     })
 };
 
-// ==================== Incident Validation Schemas ====================
 
 export const IncidentValidationSchemas = {
     createIncident: z.object({
@@ -66,26 +62,22 @@ export const IncidentValidationSchemas = {
             'network',
             'infrastructure',
             'other',
-            'system'  // Allowed for incident creation (notification MS can use)
+            'system'
         ]),
         description: z.string().max(2000).optional()
-        // createdBy will be extracted from req.user in controller
     }),
 
     updateIncidentStatus: z.object({
         status: z.enum(['new', 'assigned', 'in_progress', 'resolved']),
         comment: z.string().max(500).optional()
-        // updatedBy will be extracted from req.user in controller
     }),
 
     raiseIncidentPriority: z.object({
         priority: z.number().int().min(1).max(4),  // 1 is highest, 4 is lowest
         comment: z.string().max(500).optional()
-        // updatedBy will be extracted from req.user in controller
     })
 };
 
-// ==================== Query Validation Schemas ====================
 
 const isoDateString = z.string().refine(
     (date) => {
@@ -150,7 +142,6 @@ export const QueryValidationSchemas = {
     })
 };
 
-// ==================== Auth Validation Schemas ====================
 
 export const AuthValidationSchemas = {
     login: z.object({
@@ -164,14 +155,12 @@ export const AuthValidationSchemas = {
     })
 };
 
-// ==================== Validation Middleware ====================
 
 export function validate(schema: z.ZodSchema, source: 'body' | 'params' | 'query' = 'body') {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const validated = await schema.parseAsync(req[source]);
 
-            // Only reassign if not query (query is read-only)
             if (source !== 'query') {
                 req[source] = validated;
             }
