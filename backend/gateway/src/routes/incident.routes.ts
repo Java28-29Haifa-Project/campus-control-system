@@ -1,5 +1,3 @@
-// src/routes/incident.routes.ts - ADD THIS ROUTE
-
 import express from 'express';
 import { incidentController } from '../controllers/incident.controller.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
@@ -7,7 +5,6 @@ import { requireRole } from '../middleware/role.middleware.js';
 
 export const incidentRoutes = express.Router();
 
-// Get all incidents (SUPPORT+)
 incidentRoutes.get(
     '/',
     authMiddleware,
@@ -15,7 +12,6 @@ incidentRoutes.get(
     incidentController.getIncidents.bind(incidentController)
 );
 
-// Get single incident (SUPPORT+)
 incidentRoutes.get(
     '/:id',
     authMiddleware,
@@ -23,7 +19,6 @@ incidentRoutes.get(
     incidentController.getIncident.bind(incidentController)
 );
 
-// Create incident (SUPPORT+)
 incidentRoutes.post(
     '/',
     authMiddleware,
@@ -31,7 +26,6 @@ incidentRoutes.post(
     incidentController.createIncident.bind(incidentController)
 );
 
-// Assign incident (ENGINEER+)
 incidentRoutes.patch(
     '/:id/assign',
     authMiddleware,
@@ -39,7 +33,6 @@ incidentRoutes.patch(
     incidentController.assignIncident.bind(incidentController)
 );
 
-// Update status (ENGINEER+)
 incidentRoutes.patch(
     '/:id/status',
     authMiddleware,
@@ -47,7 +40,6 @@ incidentRoutes.patch(
     incidentController.updateIncidentStatus.bind(incidentController)
 );
 
-// Raise priority (ENGINEER+)
 incidentRoutes.patch(
     '/:id/priority',
     authMiddleware,
@@ -55,10 +47,16 @@ incidentRoutes.patch(
     incidentController.raiseIncidentPriority.bind(incidentController)
 );
 
-// Add comment (ENGINEER+) ← NEW ROUTE
 incidentRoutes.post(
     '/:id/comments',
     authMiddleware,
     requireRole('ENGINEER', 'ADMIN'),
     incidentController.addComment.bind(incidentController)
+);
+
+incidentRoutes.delete(
+    '/:id',
+    authMiddleware,
+    requireRole('ADMIN'),
+    incidentController.deleteIncident.bind(incidentController)
 );
