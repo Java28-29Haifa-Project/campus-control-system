@@ -1,10 +1,8 @@
--- Drop existing tables
 DROP TABLE IF EXISTS incident_requests CASCADE;
 DROP TABLE IF EXISTS incidents CASCADE;
 DROP TABLE IF EXISTS requests CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
--- USERS TABLE
 CREATE TABLE users (
                        user_id VARCHAR(50) PRIMARY KEY,
                        username VARCHAR(100) NOT NULL UNIQUE,
@@ -15,13 +13,11 @@ CREATE TABLE users (
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Users indexes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 
 
 
--- REQUESTS (TICKETS) TABLE
 CREATE TABLE requests (
                           request_id VARCHAR(50) PRIMARY KEY,
                           request_number VARCHAR(20) NOT NULL UNIQUE,
@@ -38,7 +34,6 @@ CREATE TABLE requests (
                           updated_by VARCHAR(50)
 );
 
--- Requests indexes for performance
 CREATE INDEX idx_requests_user_id ON requests(user_id);
 CREATE INDEX idx_requests_support_id ON requests(support_id);
 CREATE INDEX idx_requests_status ON requests(status);
@@ -49,7 +44,6 @@ CREATE INDEX idx_requests_user_status ON requests(user_id, status);
 
 
 
--- INCIDENTS TABLE
 CREATE TABLE incidents (
                            incident_id VARCHAR(50) PRIMARY KEY,
                            incident_number VARCHAR(20) NOT NULL UNIQUE,
@@ -65,7 +59,6 @@ CREATE TABLE incidents (
                            updated_by VARCHAR(50)
 );
 
--- Incidents indexes
 CREATE INDEX idx_incidents_status ON incidents(status);
 CREATE INDEX idx_incidents_priority ON incidents(priority);
 CREATE INDEX idx_incidents_created_at ON incidents(created_at DESC);
@@ -73,8 +66,6 @@ CREATE INDEX idx_incidents_status_priority ON incidents(status, priority);
 
 
 
--- INCIDENT-REQUEST MAPPING TABLE
--- (Many-to-many: one incident can relate to multiple requests)
 CREATE TABLE incident_requests (
                                    incident_id VARCHAR(50) NOT NULL REFERENCES incidents(incident_id) ON DELETE CASCADE,
                                    request_id VARCHAR(50) NOT NULL REFERENCES requests(request_id) ON DELETE CASCADE,
@@ -82,11 +73,9 @@ CREATE TABLE incident_requests (
                                    PRIMARY KEY (incident_id, request_id)
 );
 
--- Mapping indexes
 CREATE INDEX idx_incident_requests_incident ON incident_requests(incident_id);
 CREATE INDEX idx_incident_requests_request ON incident_requests(request_id);
 
--- UPDATE TIMESTAMP TRIGGER FUNCTION
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -95,7 +84,6 @@ RETURN NEW;
 END;
 $$ language 'plpgsql';
 
--- Apply triggers to update updated_at automatically
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -105,34 +93,26 @@ CREATE TRIGGER update_requests_updated_at BEFORE UPDATE ON requests
 CREATE TRIGGER update_incidents_updated_at BEFORE UPDATE ON incidents
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- SEED DATA (for testing)
 
--- Insert test users (passwords are hashed version of 'password123')
--- /////////// In production -> bcrypt
 INSERT INTO users (user_id, username, email, password_hash, role) VALUES
                                                                       ('user_001', 'john_user', 'user@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'USER'),
                                                                       ('admin_001', 'admin_alice', 'admin@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'ADMIN'),
                                                                       ('support_001', 'support_bob', 'support@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'SUPPORT'),
                                                                       ('engineer_001', 'engineer_charlie', 'engineer@test.org', '$2b$10$rBV2kUO3q5fQ4PZ.Qx7GH.MpQxBjZQXJY5YqXQxJp3Zq8YqXQxJp3', 'ENGINEER');
 
--- Insert sample requests
 INSERT INTO requests (request_id, request_number, user_id, category, subject, user_reported_priority, status, created_by) VALUES
                                                                                                                               ('req_001', 'REQ-001', 'user_001', 'plumbing', 'Leaking faucet in bathroom', 'medium', 'new', 'user_001'),
                                                                                                                               ('req_002', 'REQ-002', 'user_001', 'electrical', 'Light fixture not working', 'high', 'in_service', 'user_001'),
                                                                                                                               ('req_003', 'REQ-003', 'user_001', 'general', 'Broken door handle', 'low', 'done', 'user_001');
 
--- Insert sample incidents
 INSERT INTO incidents (incident_id, incident_number, priority, status, impact, urgency, category, description, created_by) VALUES
                                                                                                                                ('inc_001', 'INC-001', 'P1', 'OPEN', 'high', 'critical', 'Network', 'Multiple users reporting connectivity issues', 'support_001'),
                                                                                                                                ('inc_002', 'INC-002', 'P2', 'IN_PROGRESS', 'medium', 'high', 'Hardware', 'Server performance degradation', 'support_001');
 
--- Link incidents to requests
 INSERT INTO incident_requests (incident_id, request_id) VALUES
     ('inc_001', 'req_002');
 
--- VERIFICATION QUERIES
 
--- Count records in each table
 SELECT 'users' as table_name, COUNT(*) as count FROM users
 UNION ALL
 SELECT 'requests', COUNT(*) FROM requests
@@ -141,13 +121,11 @@ SELECT 'incidents', COUNT(*) FROM incidents
 UNION ALL
 SELECT 'incident_requests', COUNT(*) FROM incident_requests;
 
--- Display all tables
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 
--- Display all indexes
 SELECT
     schemaname,
     tablename,

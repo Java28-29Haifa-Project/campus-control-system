@@ -196,8 +196,6 @@ class AuthController {
         }
     }
 
-    //***************************
-
     async changeUserRole(req: Request, res: Response, next: NextFunction) {
         const correlationId = randomUUID();
 

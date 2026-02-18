@@ -54,7 +54,7 @@ export interface IncidentStatusUpdateDTO {
 }
 
 export interface IncidentPriorityUpdateDTO {
-    priority: IncidentPriority;  // Engineer can only raise (1<-2<-3<-4)
+    priority: IncidentPriority;
     comment?: string;
     // updatedBy: string;
 }

@@ -168,8 +168,8 @@ class RequestController {
             const requestId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { status } = req.body;
 
-            // const existing = await requestQueryRepository.getRequestById(requestId);
-            // if (!existing) throw new HttpError(404, 'Request not found');
+            const existing = await requestQueryRepository.getRequestById(requestId);
+            if (!existing) throw new HttpError(404, 'Request not found');
 
             const result = await requestWriteLambdaServiceAWS.updateRequestStatus({
                 requestId,
