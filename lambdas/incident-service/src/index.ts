@@ -7,7 +7,7 @@ import { updatePriority } from './handlers/updatePriority.js';
 import { getIncidents } from './handlers/getIncidents.js';
 import { getIncidentById } from './handlers/getIncidentById.js';
 import { addComment } from './handlers/addComment.js';
-import {deleteIncident} from "./handlers/deleteIncident";
+import {deleteIncident} from "./handlers/deleteIncident.js";
 
 export const handler = async (event: any) => {
     console.log('Action received:', event.action);

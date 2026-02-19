@@ -123,6 +123,18 @@ class IncidentLambdaServiceAWS implements IIncidentLambdaService {
 
             const result = JSON.parse(Buffer.from(response.Payload).toString());
 
+            if (result.errorType || result.errorMessage) {
+                Logger.error('Lambda execution failed', {
+                    functionName: this.functionName,
+                    action: payload.action,
+                    errorType: result.errorType,
+                    errorMessage: result.errorMessage,
+                    trace: result.trace
+                });
+                throw new Error(result.errorMessage || 'Lambda execution failed');
+            }
+
+
             if (result.statusCode && result.statusCode >= 400) {
                 const errorBody = typeof result.body === 'string'
                     ? JSON.parse(result.body)
