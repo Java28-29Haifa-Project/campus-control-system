@@ -10,6 +10,7 @@ import type {AuditLog, AuditRole} from "../../types/auditTypes.ts";
 import type {ColumnDef} from "@tanstack/react-table";
 import TableTanStack from "../../components/TableTanStack.tsx";
 import "../../styles/tables.css";
+import {IsoDateInput} from "../../components/IsoDateInput.tsx";
 
 function toIsoStartOfDay(d: Date) {
     const x = new Date(d);
@@ -24,38 +25,7 @@ function toHuman(iso: string) {
     return isNaN(d.getTime()) ? iso : d.toLocaleString();
 }
 
-// async function copyToClipboard(text: string) {
-//     try {
-//         await navigator.clipboard.writeText(text);
-//     } catch {
-//         const el = document.createElement("textarea");
-//         el.value = text;
-//         document.body.appendChild(el);
-//         el.select();
-//         document.execCommand("copy");
-//         document.body.removeChild(el);
-//     }
-// }
-
 const ROLE_OPTIONS: (AuditRole | "")[] = ["", "USER", "ADMIN", "SUPPORT", "ENGINEER"];
-
-// const CopyMiniBtn: React.FC<{ value?: string }> = ({ value }) => {
-//     if (!value) return null;
-//     return (
-//         <button
-//             className="secondary-btn"
-//             style={{ padding: "4px 8px", fontSize: 12 }}
-//             onClick={async (e) => {
-//                 e.stopPropagation();
-//                 await copyToClipboard(value);
-//             }}
-//             title="Copy"
-//             type="button"
-//         >
-//             Copy
-//         </button>
-//     );
-// };
 
 const JsonPreview: React.FC<{ obj?: Record<string, unknown> }> = ({ obj }) => {
     if (!obj) return <span className="muted-text">—</span>;
@@ -133,12 +103,6 @@ const Audit: React.FC = () => {
                     if (!v) return "—";
                     return v;
                 },
-                // cell: ({ row }) => (
-                //     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                //         <span style={{ fontFamily: "monospace" }}>{row.original.entityId ?? "—"}</span>
-                //         <CopyMiniBtn value={row.original.entityId} />
-                //     </div>
-                // ),
             },
             { header: "Action", accessorKey: "action",},
             {
@@ -156,12 +120,6 @@ const Audit: React.FC = () => {
                     if (!v) return "—";
                     return v;
                 },
-                // cell: ({ row }) => (
-                //     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                //         <span style={{ fontFamily: "monospace" }}>{row.original.correlationId ?? "—"}</span>
-                //         <CopyMiniBtn value={row.original.correlationId} />
-                //     </div>
-                // ),
             },
             { header: "Role", accessorKey: "role", },
             {
@@ -172,12 +130,6 @@ const Audit: React.FC = () => {
                     if (!v) return "—";
                     return v;
                 },
-                // cell: ({ row }) => (
-                //     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                //         <span>{row.original.userId ?? "—"}</span>
-                //         <CopyMiniBtn value={row.original.userId} />
-                //     </div>
-                // ),
             },
             {
                 header: "Time",
@@ -217,13 +169,6 @@ const Audit: React.FC = () => {
 
                     <div
                         className="filter-actions"
-                        // style={{
-                        //     width: "100%",
-                        //     display: "inline-flex",
-                        //     justifyContent: "flex-end",
-                        //     flexWrap: "wrap",
-                        //     gap: 8,
-                        // }}
                     >
                         <button className="secondary-btn" type="button" onClick={() => quickRole("SUPPORT")}>
                             SUPPORT
@@ -306,24 +251,26 @@ const Audit: React.FC = () => {
                             </label>
 
                             <label className="field">
-                                {/*<div className="muted-text">startDate (ISO)</div>*/}
-                                <input
-                                    value={query.startDate ?? ""}
-                                    onChange={(e) => dispatch(setAuditQuery({ startDate: e.target.value }))}
+                                <IsoDateInput
+                                    isoValue={query.startDate ?? ""}
+                                    kind="start"
                                     placeholder="start date"
+                                    disabled={isLoading}
+                                    onChangeIso={(startDate) => dispatch(setAuditQuery({ startDate }))}
                                 />
                             </label>
 
                             <label className="field">
-                                {/*<div className="muted-text">endDate (ISO)</div>*/}
-                                <input
-                                    value={query.endDate ?? ""}
-                                    onChange={(e) => dispatch(setAuditQuery({ endDate: e.target.value }))}
+                                <IsoDateInput
+                                    isoValue={query.endDate ?? ""}
+                                    kind="end"
                                     placeholder="end date"
+                                    disabled={isLoading}
+                                    onChangeIso={(endDate) => dispatch(setAuditQuery({ endDate }))}
                                 />
                             </label>
 
-                            {/*<div style={{ display: "flex", gap: 8, alignItems: "flex-end", justifyContent: "flex-end" }}>*/}
+
                                 <button className="secondary-btn" type="button" onClick={runSearch} disabled={isLoading}>
                                     {isLoading ? "Loading..." : "Search"}
                                 </button>
@@ -335,7 +282,6 @@ const Audit: React.FC = () => {
                                 >
                                     Refresh
                                 </button>
-                            {/*</div>*/}
                         </div>
                     </div>
 
@@ -365,13 +311,6 @@ const Audit: React.FC = () => {
 
                     <div
                         className="filter-actions"
-                        // style={{
-                        //     width: "100%",
-                        //     display: "flex",
-                        //     justifyContent: "flex-end",
-                        //     alignItems: "center",
-                        //     gap: 10,
-                        // }}
                     >
                         <button
                             className="more-btn"
