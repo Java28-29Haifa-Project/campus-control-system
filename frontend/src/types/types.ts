@@ -15,15 +15,12 @@ export const Paths = {
     INCIDENT: '/incident',
     INCIDENT_DETAILS: '/incident/:id',
     INCIDENT_NEW: '/incident/new/:ticketId',
-    // INCIDENT_MY: '/incident/my',
     TICKET_ADMIN: '/admin/ticket',
     USER_ADMIN: '/admin/user',
     INCIDENT_ADMIN: '/admin/incident',
     AUDIT: '/admin/audit',
     PROFILE: '/profile',
     DASHBOARD: '/dashboard',
-    ALARM: '/alarm',
-    LOGS: '/logs',
     HEALTH: '/health',
 } as const;
 export type Path = typeof Paths[keyof typeof Paths];

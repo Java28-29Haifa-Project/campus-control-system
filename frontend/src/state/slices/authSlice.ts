@@ -2,9 +2,6 @@ import type {LoginData, LoginRequest, User} from "../../types/authTypes";
 import {createAsyncThunk, createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import {getCurrentUser, login, logout, refreshToken, register} from "../../api/authApi.ts";
 import ApiError, {LOGIN_ERROR_MESSAGES} from "../../utils/ApiError.ts";
-import {mockLoginUser, mockUser} from "../../mocks/authMocks.ts";
-
-const isMockAuth = import.meta.env.VITE_MOCK_AUTH === 'true';
 
 export type AuthStatus = "idle" | "loading" | "succeeded" | "failed";
 
@@ -17,9 +14,9 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-    user: isMockAuth? mockUser : null,
-    isAuthenticated: isMockAuth,
-    isVerified: isMockAuth ? "succeeded" : "idle",
+    user: null,
+    isAuthenticated: false,
+    isVerified: "idle",
     isLoading: false,
     error: null,
 }
@@ -47,19 +44,7 @@ export const loginThunk = createAsyncThunk <
 >(
     "auth/login",
     async (loginData: LoginRequest, { rejectWithValue }) => {
-        //TODO delete mocks
-        if (isMockAuth) {
-            const { email, password } = loginData;
 
-            if (!email || !password) {
-                return rejectWithValue("Email & password required (mock)");
-            }
-            if (email !== mockLoginUser.email || password !== mockLoginUser.password) {
-                return rejectWithValue("Invalid mock credentials");
-            }
-
-            return mockUser;
-        }
         try {
             return await login(loginData);
         } catch (err) {
@@ -105,11 +90,7 @@ export const verifyTokenThunk = createAsyncThunk<
 >(
     "auth/verify",
     async (_, { rejectWithValue }) => {
-        //TODO delete mocks
-        if (isMockAuth) {
-            console.log("verifyTokenThunk: mock mode, returning mockUser");
-            return mockUser;
-        }
+
         try {
             return await getCurrentUser();
         } catch (err) {

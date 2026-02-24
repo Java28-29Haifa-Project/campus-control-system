@@ -15,12 +15,6 @@ const ProtectedRoute:React.FC<ProtectedRouteProps> = ({allowedRoles}) => {
     const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
     const user = useAppSelector(state => state.auth.user);
 
-    //TODO delete mocks
-    const isMockMode = import.meta.env.VITE_SKIP_AUTH === 'true';
-    if (isMockMode) {
-        return <Outlet />;
-    }
-    else {
         if (!isAuthenticated || !user) {
             return <Navigate to={Paths.HOME}
                              state={{from: location}}
@@ -32,7 +26,7 @@ const ProtectedRoute:React.FC<ProtectedRouteProps> = ({allowedRoles}) => {
         }
 
         return <Outlet/>;
-    }
+
 };
 
 export default ProtectedRoute;

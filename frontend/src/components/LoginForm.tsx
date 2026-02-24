@@ -8,8 +8,6 @@ import {loginThunk} from "../state/slices/authSlice.ts";
 import {Paths} from "../types/types.ts";
 import {validateLogin} from "../utils/validation.ts";
 
-//TODO delete mocks
-const isMockAuth = import.meta.env.VITE_MOCK_AUTH === "true";
 
 const LoginForm = () => {
 
@@ -27,11 +25,6 @@ const LoginForm = () => {
 
     const onSubmitLogin = async (e: FormEvent) => {
         e.preventDefault();
-        //TODO delete mocks
-        if (isMockAuth) {
-            dispatch(loginThunk({email, password}));
-            return;
-        }
 
         const errorMsg = validateLogin({email, password});
         if (errorMsg) {
@@ -77,11 +70,6 @@ const LoginForm = () => {
                         />
                         <FaLock className='icon'/>
                     </div>
-
-                    {/*<div className="remember-forgot">*/}
-                    {/*  <label><input type="checkbox"/>Remember me</label>*/}
-                    {/*    <a href="#">Forgot password?</a>*/}
-                    {/*</div>*/}
 
                     {errorValidation &&
                         <div className="error-message">

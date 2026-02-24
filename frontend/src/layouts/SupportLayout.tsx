@@ -8,8 +8,6 @@ import "../styles/sidebar.css";
 
 const POLL_MS = 60_000;
 
-const isMockTickets = import.meta.env.VITE_USE_MOCK_TICKETS === "true";
-
 function formatLastSync(iso: string | null) {
     if (!iso) return "—";
     return new Date(iso).toLocaleString();
@@ -49,7 +47,6 @@ const SupportLayout: React.FC = () => {
         <div className="layout">
 
             <aside className="navbar">
-                {isMockTickets && <div className="muted-text">Mock tickets mode</div>}
                 <Navbar items={supportNavItems} />
 
 
@@ -66,7 +63,7 @@ const SupportLayout: React.FC = () => {
                         title="Force refresh tickets"
                     >
                         Refresh
-                        {/*{ticketsSyncing ? "Updating..." : "Refresh"}*/}
+
                     </button>
 
                     {ticketsSyncError && <div className="sidebar-error">{ticketsSyncError}</div>}
