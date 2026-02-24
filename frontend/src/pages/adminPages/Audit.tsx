@@ -231,9 +231,9 @@ const Audit: React.FC = () => {
                         <button className="secondary-btn" type="button" onClick={() => quickRole("ENGINEER")}>
                             ENGINEER
                         </button>
-                        <button className="secondary-btn" type="button" onClick={() => quickRole("USER")}>
-                            USER
-                        </button>
+                        {/*<button className="secondary-btn" type="button" onClick={() => quickRole("USER")}>*/}
+                        {/*    USER*/}
+                        {/*</button>*/}
                         <button className="secondary-btn" type="button" onClick={() => quickRole("ADMIN")}>
                             ADMIN
                         </button>

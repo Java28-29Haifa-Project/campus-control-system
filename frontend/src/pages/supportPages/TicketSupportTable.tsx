@@ -103,46 +103,6 @@ const TicketSupportTable:React.FC = () => {
                     );
                 },
             },
-            // {
-            //     header: "Incident",
-            //     id: "incident",
-            //     size:150,
-            //     cell: ({ row }) => {
-            //         const ticket = row.original;
-            //
-            //         if (ticket.incidentId) {
-            //             return <span className="muted-text" style={{color:"#BF863C"}}>Incident {ticket.incidentId} created</span>;
-            //         }
-            //         // const incId = getIncidentId(ticket);
-            //         //
-            //         // if (incId) {
-            //         //     return <span className="muted-text">Created</span>;
-            //         // }
-            //
-            //         if (ticket.status === TicketStatus.New) {
-            //             return <span className="muted-text">Need change status</span>;
-            //         }
-            //         if (ticket.status === TicketStatus.Rejected) {
-            //             return <span className="muted-text">Ticket rejected</span>;
-            //         }
-            //         if (ticket.status === TicketStatus.Done) {
-            //             return <span className="muted-text">Ticket done</span>;
-            //         }
-            //
-            //         return (
-            //             <button
-            //                 className="secondary-btn table-btn"
-            //                 onClick={(e) => {
-            //                     e.preventDefault();
-            //                     e.stopPropagation();
-            //                     navigate(`/support/incident/new/${ticket.requestId}`);
-            //                 }}
-            //             >
-            //                 Create incident
-            //             </button>
-            //         );
-            //     },
-            // },
             {
                 header: "Created at",
                 accessorKey: "createdAt",

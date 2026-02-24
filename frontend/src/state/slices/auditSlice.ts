@@ -10,7 +10,7 @@ export const mapAuditErrorCodeToMessage = (
         return AUDIT_ERROR_MESSAGES.UNKNOWN;
     }
     if (AUDIT_ERROR_MESSAGES[code]) {
-        return AUDIT_ERROR_MESSAGES[code];
+        return AUDIT_ERROR_MESSAGES[code]
     }
     return code;
 };

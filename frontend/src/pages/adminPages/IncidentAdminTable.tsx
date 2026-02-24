@@ -4,16 +4,10 @@ import {type Incident, IncidentPriority, IncidentStatus} from "../../types/incid
 import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
 import {
     getIncidentsThunk,
-    updateIncidentAssignedThunk, updateIncidentPriorityThunk,
+    updateIncidentAssignedThunk,
     updateIncidentStatusThunk
 } from "../../state/slices/incidentSlice.ts";
 import {usePolling} from "../../hooks/usePolling.ts";
-import {
-    canMoveByRank,
-    INCIDENT_PRIORITY_ORDER,
-    INCIDENT_STATUS_ORDER,
-    isOptionDisabledByRank
-} from "../../utils/helper.ts";
 import type {ColumnDef} from "@tanstack/react-table";
 import TableTanStack from "../../components/TableTanStack.tsx";
 import {PollingInline} from "../../components/PollingInline.tsx";
@@ -69,8 +63,6 @@ export const IncidentAdminTable: React.FC = () => {
             const current = incident.status;
             if (nextStatus === current) return;
 
-            if (!canMoveByRank(INCIDENT_STATUS_ORDER, incident.status, nextStatus)) return;
-
             if (nextStatus === IncidentStatus.Assign) {
                 dispatch(updateIncidentAssignedThunk(incident.incidentId));
                 return;
@@ -86,22 +78,20 @@ export const IncidentAdminTable: React.FC = () => {
         [dispatch]
     );
 
-    const handlePriorityChange = useCallback(
-        (incident: Incident, nextPriority: IncidentPriority) => {
-            const current = incident.priority;
-            if (nextPriority === current) return;
-
-            if (!canMoveByRank(INCIDENT_PRIORITY_ORDER, incident.priority, nextPriority)) return;
-
-            dispatch(
-                updateIncidentPriorityThunk({
-                    id: incident.incidentId,
-                    updates: { priority: nextPriority },
-                })
-            );
-        },
-        [dispatch]
-    );
+    // const handlePriorityChange = useCallback(
+    //     (incident: Incident, nextPriority: IncidentPriority) => {
+    //         const current = incident.priority;
+    //         if (nextPriority === current) return;
+    //
+    //         dispatch(
+    //             updateIncidentPriorityThunk({
+    //                 id: incident.incidentId,
+    //                 updates: { priority: nextPriority },
+    //             })
+    //         );
+    //     },
+    //     [dispatch]
+    // );
 
     const handleClose = useCallback(
         (incident: Incident) => {
@@ -150,35 +140,34 @@ export const IncidentAdminTable: React.FC = () => {
                     if (!filterValue || filterValue === "ALL") return true;
                     return row.getValue(columnId) === filterValue;
                 },
-                cell: ({ getValue, row }) => {
-                    const incident = row.original;
-                    const currentPriority = getValue<IncidentPriority>();
-
-                    return (
-                        <select
-                            className="table-select"
-                            value={currentPriority}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => {
-                                e.stopPropagation();
-                                const nextPriority = Number(e.target.value) as IncidentPriority;
-                                handlePriorityChange(incident, nextPriority);
-                            }}
-                        >
-                            {PRIORITY_OPTIONS_INCIDENT.map((p) => (
-                                <option
-                                    key={p}
-                                    value={p}
-                                    disabled={isOptionDisabledByRank(INCIDENT_PRIORITY_ORDER, incident.priority, p)}
-                                >
-                                    {p}
-                                </option>
-                            ))}
-                        </select>
-                    );
-                },
+                cell: ({ getValue }) => getValue(),
+                // cell: ({ getValue, row }) => {
+                //     const incident = row.original;
+                //     const currentPriority = getValue<IncidentPriority>();
+                //
+                //     return (
+                //         <select
+                //             className="table-select"
+                //             value={currentPriority}
+                //             onClick={(e) => e.stopPropagation()}
+                //             onChange={(e) => {
+                //                 e.stopPropagation();
+                //                 const nextPriority = Number(e.target.value) as IncidentPriority;
+                //                 handlePriorityChange(incident, nextPriority);
+                //             }}
+                //         >
+                //             {PRIORITY_OPTIONS_INCIDENT.map((p) => (
+                //                 <option
+                //                     key={p}
+                //                     value={p}
+                //                 >
+                //                     {p}
+                //                 </option>
+                //             ))}
+                //         </select>
+                //     );
+                // },
             },
-
             {
                 id: "status",
                 accessorKey: "status",
@@ -206,7 +195,6 @@ export const IncidentAdminTable: React.FC = () => {
                                 <option
                                     key={s}
                                     value={s}
-                                    disabled={isOptionDisabledByRank(INCIDENT_STATUS_ORDER, incident.status, s)}
                                 >
                                     {s.replace("_", " ")}
                                 </option>
@@ -223,8 +211,7 @@ export const IncidentAdminTable: React.FC = () => {
                 cell: ({ row }) => {
                     const incident = row.original;
                     const disabled =
-                        incident.status === IncidentStatus.Closed ||
-                        !canMoveByRank(INCIDENT_STATUS_ORDER, incident.status, IncidentStatus.Closed);
+                        incident.status === IncidentStatus.Closed;
 
                     return (
                         <button
@@ -236,7 +223,7 @@ export const IncidentAdminTable: React.FC = () => {
                             disabled={disabled}
                             title={incident.status === IncidentStatus.Closed ? "Already closed" : "Set status to Closed"}
                         >
-                            Close
+                            Close incident
                         </button>
                     );
                 },
@@ -288,7 +275,7 @@ export const IncidentAdminTable: React.FC = () => {
             // }
 
         ],
-        [handlePriorityChange, handleStatusChange, handleClose]
+        [handleStatusChange, handleClose]
     );
 
     return (
