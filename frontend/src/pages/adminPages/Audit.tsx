@@ -200,12 +200,9 @@ const Audit: React.FC = () => {
                             className="audit-filters"
                             style={{
                                 display: "grid",
-                                gridTemplateColumns: "repeat(7, minmax(130px, 1fr))",
-                                gap: 10,
-                                width: "100%",
-                                maxWidth: 980,
-                                marginLeft: "auto",
-
+                                gridTemplateColumns: "repeat(7, minmax(110px, 1fr))",
+                                // gap: 10,
+                                // width: "100%",
                             }}
                         >
                             <label className="field">
@@ -224,7 +221,7 @@ const Audit: React.FC = () => {
                                 />
                             </label>
 
-                            <label className="field">
+                            <label>
                                 <select
                                     style={{fontSize:"11px"}}
                                     value={query.role ?? ""}
