@@ -180,6 +180,10 @@ export const IncidentAdminTable: React.FC = () => {
                     const incident = row.original;
                     const currentIncidentStatus = getValue<IncidentStatus>();
 
+                    if (incident.status === IncidentStatus.Closed) {
+                        return <span>{incident.status.replace("_", " ")}</span>;
+                    }
+
                     return (
                         <select
                             className="table-select"
