@@ -176,9 +176,6 @@ const Audit: React.FC = () => {
                         <button className="secondary-btn" type="button" onClick={() => quickRole("ENGINEER")}>
                             ENGINEER
                         </button>
-                        {/*<button className="secondary-btn" type="button" onClick={() => quickRole("USER")}>*/}
-                        {/*    USER*/}
-                        {/*</button>*/}
                         <button className="secondary-btn" type="button" onClick={() => quickRole("ADMIN")}>
                             ADMIN
                         </button>
@@ -197,12 +194,7 @@ const Audit: React.FC = () => {
 
 
                     <div
-                        className="audit-row audit-row--filters"
-                        style={{
-                            width: "100%",
-                            display: "flex",
-                            justifyContent: "flex-end",
-                        }}
+                        className="filter-actions"
                     >
                         <div
                             className="audit-filters"
@@ -217,7 +209,6 @@ const Audit: React.FC = () => {
                             }}
                         >
                             <label className="field">
-                                {/*<div className="muted-text">entityId</div>*/}
                                 <input
                                     value={query.entityId ?? ""}
                                     onChange={(e) => dispatch(setAuditQuery({ entityId: e.target.value }))}
@@ -226,7 +217,6 @@ const Audit: React.FC = () => {
                             </label>
 
                             <label className="field">
-                                {/*<div className="muted-text">userId</div>*/}
                                 <input
                                     value={query.userId ?? ""}
                                     onChange={(e) => dispatch(setAuditQuery({ userId: e.target.value }))}
@@ -235,7 +225,6 @@ const Audit: React.FC = () => {
                             </label>
 
                             <label className="field">
-                                {/*<div className="muted-text">role</div>*/}
                                 <select
                                     style={{fontSize:"11px"}}
                                     value={query.role ?? ""}

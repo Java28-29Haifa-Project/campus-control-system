@@ -63,11 +63,6 @@ export const IsoDateInput: React.FC<IsoDateInputProps> = ({
         }
     };
 
-    const clear = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onChangeIso("");
-    };
-
     return (
         <div
             className="iso-date"
@@ -112,19 +107,6 @@ export const IsoDateInput: React.FC<IsoDateInputProps> = ({
                     e.stopPropagation();
                 }}
             />
-
-            {isoValue ? (
-                <button
-                    type="button"
-                    className="secondary-btn"
-                    onClick={clear}
-                    style={{ padding: "4px 8px", fontSize: 12, lineHeight: 1 }}
-                    title="Clear date"
-                    disabled={disabled}
-                >
-                    ×
-                </button>
-            ) : null}
         </div>
     );
 };
