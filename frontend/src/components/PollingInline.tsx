@@ -23,7 +23,7 @@ function formatLastSync(iso: string | null) {
 
 
 type Props = {
-    newCount: number;
+    newCount?: number;
     syncing: boolean;
     lastSyncAt: string | null;
     onRefresh: () => void;

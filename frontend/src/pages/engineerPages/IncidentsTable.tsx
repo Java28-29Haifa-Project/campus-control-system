@@ -111,15 +111,6 @@ const IncidentTable:React.FC = () => {
                     return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
                 }
             },
-            // {
-            //     header: "Ticket's id",
-            //     accessorKey: "ticketIds",
-            //     cell: ({getValue}) => {
-            //         // return getValue() ? getValue() : "-";
-            //         const value = (getValue() ?? "") as string;
-            //         return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
-            //     }
-            // },
             {
                 header: "Description",
                 accessorKey: "description",
@@ -214,14 +205,6 @@ const IncidentTable:React.FC = () => {
                     );
                 },
             },
-            // {
-            //     header: "Created by",
-            //     accessorKey: "createdBy",
-            //     cell: ({ getValue }) => {
-            //         const value = getValue<string | undefined>();
-            //         return value ? value : "—";
-            //     }
-            // },
             {
                 header: "Assigned by",
                 accessorKey: "assignedBy",
@@ -239,18 +222,6 @@ const IncidentTable:React.FC = () => {
                     return value ? new Date(value).toLocaleString() : "—";
                 }
             },
-            // {
-            //     header: "Updated at",
-            //     accessorKey: "updatedAt",
-            //     cell: ({ row }) => {
-            //         const t = row.original;
-            //
-            //         if (!t.updatedAt) return "—";
-            //         if (t.createdAt && t.updatedAt === t.createdAt) return "—";
-            //
-            //         return new Date(t.updatedAt).toLocaleString();
-            //     },
-            // },
             {
                 header: "Comment",
                 accessorKey: "comment",

@@ -4,9 +4,11 @@ import React, {useCallback, useMemo} from "react";
 import {type Ticket, TicketStatus} from "../../types/ticketTypes.ts";
 import "../../styles/tables.css";
 import {useNavigate} from "react-router-dom";
-import {updateTicketThunk} from "../../state/slices/ticketSlice.ts";
+import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 import {TableFilters} from "../../components/TableFilters.tsx";
 import TableTanStack from "../../components/TableTanStack.tsx";
+import {usePolling} from "../../hooks/usePolling.ts";
+import {PollingInline} from "../../components/PollingInline.tsx";
 
 
 const STATUS_OPTIONS: TicketStatus[] = [
@@ -15,12 +17,32 @@ const STATUS_OPTIONS: TicketStatus[] = [
     TicketStatus.Rejected,
 ];
 
+const POLL_MS = 60_000;
+
 const TicketSupportTable:React.FC = () => {
 
-    const { items } = useAppSelector((state) => state.ticket);
+    const { items, ticketsSyncing, ticketsLastSyncAt } = useAppSelector((state) => state.ticket);
 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+
+    const enabledTicket =
+        location.pathname.startsWith("/support");
+
+    const tick = useCallback(() => {
+        dispatch(fetchTicketsThunk({ source: "poll" }));
+    }, [dispatch]);
+
+    usePolling({
+        enabled: enabledTicket,
+        intervalMs: POLL_MS,
+        isSyncing: ticketsSyncing,
+        tick,
+    });
+
+    const forceRefresh = useCallback(() => {
+        dispatch(fetchTicketsThunk({ source: "manual" }));
+    }, [dispatch]);
 
     const handleStatusChange = useCallback(
         (ticket: Ticket, newStatus: TicketStatus) => {
@@ -129,7 +151,15 @@ const TicketSupportTable:React.FC = () => {
 
     return (
         <TableTanStack <Ticket>
-            title="All tickets"
+            title={
+                <>
+                    <PollingInline
+                        syncing={ticketsSyncing}
+                        lastSyncAt={ticketsLastSyncAt}
+                        onRefresh={forceRefresh}
+                    />
+                </>
+            }
             data={items}
             columns={columns}
             renderTopRight={(table) => (
