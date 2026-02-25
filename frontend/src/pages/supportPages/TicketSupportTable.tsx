@@ -3,7 +3,7 @@ import {type ColumnDef,} from "@tanstack/react-table";
 import React, {useCallback, useMemo} from "react";
 import {type Ticket, TicketStatus} from "../../types/ticketTypes.ts";
 import "../../styles/tables.css";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {fetchTicketsThunk, updateTicketThunk} from "../../state/slices/ticketSlice.ts";
 import {TableFilters} from "../../components/TableFilters.tsx";
 import TableTanStack from "../../components/TableTanStack.tsx";
@@ -15,6 +15,7 @@ const STATUS_OPTIONS: TicketStatus[] = [
     TicketStatus.New,
     TicketStatus.InService,
     TicketStatus.Rejected,
+    TicketStatus.Done,
 ];
 
 const POLL_MS = 60_000;
@@ -25,6 +26,7 @@ const TicketSupportTable:React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const location = useLocation();
 
     const enabledTicket =
         location.pathname.startsWith("/support");
@@ -61,7 +63,7 @@ const TicketSupportTable:React.FC = () => {
                 accessorKey: "requestId",
                 cell: ({getValue}) => {
                     const value = (getValue() ?? "") as string;
-                    return value.length > 4 ? "…"  + value.slice(value.length - 5, value.length - 1) : value;
+                    return value.length > 4 ? "…" + value.slice(-5) : value;
                 }
             },
             {header: "Title", accessorKey: "subject",},
@@ -75,20 +77,21 @@ const TicketSupportTable:React.FC = () => {
                 },
             },
             {header: "Category", accessorKey: "category",},
-            {header: "Priority", accessorKey: "userReportedPriority",},
+            {header: "Priority", accessorKey: "userReportedPriority"},
             {
                 id: "status",
                 accessorKey: "status",
                 minSize: 400,
                 filterFn: (row, columnId, filterValue) => {
                     if(!filterValue || filterValue === "ALL") return true;
-                    return row.getValue(columnId) === filterValue;
+                    const v = row.getValue(columnId) as TicketStatus;
+                    return String(v) === String(filterValue);
                 },
                 cell: ({ row, getValue }) => {
                     const ticket = row.original;
-                    const currentTicketStatus = getValue<TicketStatus>();
+                    const currentTicketStatus = getValue() as TicketStatus;
+                    const lockedByIncident = currentTicketStatus === TicketStatus.InService;
 
-                    const lockedByIncident = ticket.status === TicketStatus.InService;
                     if (ticket.status === TicketStatus.Done) {
                         return <span>{ticket.status.replace("_", " ")}</span>;
                     }
@@ -150,7 +153,7 @@ const TicketSupportTable:React.FC = () => {
     );
 
     return (
-        <TableTanStack <Ticket>
+        <TableTanStack<Ticket>
             title={
                 <>
                     <PollingInline
@@ -168,11 +171,9 @@ const TicketSupportTable:React.FC = () => {
                     statusOptions={STATUS_OPTIONS}
                 />
             )}
-            isRowClickable={(row) =>  row.original.status !== TicketStatus.InService &&
-                row.original.status !== TicketStatus.Rejected}
+            isRowClickable={(row) =>  row.original.status === TicketStatus.New}
             getRowClassName={(row) => (
-            row.original.status === TicketStatus.InService ||
-            row.original.status === TicketStatus.Rejected ? "row-disabled" : "")}
+            row.original.status !== TicketStatus.New ? "row-disabled" : "")}
             onRowClick={(row) => navigate(`/support/ticket/${row.original.requestId}`)}
         />
 

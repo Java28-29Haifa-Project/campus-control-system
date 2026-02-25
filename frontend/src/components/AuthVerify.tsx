@@ -1,7 +1,8 @@
-import {useAppDispatch, useAppSelector} from "../../state/hooks.ts";
+
 import {useEffect} from "react";
-import {verifyTokenThunk} from "../../state/slices/authSlice.ts";
 import { useNavigate } from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../state/hooks.ts";
+import {verifyTokenThunk} from "../state/slices/authSlice.ts";
 
 const AuthVerify = () => {
 

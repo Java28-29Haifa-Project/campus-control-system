@@ -72,11 +72,12 @@ export function TableFilters<TData>({
                             >
                                 <option value="ALL">All</option>
 
-                                {priorityOptions!.map((p) => (
+                                {priorityCol && priorityOptions?.length ? (
+                                    priorityOptions.map((p) => (
                                     <option key={p} value={p}>
                                         {p}
                                     </option>
-                                ))}
+                                ))) : null}
                             </select>
                         </div>
                         : <></>

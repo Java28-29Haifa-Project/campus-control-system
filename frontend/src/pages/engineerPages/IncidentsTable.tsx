@@ -233,7 +233,7 @@ const IncidentTable:React.FC = () => {
     );
 
     return (
-        <TableTanStack
+        <TableTanStack<Incident>
             title={
                 <>
                     <PollingInline

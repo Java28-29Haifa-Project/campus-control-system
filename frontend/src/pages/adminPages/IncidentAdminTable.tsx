@@ -283,7 +283,7 @@ export const IncidentAdminTable: React.FC = () => {
     );
 
     return (
-        <TableTanStack
+        <TableTanStack<Incident>
             title={
                 <PollingInline
                     newCount={incidentsNewCount}
