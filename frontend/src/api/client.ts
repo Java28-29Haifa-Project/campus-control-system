@@ -1,6 +1,7 @@
 import ApiError from "../utils/ApiError.ts";
+import {getApiBaseUrl} from "../utils/getBaseUrl.ts";
 
-const baseurl = process.env.VITE_API_BASE_URL || "http://localhost:8080";
+const baseurl = getApiBaseUrl();
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

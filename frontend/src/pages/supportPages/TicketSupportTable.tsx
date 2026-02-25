@@ -14,8 +14,7 @@ import {PollingInline} from "../../components/PollingInline.tsx";
 const STATUS_OPTIONS: TicketStatus[] = [
     TicketStatus.New,
     TicketStatus.InService,
-    TicketStatus.Rejected,
-    TicketStatus.Done,
+    TicketStatus.Rejected
 ];
 
 const POLL_MS = 60_000;
