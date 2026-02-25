@@ -36,16 +36,14 @@ const RootLayout: React.FC = () => {
                 items = [];
         }
     }
-    const isSupportZone = location.pathname.startsWith("/support") ;
 
     return (
         <div className="layout">
-            <Header />
-            {!isSupportZone &&
-                <Navbar items={items} />}
+            <Header/>
+            <Navbar items={items}/>
 
             <main className="content">
-                <Outlet />
+                <Outlet/>
             </main>
         </div>
     );

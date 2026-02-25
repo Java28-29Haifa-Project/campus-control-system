@@ -8,10 +8,9 @@ type Props = {
     items: RouteType[];
 };
 const Navbar: React.FC<Props> = ({ items }) => {
-    const isSupportZone = location.pathname.startsWith("/support");
 
     return (
-        <nav className={!isSupportZone? "navbar" : ""}>
+        <nav className="navbar">
             {items.map(item => (
                 <NavLink
                     key={item.path}

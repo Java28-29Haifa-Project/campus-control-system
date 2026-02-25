@@ -113,8 +113,8 @@ const initialState: TicketState = {
     isUpdating: false,
 
     ticketsSyncing: false,
-    ticketsLastSyncAt: null as string | null,
-    ticketsSyncError: null as string | null,
+    ticketsLastSyncAt: null ,
+    ticketsSyncError: null ,
 };
 
 const ticketSlice = createSlice({
