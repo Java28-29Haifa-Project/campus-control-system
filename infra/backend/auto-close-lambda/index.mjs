@@ -75,7 +75,7 @@ export const handler = async (event) => {
             }
 
             await client.query('COMMIT');
-            console.log(`✅ Closed ${incident_number}`);
+            console.log(`Closed ${incident_number}`);
             results.closed++;
 
         } catch (error) {
