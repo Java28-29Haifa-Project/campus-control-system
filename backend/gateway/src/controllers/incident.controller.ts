@@ -6,6 +6,20 @@ import {auditClient} from '../services/auditClient.js';
 import {createAuditEvent, IncidentActions} from '../types/audit.js';
 import {randomUUID} from 'crypto';
 
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+const dynamodb = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-east-1' });
+const lambda = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
+
+import pg from "pg";
+const { Pool } = pg;
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    max: 2
+});
+
 class IncidentController {
     async getIncidents(req: Request, res: Response, next: NextFunction) {
         try {
@@ -395,6 +409,102 @@ class IncidentController {
                 correlationId
             });
             next(new HttpError(error.statusCode || 500, error.message));
+        }
+    }
+
+
+    async requestClose(req: Request, res: Response, next: NextFunction) {
+        const correlationId = randomUUID();
+
+        try {
+            const incidentId = req.params.id as string;
+
+            Logger.info('Requesting close', { incidentId, correlationId });
+
+            const incident = await incidentLambdaServiceAWS.getIncidentById({ incidentId });
+
+            if (incident.status !== 'resolved') {
+                return next(new HttpError(400, `Incident must be resolved. Current: ${incident.status}`));
+            }
+
+            const ticketId = incident.ticketIds[0];
+            const ticketResult = await pool.query(
+                'SELECT created_by FROM requests WHERE request_id = $1',
+                [ticketId]
+            );
+
+            if (ticketResult.rows.length === 0) {
+                return next(new HttpError(404, 'Ticket not found'));
+            }
+
+            const userId = ticketResult.rows[0].created_by;
+
+            const userResult = await pool.query(
+                'SELECT email FROM users WHERE user_id = $1',
+                [userId]
+            );
+
+            if (userResult.rows.length === 0) {
+                return next(new HttpError(404, 'User not found'));
+            }
+
+            const userEmail = userResult.rows[0].email;
+
+            lambda.send(new InvokeCommand({
+                FunctionName: 'notification-service-lambda',
+                InvocationType: 'Event',
+                Payload: Buffer.from(JSON.stringify({
+                    incidentId,
+                    incidentNumber: incident.incidentNumber,
+                    userEmail,
+                    userName: userId
+                }))
+            })).catch(err => Logger.error('Notification failed', { error: err.message }));
+
+            const ttl = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
+
+            await dynamodb.send(new PutItemCommand({
+                TableName: 'pending-incident-closes',
+                Item: {
+                    incidentId: { S: incidentId },
+                    ticketIds: { L: incident.ticketIds.map((id:string) => ({ S: id })) },
+                    requestedBy: { S: req.user!.userId },
+                    requestedAt: { S: new Date().toISOString() },
+                    ttl: { N: ttl.toString() }
+                }
+            }));
+
+            Logger.info('Close requested', {
+                incidentId,
+                autoCloseAt: new Date(ttl * 1000).toISOString(),
+                correlationId
+            });
+
+            await auditClient.sendEvent(
+                createAuditEvent(
+                    'Incident',
+                    incidentId,
+                    'close_requested',
+                    req.user!.userId,
+                    'ADMIN',
+                    {
+                        incidentNumber: incident.incidentNumber,
+                        autoCloseAt: new Date(ttl * 1000).toISOString(),
+                        userEmail
+                    },
+                    correlationId
+                )
+            );
+
+            res.status(200).json({
+                message: 'Close request submitted',
+                incidentId,
+                autoCloseAt: new Date(ttl * 1000).toISOString(),
+                userNotified: true
+            });
+        } catch (error: any) {
+            Logger.error('Failed to request close', { error: error.message, correlationId });
+            next(new HttpError(500, 'Failed to request close'));
         }
     }
 }
