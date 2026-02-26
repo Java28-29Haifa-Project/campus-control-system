@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:757434564846:table/pending-incident-closes"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:us-east-1:757434564846:function:notification-service-lambda"
+    }
+  ]
+}
