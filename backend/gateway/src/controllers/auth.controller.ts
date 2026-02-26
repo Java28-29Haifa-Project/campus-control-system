@@ -265,7 +265,7 @@ class AuthController {
 
             await auditClient.sendEvent(
                 createAuditEvent(
-                    'System',
+                    'Security',
                     userId,
                     'user_role_changed',
                     req.user!.userId,
@@ -411,7 +411,7 @@ class AuthController {
 
             await auditClient.sendEvent(
                 createAuditEvent(
-                    'System',
+                    'Security',
                     userId,
                     'user_deleted',
                     req.user!.userId,

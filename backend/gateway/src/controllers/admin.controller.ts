@@ -90,7 +90,7 @@ class AdminController {
 
             await auditClient.sendEvent(
                 createAuditEvent(
-                    'System',
+                    'Security',
                     userId,
                     'user_role_changed',
                     req.user!.userId,
