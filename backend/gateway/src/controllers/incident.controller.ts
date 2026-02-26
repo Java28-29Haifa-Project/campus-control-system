@@ -191,10 +191,21 @@ class IncidentController {
             const incidentId = req.params.id as string;
             const {status} = req.body;
 
-            Logger.info('Updating incident status', {
+            if (!status) {
+                return next(new HttpError(400, 'Status is required'));
+            }
+
+            // Logger.info('Updating incident status', {
+            //     incidentId,
+            //     newStatus: status,
+            //     userId: req.user!.userId,
+            //     correlationId
+            // });
+
+            Logger.info('Updating status', {
                 incidentId,
-                newStatus: status,
-                userId: req.user!.userId,
+                status,
+                userRole: req.user!.role,
                 correlationId
             });
 
@@ -205,7 +216,8 @@ class IncidentController {
             const result = await incidentLambdaServiceAWS.updateStatus({
                 incidentId,
                 status,
-                updatedBy: req.user!.userId
+                updatedBy: req.user!.userId,
+                userRole: req.user!.role
             });
 
             Logger.info('Incident status updated successfully', {
