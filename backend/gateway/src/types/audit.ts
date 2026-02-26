@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 
-export type EntityType = 'Request' | 'Incident' | 'System';
+export type EntityType = 'Request' | 'Incident' | 'Security';
 export type Role = 'USER' | 'SUPPORT' | 'ENGINEER' | 'ADMIN' | 'SYSTEM';
 
 export interface AuditEvent {

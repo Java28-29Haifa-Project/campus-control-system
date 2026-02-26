@@ -1,7 +1,7 @@
 import { IncidentRepository } from '../services/incidentRepository.js';
 import { UpdateStatusInput, Incident, IncidentStatus } from '../types/incident.js';
 
-const VALID_STATUS_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
+const ENGINEER_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
     new: ['assigned', 'in_progress'],
     assigned: ['in_progress'],
     in_progress: ['resolved'],
@@ -9,70 +9,67 @@ const VALID_STATUS_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
     closed: []
 };
 
+const ADMIN_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
+    new: ['assigned', 'in_progress'],
+    assigned: ['new', 'in_progress'],
+    in_progress: ['assigned', 'resolved'],
+    resolved: ['in_progress', 'closed'],
+    closed: ['resolved']
+};
+
 export async function updateStatus(
     repository: IncidentRepository,
-    data: UpdateStatusInput
-): Promise<{ statusCode: number; body: Incident }> {
+    data: UpdateStatusInput & { userRole?: string }
+): Promise<{ statusCode: number; body: Incident | { error: string } }> {
     try {
         if (!data.incidentId || !data.status || !data.updatedBy) {
             return {
                 statusCode: 400,
-                body: { error: 'Incident ID, status, and updatedBy are required' } as any
+                body: { error: 'incidentId, status, and updatedBy required' }
             };
         }
 
-        const currentIncident = await repository.getIncidentById(data.incidentId);
-
-        if (!currentIncident) {
-            return {
-                statusCode: 404,
-                body: { error: 'Incident not found' } as any
-            };
+        const incident = await repository.getIncidentById(data.incidentId);
+        if (!incident) {
+            return { statusCode: 404, body: { error: 'Incident not found' } };
         }
 
-        const allowedTransitions = VALID_STATUS_TRANSITIONS[currentIncident.status];
-        if (!allowedTransitions.includes(data.status)) {
+        const isAdmin = data.userRole === 'ADMIN';
+        const allowed = isAdmin
+            ? ADMIN_TRANSITIONS[incident.status]
+            : ENGINEER_TRANSITIONS[incident.status];
+
+        if (!allowed.includes(data.status)) {
             return {
                 statusCode: 400,
                 body: {
-                    error: `Cannot transition from ${currentIncident.status} to ${data.status}. Allowed: ${allowedTransitions.join(', ')}`
-                } as any
+                    error: `Cannot transition from ${incident.status} to ${data.status}. Allowed: ${allowed.join(', ')}`
+                }
             };
         }
 
-        const incident = await repository.updateIncidentStatusWithAutoAssign(
+        const updated = await repository.updateIncidentStatusWithAutoAssign(
             data.incidentId,
             data.status,
             data.updatedBy
         );
 
         const comments = await repository.getComments(data.incidentId);
-        incident.comments = comments;
+        updated.comments = comments;
 
-        console.log('Incident status updated:', {
-            incidentId: incident.incidentId,
-            oldStatus: currentIncident.status,
-            newStatus: data.status,
-            updatedBy: data.updatedBy
+        console.log('Status updated:', {
+            incident: updated.incidentNumber,
+            from: incident.status,
+            to: data.status,
+            role: data.userRole
         });
 
-        return {
-            statusCode: 200,
-            body: incident
-        };
+        return { statusCode: 200, body: updated };
     } catch (error: any) {
-        console.error('Error updating incident status:', error);
-
-        if (error.message === 'Incident not found') {
-            return {
-                statusCode: 404,
-                body: { error: 'Incident not found' } as any
-            };
-        }
-
+        console.error('Update status error:', error);
         return {
-            statusCode: error.statusCode || 500,
-            body: { error: error.message || 'Failed to update incident status' } as any
+            statusCode: 500,
+            body: { error: error.message || 'Failed to update status' }
         };
     }
 }

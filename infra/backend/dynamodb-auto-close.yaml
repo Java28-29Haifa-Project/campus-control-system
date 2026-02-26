@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: DynamoDB table for auto-closing incidents
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: PostgreSQL connection string
+    NoEcho: true
+
+Resources:
+  PendingClosesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: pending-incident-closes
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: incidentId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: incidentId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      Tags:
+        - Key: Service
+          Value: incident-management
+
+  AutoCloseLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBStreamAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
+                Resource: !GetAtt PendingClosesTable.StreamArn
+
+  AutoCloseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: auto-close-incidents
+      CodeUri: ./auto-close-lambda
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 256
+      Role: !GetAtt AutoCloseLambdaRole.Arn
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+      Events:
+        DynamoDBStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt PendingClosesTable.StreamArn
+            StartingPosition: LATEST
+            BatchSize: 10
+
+Outputs:
+  TableName:
+    Value: !Ref PendingClosesTable
+  LambdaArn:
+    Value: !GetAtt AutoCloseFunction.Arn

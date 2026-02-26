@@ -40,6 +40,13 @@ incidentRoutes.patch(
     incidentController.updateIncidentStatus.bind(incidentController)
 );
 
+incidentRoutes.post(
+    '/:id/request-close',
+    authMiddleware,
+    requireRole('ADMIN'),
+    incidentController.requestClose.bind(incidentController)
+);
+
 incidentRoutes.patch(
     '/:id/priority',
     authMiddleware,

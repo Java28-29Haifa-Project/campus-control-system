@@ -48,6 +48,7 @@ export interface UpdateStatusInput {
     incidentId: string;
     status: IncidentStatus;
     updatedBy: string;
+    userRole?: string;
 }
 
 export interface UpdatePriorityInput {
