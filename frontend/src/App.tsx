@@ -11,7 +11,6 @@ import {Paths} from "./types/types.ts";
 import ProtectedRoute from "./layouts/ProtectedRoute.tsx";
 import TicketFormPage from "./pages/userPages/TicketFormPage.tsx";
 import RegisterForm from "./components/RegisterForm.tsx";
-import SupportLayout from "./layouts/SupportLayout.tsx";
 import IncidentTable from "./pages/engineerPages/IncidentsTable.tsx";
 import TicketAdminTable from "./pages/adminPages/TicketAdminTable.tsx";
 import IncidentAdminTable from "./pages/adminPages/IncidentAdminTable.tsx";
@@ -51,12 +50,10 @@ function App() {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['SUPPORT', 'ADMIN']} />}>
-                    <Route element={<SupportLayout />}>
                         <Route path={Paths.DASHBOARD_SUPPORT} element={<Dashboard/>}/>
                         <Route path={Paths.TICKET_SUPPORT} element={<TicketSupportTable />}/>
                         <Route path={Paths.INCIDENT_SUPPORT_NEW} element={<CreateFormIncident/>}/>
                         <Route path={Paths.TICKET_SUPPORT_DETAILS} element={<TicketSupportDetailsPage/>}/>
-                    </Route>
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['ENGINEER', 'ADMIN']} />}>

@@ -3,6 +3,8 @@ import {type Ticket, type TicketRequest, TicketStatus} from "../../types/ticketT
 import {createTicketApi, getTicketByIdApi, getTicketsApi, updateTicketApi} from "../../api/ticketApi.ts";
 import ApiError, {TICKET_ERROR_MESSAGES} from "../../utils/ApiError.ts";
 
+type FetchSource = "poll" | "manual";
+
 const mapTicketErrorCodeToMessage = (code?: string | null): string => {
     if (!code) {
         return TICKET_ERROR_MESSAGES.UNKNOWN;
@@ -15,7 +17,7 @@ const mapTicketErrorCodeToMessage = (code?: string | null): string => {
 
 export const fetchTicketsThunk = createAsyncThunk<
     Ticket[],
-    void,
+    { source: FetchSource } | void,
     { rejectValue: string }
 >(
     "tickets",
@@ -113,8 +115,8 @@ const initialState: TicketState = {
     isUpdating: false,
 
     ticketsSyncing: false,
-    ticketsLastSyncAt: null as string | null,
-    ticketsSyncError: null as string | null,
+    ticketsLastSyncAt: null ,
+    ticketsSyncError: null ,
 };
 
 const ticketSlice = createSlice({
