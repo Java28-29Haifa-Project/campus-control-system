@@ -2,9 +2,12 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
-import App from "../App.tsx";
+import App from "../App";
 
-process.env.VITE_API_BASE_URL = "http://localhost:8080";
+jest.mock("../utils/getBaseUrl", () => ({
+    __esModule: true,
+    getApiBaseUrl: () => "http://localhost:8080",
+}));
 
 jest.mock("../layouts/AuthLayout", () => ({
     __esModule: true,
