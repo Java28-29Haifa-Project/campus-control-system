@@ -1,8 +1,6 @@
 import ApiError from "../utils/ApiError.ts";
 import {getApiBaseUrl} from "../utils/getBaseUrl.ts";
 
-const baseurl = getApiBaseUrl();
-
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type RequestOptions = {
@@ -14,7 +12,7 @@ type RequestOptions = {
 }
 
 export const request= async <T>(path:string, options: RequestOptions = {}): Promise<T> => {
-
+    const baseurl = getApiBaseUrl();
     let response:Response;
     try{
         response = await fetch((`${baseurl}` + path), {
