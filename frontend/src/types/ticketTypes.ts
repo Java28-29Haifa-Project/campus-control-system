@@ -3,7 +3,7 @@ export const enum TicketStatus {
     Rejected = 'rejected',
     InService = 'in_service',
     Done = 'done'
-};
+}
 
 export const enum Category {
     Plumbing = 'plumbing',
@@ -16,14 +16,13 @@ export const enum Category {
     Network = 'network',
     Infrastructure = 'infrastructure',
     Other = 'other',
-};
+}
 
 export const enum UserPriority {
     Low = 'low',
     Medium = 'medium',
     High = 'high',
-    // Urgent = 'urgent'
-};
+}
 
 export interface Ticket {
     requestId: string;
@@ -36,8 +35,6 @@ export interface Ticket {
     userReportedPriority: UserPriority;
     createdAt: string;
     updatedAt?: string;
-
-    incidentId?: string | null;
 }
 
 export interface TicketRequest {
