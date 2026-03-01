@@ -31,6 +31,9 @@ import {
 import Logger, { requestLoggerMiddleware } from './utils/logger.js';
 import {adminRoutes} from "./routes/admin.routes.js";
 
+import swaggerUI from 'swagger-ui-express';
+import { swaggerSpec } from './configurations/swagger.js';
+
 export const launchServer = () => {
     const app = express();
 
@@ -103,6 +106,8 @@ export const launchServer = () => {
     app.use(express.urlencoded({ extended: true, limit: '1mb' }));
     app.use(cookieParser());
 
+
+
     // ==================== Request Sanitization ====================
     app.use(sanitizeRequest);
 
@@ -111,6 +116,23 @@ export const launchServer = () => {
 
     // ==================== Logging ====================
     app.use(requestLoggerMiddleware);
+
+    // ==================== Swagger API Documentation ====================
+    app.use('/api-docs', swaggerUI.serve);
+
+    app.get('/api-docs', swaggerUI.setup(swaggerSpec, {
+        customCss: `
+            .swagger-ui .topbar { display: none; }
+            .swagger-ui .info { margin: 40px 0; }
+            .swagger-ui .info .title { font-size: 2.5em; color: #1f2937; }
+        `,
+        customSiteTitle: 'Express Gateway API Docs'
+    }));
+
+    app.get('/api-docs.json', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(swaggerSpec);
+    });
 
     // ==================== Health Check (No Auth, No Rate Limit) ====================
     app.get('/health', (req, res) => {
@@ -122,11 +144,9 @@ export const launchServer = () => {
         });
     });
 
-    // Health checks for Lambda services
     app.use('/health/lambdas', generalRateLimiter, healthRoutes);
 
     // ==================== Authentication Routes ====================
-    // Apply strict rate limiting to auth endpoints
     app.use('/auth', authRateLimiter, authRoutes);
 
     // ==================== Protected Routes ====================
