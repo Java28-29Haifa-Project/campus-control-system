@@ -1,8 +1,8 @@
-import {createTicketApi, getTicketByIdApi, getTicketsApi, updateTicketApi} from "../api/ticketApi.ts"
-import {request} from "../api/client.ts";
-import {Category, type Ticket, type TicketRequest, TicketStatus, UserPriority} from "../types/ticketTypes.ts";
+import {createTicketApi, getTicketByIdApi, getTicketsApi, updateTicketApi} from "../../api/ticketApi.ts"
+import {request} from "../../api/client.ts";
+import {Category, type Ticket, type TicketRequest, TicketStatus, UserPriority} from "../../types/ticketTypes.ts";
 
-jest.mock("../api/client.ts", () => ({
+jest.mock("../../api/client.ts", () => ({
     request: jest.fn(),
 }));
 
