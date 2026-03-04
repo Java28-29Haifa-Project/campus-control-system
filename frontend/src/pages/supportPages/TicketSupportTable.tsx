@@ -119,7 +119,7 @@ const TicketSupportTable:React.FC = () => {
                         >
                             {STATUS_OPTIONS
                                 .map((s) => (
-                                <option key={s} value={s}>
+                                <option id={s} key={s} value={s}>
                                     {s.replace("_", " ")}
                                 </option>
                             ))}
