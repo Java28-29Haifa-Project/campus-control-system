@@ -1,8 +1,8 @@
-import type {AuditLog, AuditPagination, AuditResponse} from "../types/auditTypes.ts";
-import {request} from "../api/client.ts";
-import {getAuditLogsApi} from "../api/auditApi.ts";
+import type {AuditLog, AuditPagination, AuditResponse} from "../../types/auditTypes.ts";
+import {request} from "../../api/client.ts";
+import {getAuditLogsApi} from "../../api/auditApi.ts";
 
-jest.mock("../api/client.ts", () => ({
+jest.mock("../../api/client.ts", () => ({
     request: jest.fn(),
 }));
 

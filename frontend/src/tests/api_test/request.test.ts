@@ -1,8 +1,8 @@
-import ApiError from "../utils/ApiError.ts";
-import { request } from "../api/client.ts";
-import { getApiBaseUrl } from "../utils/getBaseUrl.ts";
+import ApiError from "../../utils/ApiError.ts";
+import { request } from "../../api/client.ts";
+import { getApiBaseUrl } from "../../utils/getBaseUrl.ts";
 
-jest.mock("../utils/getBaseUrl.ts", () => ({
+jest.mock("../../utils/getBaseUrl.ts", () => ({
     getApiBaseUrl: jest.fn(),
 }));
 

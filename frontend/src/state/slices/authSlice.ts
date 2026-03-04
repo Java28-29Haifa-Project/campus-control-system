@@ -204,7 +204,9 @@ const authSlice = createSlice({
                 }
                 state.isVerified = "failed";
                 state.isLoading = false;
-                state.error = action.payload ?? action.error.message ?? null;
+                state.user = null;
+                state.isAuthenticated = false;
+                state.error = action.payload ?? action.error.message ?? "Unexpected error";
             })
     }
 })
