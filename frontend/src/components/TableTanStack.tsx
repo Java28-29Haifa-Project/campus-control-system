@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import {
-    type ColumnDef, type ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel, type Row,
-    useReactTable,
+  type ColumnDef, type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel, type OnChangeFn, type Row, type RowSelectionState,
+  useReactTable,
 } from "@tanstack/react-table";
 import "../styles/tables.css";
 
@@ -16,6 +16,9 @@ type TableTabStackProps<TData> = {
     isRowClickable?: (row: Row<TData>) => boolean;
     getRowClassName?: (row: Row<TData>) => string;
     renderTopRight?: (table: ReturnType<typeof useReactTable<TData>>) => React.ReactNode;
+
+    rowSelection?: RowSelectionState;
+    onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 
     title?: string | React.ReactNode;
 };
@@ -29,6 +32,8 @@ function TableTanStack<TData>({
                                             getRowClassName,
                                             renderTopRight,
                                             title,
+                                            rowSelection,
+                                            onRowSelectionChange,
                                         }: TableTabStackProps<TData>) {
 
     const [columnFilters, setColumnFilters] =
@@ -39,7 +44,11 @@ function TableTanStack<TData>({
         columns,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        state: { columnFilters },
+        onRowSelectionChange,
+        state: {
+          columnFilters,
+          rowSelection: rowSelection ?? {},
+        },
         onColumnFiltersChange: setColumnFilters,
         columnResizeMode: "onChange",
     });
