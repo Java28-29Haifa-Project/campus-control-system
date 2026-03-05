@@ -220,6 +220,9 @@ const incidentSlice = createSlice({
         clearCurrentIncident(state) {
             state.currentInc = null;
         },
+        resetErrorInc(state) {
+            state.errorInc = null;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -352,5 +355,5 @@ const incidentSlice = createSlice({
     }
 });
 
-export const { clearCurrentIncident } = incidentSlice.actions;
+export const { clearCurrentIncident, resetErrorInc } = incidentSlice.actions;
 export const incidentReducer = incidentSlice.reducer;
