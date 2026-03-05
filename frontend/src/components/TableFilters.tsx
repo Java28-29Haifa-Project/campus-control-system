@@ -1,7 +1,6 @@
 import {useMemo, useState} from "react";
 import type {Table} from "@tanstack/react-table";
 import "../styles/tables.css";
-import type {IncidentPriority} from "../types/incidentTypes.ts";
 
 type Props<TData> = {
     table: Table<TData>;
@@ -18,47 +17,43 @@ export function TableFilters<TData>({
     const [open, setOpen] = useState(false);
 
     const statusCol = table.getColumn("status");
-    const priorityCol = table.getColumn("priority");
+    const hasPriorityFilter = !!priorityOptions?.length;
+    const priorityCol = hasPriorityFilter ? table.getColumn("priority") : undefined;
 
     const appliedStatus = (statusCol?.getFilterValue() as string) ?? "ALL";
-    const appliedPriority = (priorityCol?.getFilterValue() as IncidentPriority | "ALL") ?? "ALL";
+    const appliedPriority =
+        hasPriorityFilter ? ((priorityCol?.getFilterValue() as number | "ALL") ?? "ALL") : "ALL";
 
-    const isActive = useMemo(() =>
-        appliedStatus !== "ALL" || appliedPriority !== "ALL",
-        [appliedStatus, appliedPriority]
-    );
+    const isActive = useMemo(() => {
+        if (hasPriorityFilter) return appliedStatus !== "ALL" || appliedPriority !== "ALL";
+        return appliedStatus !== "ALL";
+    }, [appliedStatus, appliedPriority, hasPriorityFilter]);
 
     return (
         <div className="support-table-actions" onClick={(e) => e.stopPropagation()}>
-            <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => setOpen((v) => !v)}
-            >
+            <button type="button" className="secondary-btn" onClick={() => setOpen((v) => !v)}>
                 Filter{isActive ? " •" : ""}
             </button>
 
             {open && (
                 <div className="filter-popover">
-
                     <div className="filter-row">
                         <span className="filter-label">Status</span>
                         <select
                             className="filter-select"
                             value={appliedStatus}
-                            onChange={(e) => {
-                                statusCol?.setFilterValue(e.target.value);
-                                // setOpen(false);
-                            }}                        >
+                            onChange={(e) => statusCol?.setFilterValue(e.target.value)}
+                        >
                             <option value="ALL">All</option>
                             {statusOptions.map((s) => (
                                 <option key={s} value={s}>
-                                    {s.replace("_", " ")}
+                                    {String(s).replaceAll("_", " ")}
                                 </option>
                             ))}
                         </select>
                     </div>
-                    {priorityCol?
+
+                    {hasPriorityFilter && priorityCol && (
                         <div className="filter-row">
                             <span className="filter-label">Priority</span>
 
@@ -67,22 +62,18 @@ export function TableFilters<TData>({
                                 value={String(appliedPriority)}
                                 onChange={(e) => {
                                     const v = e.target.value;
-                                    priorityCol?.setFilterValue(v === "ALL" ? "ALL" : (Number(v) as IncidentPriority));
+                                    priorityCol.setFilterValue(v === "ALL" ? "ALL" : Number(v));
                                 }}
                             >
                                 <option value="ALL">All</option>
-
-                                {priorityCol && priorityOptions?.length ? (
-                                    priorityOptions.map((p) => (
+                                {priorityOptions!.map((p) => (
                                     <option key={p} value={p}>
                                         {p}
                                     </option>
-                                ))) : null}
+                                ))}
                             </select>
                         </div>
-                        : <></>
-                    }
-
+                    )}
 
                     <div className="filter-actions">
                         <button
@@ -90,7 +81,7 @@ export function TableFilters<TData>({
                             className="secondary-btn table-btn"
                             onClick={() => {
                                 statusCol?.setFilterValue("ALL");
-                                priorityCol?.setFilterValue("ALL");
+                                if (hasPriorityFilter) priorityCol?.setFilterValue("ALL");
                                 setOpen(false);
                             }}
                         >
@@ -100,9 +91,7 @@ export function TableFilters<TData>({
                         <button
                             type="button"
                             className="secondary-btn table-btn"
-                            onClick={() => {
-                                setOpen(false);
-                            }}
+                            onClick={() => setOpen(false)}
                         >
                             Done
                         </button>
